@@ -14,13 +14,12 @@
 	cursor: pointer;
 }
 
-.menuBtn:hover {
-	background: rgba(255, 255, 255, 0.1);
-}
-
+.menuBtn:hover,
 .activeMenu {
 	background: rgba(255, 255, 255, 0.1);
 }
+
+/* ...............Light................. */
 
 .light .menuBar {
 	background: #b6b6b6;
@@ -28,6 +27,7 @@
 	color: black;
 }
 
-.light .menuBtn:hover {
+.light .menuBtn:hover,
+.light .activeMenu {
 	background: rgba(0, 0, 0, 0.1);
 }
