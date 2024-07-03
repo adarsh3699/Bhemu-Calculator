@@ -54,25 +54,36 @@ function STDcalc() {
 		<div id="STDcalc">
 			<div id="title">Speed Distance Time Calculator</div>
 
-			<div>
-				<div>Speed (meter/sec)</div>
-				<input type="number" id="speed" value={speed} onChange={handelSpeedChange} />
-			</div>
-			<div>
-				<div>Distance (meter)</div>
-				<input type="number" id="distance" value={distance} onChange={handelDistanceChange} />
-			</div>
-			<div>
-				<div>Time (sec)</div>
-				<input type="number" id="time" value={time} onChange={handelTimeChange} />
-			</div>
-			<button onClick={handelResetbtn}>Reset</button>
+			<RenderInputBox name="Speed (meter/sec)" _id="speed" value={speed} onInputChange={handelSpeedChange} />
+			<RenderInputBox
+				name="Distance (meter)"
+				_id="distance"
+				value={distance}
+				onInputChange={handelDistanceChange}
+			/>
+			<RenderInputBox name="Time (sec)" _id="time" value={time} onInputChange={handelTimeChange} />
+
+			<button onClick={handelResetbtn} className="STDcalcBtn">
+				Reset
+			</button>
+
 			<div id="Concept">
 				<b>Concept:-</b>
 				Write any two of them, and the third will be auto calculated. I.e, if you write speed and distance, then
 				time is automatically calculated.
 			</div>
 		</div>
+	);
+}
+
+function RenderInputBox({ name, _id, value, onInputChange }) {
+	return (
+		<>
+			<label className="STDcalcInputLable" htmlFor={_id}>
+				{name}
+			</label>
+			<input type="number" id={_id} className="STDcalcInput" value={value} onChange={onInputChange} />
+		</>
 	);
 }
 
