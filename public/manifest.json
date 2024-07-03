@@ -1,20 +1,22 @@
 {
-	"short_name": "React App",
-	"name": "Create React App Sample",
+	"short_name": "Bhemu Calculator",
+	"name": "Bhemu Calculator",
+	"description": "Bhemu Calculator: A comprehensive web app for mathematical calculations and explorations. Features include a simple calculator with history, matrix determinant calculator, standard deviation calculator, number patterns generator (Fibonacci series, prime numbers, etc.), prime number checker, prime number finder in a range, and binary-decimal converter. Simplify your math tasks with Bhemu Calculator!",
+	"version": "1.0.0",
 	"icons": [
 		{
-			"src": "favicon.ico",
-			"sizes": "64x64 32x32 24x24 16x16",
-			"type": "image/x-icon"
+			"src": "newLogo64.webp",
+			"type": "image/webp",
+			"sizes": "64x64 32x32 24x24 16x16"
 		},
 		{
-			"src": "logo192.png",
-			"type": "image/png",
+			"src": "newLogo192.webp",
+			"type": "image/webp",
 			"sizes": "192x192"
 		},
 		{
-			"src": "logo512.png",
-			"type": "image/png",
+			"src": "newLogo512.webp",
+			"type": "image/webp",
 			"sizes": "512x512"
 		}
 	],
