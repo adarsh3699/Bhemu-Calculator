@@ -1,28 +1,63 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import './menuBar.css';
 
-function MenuBar({ menuItems, setSearchParams, menuName }) {
+function MenuBar({ menuItems, setSearchParams, menuName, isMenuOpen, setIsMenuOpen }) {
 	const handleMenuChange = useCallback(
 		(item) => {
-			if (menuName === item?.menuName) return;
+			setIsMenuOpen(false); // Close menu on item click
 
-			setSearchParams({ menu: item?.menuName });
+			if (menuName !== item?.menuName) setSearchParams({ menu: item?.menuName });
 		},
-		[menuName, setSearchParams]
+		[menuName, setIsMenuOpen, setSearchParams]
 	);
+
+	const handleCloseMenu = (e) => {
+		if (e.target.className.includes('backdrop')) {
+			setIsMenuOpen(false);
+		}
+	};
+
+	useEffect(() => {
+		if (isMenuOpen) {
+			document.body.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = 'auto';
+		}
+	}, [isMenuOpen]);
+
 	return (
-		<div className="menuBar">
-			{menuItems.map((item, index) => (
-				<div
-					key={index}
-					className={`menuBtn ${menuName === item.menuName ? 'activeMenu' : ''}`}
-					onClick={() => handleMenuChange(item)}
-				>
-					{item.name}
-				</div>
-			))}
-		</div>
+		<>
+			<div className={`backdrop ${isMenuOpen ? 'open' : ''}`} onClick={handleCloseMenu}></div>
+			<div className={`menuBar ${isMenuOpen ? 'open' : ''}`}>
+				{isMenuOpen && (
+					<div className="menuToggleBar">
+						<span onClick={() => setIsMenuOpen(false)}>☰</span> Menu
+					</div>
+				)}
+				{menuItems.map(({ menuName: itemMenuName, name }, index) => (
+					<div
+						key={index}
+						className={`menuBtn ${menuName === itemMenuName ? 'activeMenu' : ''}`}
+						onClick={() => handleMenuChange({ menuName: itemMenuName, name })}
+					>
+						{name}
+					</div>
+				))}
+			</div>
+		</>
 	);
 }
+
+MenuBar.propTypes = {
+	menuItems: PropTypes.arrayOf(
+		PropTypes.shape({
+			menuName: PropTypes.string.isRequired,
+			name: PropTypes.string.isRequired,
+		})
+	).isRequired,
+	setSearchParams: PropTypes.func.isRequired,
+	menuName: PropTypes.string.isRequired,
+};
 
 export default MenuBar;

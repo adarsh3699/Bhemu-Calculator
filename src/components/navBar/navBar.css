@@ -13,6 +13,13 @@
 	transition-duration: 0.5s;
 }
 
+.menuToggle {
+	user-select: none;
+	cursor: pointer;
+	display: none;
+	font-size: 1.5rem;
+}
+
 .navTitle {
 	font-size: 1.5rem;
 	font-weight: bold;
@@ -39,4 +46,17 @@
 	background: #555;
 	border: 2px solid #edf1f4;
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), 0px 0px 10px #fff;
+}
+
+@media (max-width: 900px) {
+	.menuToggle {
+		display: block;
+	}
+	.navTitle {
+		font-size: 1.2rem;
+	}
+	.toggleBtn {
+		width: 15px;
+		height: 15px;
+	}
 }

@@ -1,11 +1,18 @@
+/* Base styles for the menu bar */
 .menuBar {
 	max-width: 25%;
 	min-width: 300px;
 	border-right: 0.5px solid rgba(255, 255, 255, 0.3);
 	min-height: 100%;
-	transition-duration: 0.5s;
+	transition: transform 0.5s ease-in-out;
 }
 
+.menuToggleBar {
+	display: none;
+	font-size: 1.5rem;
+}
+
+/* Styles for the menu button */
 .menuBtn {
 	display: flex;
 	justify-content: space-between;
@@ -16,11 +23,10 @@
 
 .menuBtn:hover,
 .activeMenu {
-	background: rgba(255, 255, 255, 0.1);
+	background: #ffffff1a;
 }
 
 /* ...............Light................. */
-
 .light .menuBar {
 	background: #b6b6b6;
 	border-right: thin solid #3535354d;
@@ -30,4 +36,57 @@
 .light .menuBtn:hover,
 .light .activeMenu {
 	background: rgba(0, 0, 0, 0.1);
+}
+
+/* Media query for screens smaller than 900px */
+@media (max-width: 900px) {
+	.menuBar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 300px;
+		height: 100%;
+		transform: translateX(-100%);
+		transition: transform 0.3s ease-in-out;
+		background: #333;
+		z-index: 1000;
+	}
+
+	.menuBar.open {
+		transform: translateX(0);
+	}
+
+	.backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.5s ease-in-out, visibility 0.5s;
+		z-index: 900;
+	}
+
+	.backdrop.open {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.menuToggleBar {
+		display: flex;
+		align-items: center;
+		background: #202020;
+		border-bottom: thin solid #ffffff4d;
+		max-height: 45px;
+		min-height: 45px;
+		padding: 0 20px;
+		box-sizing: border-box;
+	}
+
+	.menuToggleBar span {
+		margin-right: 20px;
+		cursor: pointer;
+	}
 }

@@ -23,33 +23,43 @@ const menuItems = [
 	{
 		name: 'Matrix determinant calculator',
 		menuName: 'matrix-determinant-calculator',
-		// screen: MatrixDeterminantCalculator,
+		screen: STDcalc,
 	},
 	{
 		name: 'Number Patterns Generator',
 		menuName: 'number-patterns-generator',
+		screen: STDcalc,
 	},
 	{
 		name: 'Prime Number checker',
 		menuName: 'prime-number-checker',
+		screen: STDcalc,
 	},
 	{
 		name: 'Binary No. to decimal No',
 		menuName: 'binary-no-to-decimal-no',
+		screen: STDcalc,
 	},
 ];
 
 function App() {
 	const [isDarkMode, setDarkMode] = useState(true);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const menuName = searchParams.get('menu') || 'calculator';
 
 	return (
 		<div className={'background ' + (isDarkMode ? 'dark' : 'light')}>
-			<NavBar setDarkMode={setDarkMode} />
+			<NavBar setDarkMode={setDarkMode} setIsMenuOpen={setIsMenuOpen} />
 			<div className="pageContains">
-				<MenuBar menuItems={menuItems} setSearchParams={setSearchParams} menuName={menuName} />
+				<MenuBar
+					menuItems={menuItems}
+					setSearchParams={setSearchParams}
+					menuName={menuName}
+					isMenuOpen={isMenuOpen}
+					setIsMenuOpen={setIsMenuOpen}
+				/>
 
 				{menuItems.map((item, index) => (
 					<React.Fragment key={index}>{item.menuName === menuName && <item.screen />}</React.Fragment>
