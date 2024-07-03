@@ -1,8 +1,16 @@
+.calculatorBg {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+}
+
 .calculator {
 	width: 340px;
 	padding: 20px;
 	border-radius: 20px;
 	box-shadow: 15px 15px 20px rgba(0, 0, 0, 0.1), -15px -15px 20px #fffb;
+	height: fit-content;
 }
 
 .calculator .buttons {

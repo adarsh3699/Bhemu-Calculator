@@ -1,0 +1,33 @@
+.menuBar {
+	max-width: 25%;
+	min-width: 300px;
+	border-right: 0.5px solid rgba(255, 255, 255, 0.3);
+	min-height: 100%;
+	transition-duration: 0.5s;
+}
+
+.menuBtn {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 20px;
+	cursor: pointer;
+}
+
+.menuBtn:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.activeMenu {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.light .menuBar {
+	background: #b6b6b6;
+	border-right: thin solid #3535354d;
+	color: black;
+}
+
+.light .menuBtn:hover {
+	background: rgba(0, 0, 0, 0.1);
+}

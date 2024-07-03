@@ -1,18 +1,20 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
+import MenuBar from './components/menuBar/MenuBar';
+import NavBar from './components/navBar/NavBar';
 import Calculator from './components/calculator/Calculator';
+
 import './styles/App.css';
 
 function App() {
-	const [theme, setTheme] = useState('dark');
-	const toggleTheme = useCallback(() => {
-		setTheme(theme === 'dark' ? 'light' : 'dark');
-	}, [theme]);
+	const [isDarkMode, setDarkMode] = useState(true);
 
 	return (
-		<div className={'background ' + theme}>
-			<div className="toggleBtn" onClick={toggleTheme}></div>
-
-			<Calculator />
+		<div className={'background ' + (isDarkMode ? 'dark' : 'light')}>
+			<NavBar setDarkMode={setDarkMode} />
+			<div className="pageContains">
+				<MenuBar />
+				<Calculator />
+			</div>
 		</div>
 	);
 }
