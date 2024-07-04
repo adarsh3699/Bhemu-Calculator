@@ -2,14 +2,14 @@ import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './menuBar.css';
 
-function MenuBar({ menuItems, setSearchParams, menuName, isMenuOpen, setIsMenuOpen }) {
+function MenuBar({ menuItems, navigate, menuName, isMenuOpen, setIsMenuOpen }) {
 	const handleMenuChange = useCallback(
 		(item) => {
 			setIsMenuOpen(false); // Close menu on item click
 
-			if (menuName !== item?.menuName) setSearchParams({ menu: item?.menuName });
+			if (menuName !== item?.menuName) navigate(item?.menuName);
 		},
-		[menuName, setIsMenuOpen, setSearchParams]
+		[menuName, setIsMenuOpen, navigate]
 	);
 
 	const handleCloseMenu = (e) => {
@@ -30,11 +30,10 @@ function MenuBar({ menuItems, setSearchParams, menuName, isMenuOpen, setIsMenuOp
 		<>
 			<div className={`backdrop ${isMenuOpen ? 'open' : ''}`} onClick={handleCloseMenu}></div>
 			<div className={`menuBar ${isMenuOpen ? 'open' : ''}`}>
-				{isMenuOpen && (
-					<div className="menuToggleBar">
-						<span onClick={() => setIsMenuOpen(false)}>☰</span> Menu
-					</div>
-				)}
+				<div className="menuToggleBar">
+					<span onClick={() => setIsMenuOpen(false)}>☰</span> Menu
+				</div>
+
 				{menuItems.map(({ menuName: itemMenuName, name }, index) => (
 					<div
 						key={index}
@@ -56,7 +55,7 @@ MenuBar.propTypes = {
 			name: PropTypes.string.isRequired,
 		})
 	).isRequired,
-	setSearchParams: PropTypes.func.isRequired,
+	navigate: PropTypes.func.isRequired,
 	menuName: PropTypes.string.isRequired,
 };
 

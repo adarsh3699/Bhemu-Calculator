@@ -37,9 +37,9 @@ function Calculator() {
 	}, []);
 	return (
 		<div className="calculatorBg">
-			<div className="calculator">
-				<div className="buttons">
-					<input type="text" id="value" value={value} onChange={handleInputChange} />
+			<div className="left">
+				<div className="calculator">
+					<input type="text" id="value" value={value} onChange={handleInputChange} autoComplete="off" />
 					<span onClick={handleClearBtn} id="clear">
 						Clear
 					</span>
@@ -65,6 +65,13 @@ function Calculator() {
 						=
 					</span>
 				</div>
+			</div>
+			<div className="calcHistory right">
+				<h1>History</h1>
+				<div className="historyList">1 + 2 = 3s</div>
+				<div className="historyList">1 + 2 = 3s</div>
+				<div className="historyList">1 + 2 = 3s</div>
+				<div className="historyList">1 + 2 = 3s</div>
 			</div>
 		</div>
 	);

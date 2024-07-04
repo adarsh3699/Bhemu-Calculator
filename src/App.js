@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import NavBar from './components/navBar/NavBar';
 import MenuBar from './components/menuBar/MenuBar';
@@ -45,9 +45,10 @@ const menuItems = [
 function App() {
 	const [isDarkMode, setDarkMode] = useState(true);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [searchParams, setSearchParams] = useSearchParams();
+	const navigate = useNavigate();
+	const location = useLocation();
 
-	const menuName = searchParams.get('menu') || 'calculator';
+	const menuName = location.pathname.split('/')[1] || 'calculator';
 
 	return (
 		<div className={'background ' + (isDarkMode ? 'dark' : 'light')}>
@@ -55,7 +56,7 @@ function App() {
 			<div className="pageContains">
 				<MenuBar
 					menuItems={menuItems}
-					setSearchParams={setSearchParams}
+					navigate={navigate}
 					menuName={menuName}
 					isMenuOpen={isMenuOpen}
 					setIsMenuOpen={setIsMenuOpen}

@@ -14,11 +14,9 @@
 
 /* Styles for the menu button */
 .menuBtn {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	padding: 15px 20px;
 	cursor: pointer;
+	user-select: none;
 }
 
 .menuBtn:hover,
@@ -44,7 +42,6 @@
 		position: fixed;
 		top: 0;
 		left: 0;
-		width: 300px;
 		height: 100%;
 		transform: translateX(-100%);
 		transition: transform 0.3s ease-in-out;
@@ -88,5 +85,11 @@
 	.menuToggleBar span {
 		margin-right: 20px;
 		cursor: pointer;
+	}
+}
+
+@media (max-width: 500px) {
+	.menuBar {
+		min-width: 65%;
 	}
 }
