@@ -99,6 +99,28 @@
 	box-sizing: border-box;
 }
 
+.historyTitle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.clearIcon {
+	background-image: url('../../../assets/clearIconWhite.png');
+	background-size: cover;
+	height: 30px;
+	width: 30px;
+	cursor: pointer;
+}
+
+.clearIcon:hover {
+	transform: scale(1.1);
+}
+
+.historyTitle img:hover {
+	transform: scale(1.1);
+}
+
 .historyList {
 	padding: 15px 0;
 	border-bottom: thin solid rgba(255, 255, 255, 0.3);
@@ -117,7 +139,7 @@
 }
 
 .light .calculator span {
-	color: #666;
+	color: #000000;
 	border: 2px solid #bad6eb;
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), -5px -5px 10px #f1f1f1;
 }
@@ -136,6 +158,19 @@
 .light .calculator span#plus:active,
 .light .calculator span#equal:active {
 	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), -5px -5px 10px #fff, inset 5px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.light .calcHistory {
+	color: black;
+	border-left: thin solid rgba(0, 0, 0, 0.3);
+}
+
+.light .clearIcon {
+	background-image: url('../../../assets/clearIconBlack.png');
+}
+
+.light .historyList {
+	border-bottom: thin solid rgba(0, 0, 0, 0.3);
 }
 
 @media screen and (max-width: 900px) {

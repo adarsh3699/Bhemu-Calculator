@@ -3,6 +3,7 @@ import './calculator.css';
 
 function Calculator() {
 	const [value, setValue] = useState('');
+	const [history, setHistory] = useState([]);
 
 	const handleBrnClick = useCallback(
 		(e) => {
@@ -21,16 +22,19 @@ function Calculator() {
 		try {
 			// eslint-disable-next-line no-eval
 			const result = eval(value);
-			console.log(value);
+			if (!result) return;
 			if (String(result).split('.')[1]?.length > 12) {
-				setValue(result.toFixed(3).replace(/\.?0*$/, ''));
+				const answer = result.toFixed(3).replace(/\.?0*$/, '');
+				setValue(answer);
+				if (history[0] !== `${value} = ${answer}`) setHistory([`${value} = ${answer}`, ...history]);
 			} else {
 				setValue(result);
+				if (history[0] !== `${value} = ${result}`) setHistory([`${value} = ${result}`, ...history]);
 			}
 		} catch (error) {
 			console.log(error);
 		}
-	}, [value]);
+	}, [history, value]);
 
 	const handleClearBtn = useCallback(() => {
 		setValue('');
@@ -67,11 +71,19 @@ function Calculator() {
 				</div>
 			</div>
 			<div className="calcHistory right">
-				<h1>History</h1>
-				<div className="historyList">1 + 2 = 3s</div>
-				<div className="historyList">1 + 2 = 3s</div>
-				<div className="historyList">1 + 2 = 3s</div>
-				<div className="historyList">1 + 2 = 3s</div>
+				<div className="historyTitle">
+					<h1>History</h1>
+					<div className="clearIcon" onClick={() => setHistory([])}></div>
+				</div>
+				{history.length === 0 ? (
+					<div className="historyList">No history</div>
+				) : (
+					history.map((item, index) => (
+						<div key={index} className="historyList">
+							{item}
+						</div>
+					))
+				)}
 			</div>
 		</div>
 	);
