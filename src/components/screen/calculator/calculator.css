@@ -97,6 +97,35 @@
 	height: 100%;
 	padding: 0 20px;
 	box-sizing: border-box;
+	position: relative;
+}
+
+.arrow {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	height: 130px;
+	border: unset;
+	background-color: unset;
+	outline: unset;
+	transform: rotate(180deg) translate(calc(80% - 1px), 50%);
+	display: grid;
+	place-items: center;
+	/* cursor: pointer; */
+}
+
+.arowCurve {
+	fill: #282c2f;
+}
+
+.arowBorder {
+	stroke: rgba(255, 255, 255, 0.3);
+}
+
+.arrowIconDiv {
+	align-self: center;
+	margin-right: 5px;
+	position: absolute;
 }
 
 .historyTitle {
@@ -114,10 +143,6 @@
 }
 
 .clearIcon:hover {
-	transform: scale(1.1);
-}
-
-.historyTitle img:hover {
 	transform: scale(1.1);
 }
 
@@ -165,6 +190,18 @@
 	border-left: thin solid rgba(0, 0, 0, 0.3);
 }
 
+.light .arowCurve {
+	fill: #f1f1f1;
+}
+
+.dark .arrowIconDiv {
+	color: white;
+}
+
+.light .arowBorder {
+	stroke: rgba(0, 0, 0, 0.3);
+}
+
 .light .clearIcon {
 	background-image: url('../../../assets/clearIconBlack.png');
 }
@@ -188,6 +225,10 @@
 
 	.right {
 		width: 100%;
+	}
+
+	.arrow {
+		display: none;
 	}
 
 	.calculator {
