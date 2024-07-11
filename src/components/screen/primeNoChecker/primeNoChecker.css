@@ -12,7 +12,24 @@
 	width: 100%;
 }
 
+.primeNoCheckerMsg {
+	font-size: 1.3rem;
+	font-weight: 500;
+}
+
+.primeNoTrue {
+	color: red;
+}
+
+.primeNoFalse {
+	color: lightgreen;
+}
+
 /* ..........................Light........................... */
 .light #primeNoChecker {
 	color: black;
+}
+
+.light .primeNoFalse {
+	color: green;
 }
