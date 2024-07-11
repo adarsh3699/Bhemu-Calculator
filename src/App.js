@@ -6,6 +6,7 @@ import MenuBar from './components/menuBar/MenuBar';
 
 import Calculator from './components/screen/calculator/Calculator';
 import STDcalc from './components/screen/stdCalc/STDcalc';
+import PrimeNoChecker from './components/screen/primeNoChecker/PrimeNoChecker';
 
 import './styles/App.css';
 
@@ -33,7 +34,7 @@ const menuItems = [
 	{
 		name: 'Prime Number checker',
 		menuName: 'prime-number-checker',
-		screen: STDcalc,
+		screen: PrimeNoChecker,
 	},
 	{
 		name: 'Binary No. to decimal No',

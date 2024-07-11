@@ -9,8 +9,62 @@
 	height: calc(100vh - 45px);
 }
 
+.screenTitle {
+	font-size: 32px;
+	text-decoration: underline;
+	margin-top: 55px;
+	margin-bottom: 50px;
+	font-weight: bold;
+}
+
+.screenInput {
+	font-size: 18px;
+	box-shadow: 0 2px 4px rgba(192, 192, 192, 0.1);
+	border: #2e2c2c 2px solid;
+	background-color: #f1f1f1;
+	border-radius: 25px;
+	min-width: 50% !important;
+	max-width: 400px;
+	height: 35px;
+	padding-left: 15px;
+	margin-bottom: 20px;
+	outline: unset;
+}
+
+.screenInput:hover {
+	border: #757575 2px solid;
+}
+
+.screenInput:focus {
+	border: rgb(0, 140, 255) 2px solid;
+}
+
+.ScreenBtn {
+	font-size: 18px;
+	margin-bottom: 40px;
+	background-color: rgb(229, 130, 70);
+	color: white;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	height: 45px;
+	border-radius: 25px;
+	border: 1px black solid;
+	border: unset;
+	user-select: none;
+	width: 20%;
+	min-width: 150px;
+}
+
+.ScreenBtn:hover {
+	background-color: rgb(197, 102, 43);
+}
+
 /* -------dark mode------- */
 
 .light {
 	background: #f1f1f1;
+}
+
+.light .screenInput {
+	background: #d3d3d3;
 }

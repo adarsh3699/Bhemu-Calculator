@@ -116,6 +116,7 @@
 
 .arowCurve {
 	fill: #282c2f;
+	transition-duration: 0.5s;
 }
 
 .arowBorder {

@@ -1,0 +1,18 @@
+#primeNoChecker {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-self: center;
+	width: 100%;
+	text-align: center;
+	transition-duration: 0.5s;
+}
+
+.primeNoCheckerForm {
+	width: 100%;
+}
+
+/* ..........................Light........................... */
+.light #primeNoChecker {
+	color: black;
+}

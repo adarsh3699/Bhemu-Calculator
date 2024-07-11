@@ -63,7 +63,7 @@ function STDcalc() {
 			/>
 			<RenderInputBox name="Time (sec)" _id="time" value={time} onInputChange={handelTimeChange} />
 
-			<button onClick={handelResetbtn} className="STDcalcBtn">
+			<button onClick={handelResetbtn} className="ScreenBtn">
 				Reset
 			</button>
 
@@ -82,7 +82,7 @@ function RenderInputBox({ name, _id, value, onInputChange }) {
 			<label className="STDcalcInputLable" htmlFor={_id}>
 				{name}
 			</label>
-			<input type="number" id={_id} className="STDcalcInput" value={value} onChange={onInputChange} />
+			<input type="number" id={_id} className="screenInput" value={value} onChange={onInputChange} />
 		</>
 	);
 }

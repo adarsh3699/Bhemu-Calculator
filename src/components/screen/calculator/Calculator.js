@@ -22,7 +22,8 @@ function Calculator() {
 		try {
 			// eslint-disable-next-line no-eval
 			const result = eval(value);
-			if (!result) return;
+			console.log(result);
+			if (result === undefined) return;
 			if (String(result).split('.')[1]?.length > 12) {
 				const answer = result.toFixed(3).replace(/\.?0*$/, '');
 				setValue(answer);
