@@ -7,6 +7,8 @@ import MenuBar from './components/menuBar/MenuBar';
 import Calculator from './components/screen/calculator/Calculator';
 import STDcalc from './components/screen/stdCalc/STDcalc';
 import PrimeNoChecker from './components/screen/primeNoChecker/PrimeNoChecker';
+import PrimeNoGenerator from './components/screen/primeNoGenerator/PrimeNoGenerator';
+import AboutDeveloper from './components/screen/aboutDeveloper/AboutDeveloper';
 
 import './styles/App.css';
 
@@ -27,9 +29,9 @@ const menuItems = [
 		screen: STDcalc,
 	},
 	{
-		name: 'Number Patterns Generator',
+		name: 'Prime Number Generator',
 		menuName: 'number-patterns-generator',
-		screen: STDcalc,
+		screen: PrimeNoGenerator,
 	},
 	{
 		name: 'Prime Number checker',
@@ -41,6 +43,7 @@ const menuItems = [
 		menuName: 'binary-no-to-decimal-no',
 		screen: STDcalc,
 	},
+	{ name: 'About Devloper', menuName: 'about-devloper', screen: AboutDeveloper },
 ];
 
 function App() {

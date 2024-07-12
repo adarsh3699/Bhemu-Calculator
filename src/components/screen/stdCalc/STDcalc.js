@@ -79,7 +79,7 @@ function STDcalc() {
 function RenderInputBox({ name, _id, value, onInputChange }) {
 	return (
 		<>
-			<label className="STDcalcInputLable" htmlFor={_id}>
+			<label className="screenInputLable" htmlFor={_id}>
 				{name}
 			</label>
 			<input type="number" id={_id} className="screenInput" value={value} onChange={onInputChange} />

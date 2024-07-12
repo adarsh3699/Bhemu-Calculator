@@ -17,13 +17,20 @@
 	font-weight: bold;
 }
 
+.screenInputLable {
+	font-size: 18px;
+	font-weight: 700;
+	margin-bottom: 5px;
+}
+
 .screenInput {
 	font-size: 18px;
 	box-shadow: 0 2px 4px rgba(192, 192, 192, 0.1);
 	border: #2e2c2c 2px solid;
 	background-color: #f1f1f1;
 	border-radius: 25px;
-	min-width: 50% !important;
+	min-width: 50%;
+	transition-duration: 1s;
 	max-width: 400px;
 	height: 35px;
 	padding-left: 15px;
@@ -67,4 +74,11 @@
 
 .light .screenInput {
 	background: #d3d3d3;
+}
+
+@media screen and (max-width: 768px) {
+	.screenInput {
+		min-width: 80%;
+		max-width: unset;
+	}
 }

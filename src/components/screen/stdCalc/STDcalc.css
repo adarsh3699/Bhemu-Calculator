@@ -16,12 +16,6 @@
 	font-weight: bold;
 }
 
-.STDcalcInputLable {
-	font-size: 18px;
-	font-weight: 700;
-	margin-bottom: 5px;
-}
-
 /* ..................Light.................... */
 .light #STDcalc {
 	color: black;

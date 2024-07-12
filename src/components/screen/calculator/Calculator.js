@@ -44,7 +44,7 @@ function Calculator() {
 		<div className="calculatorBg">
 			<div className="left">
 				<div className="calculator">
-					<input type="text" id="value" value={value} onChange={handleInputChange} autoComplete="off" />
+					<input type="text" id="calcInput" value={value} onChange={handleInputChange} autoComplete="off" />
 					<span onClick={handleClearBtn} id="clear">
 						Clear
 					</span>

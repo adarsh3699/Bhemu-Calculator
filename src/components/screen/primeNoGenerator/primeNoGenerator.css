@@ -1,0 +1,43 @@
+#primeNoGenerator {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-self: center;
+	width: 100%;
+	text-align: center;
+	transition-duration: 0.5s;
+	overflow: auto;
+}
+
+.primeNoGeneratorForm {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.primeNoList {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	font-size: 1.2rem;
+	font-weight: 500;
+	margin: 20px;
+}
+
+.primeNoItem {
+	margin: 0.3rem;
+}
+
+.primeNoItem::after {
+	content: ',';
+}
+
+.primeNoItem:last-child::after {
+	content: '';
+}
+
+/* ..........................Light........................... */
+.light #primeNoGenerator {
+	color: black;
+}
