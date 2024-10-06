@@ -18,24 +18,28 @@ function Calculator() {
 		}
 	}, []);
 
-	const handleEqualToBtn = useCallback(() => {
-		try {
-			// eslint-disable-next-line no-eval
-			const result = eval(value);
-			console.log(result);
-			if (result === undefined) return;
-			if (String(result).split('.')[1]?.length > 12) {
-				const answer = result.toFixed(3).replace(/\.?0*$/, '');
-				setValue(answer);
-				if (history[0] !== `${value} = ${answer}`) setHistory([`${value} = ${answer}`, ...history]);
-			} else {
-				setValue(result);
-				if (history[0] !== `${value} = ${result}`) setHistory([`${value} = ${result}`, ...history]);
+	const handleEqualToBtn = useCallback(
+		(e) => {
+			e?.preventDefault();
+			try {
+				// eslint-disable-next-line no-eval
+				const result = eval(value);
+				console.log(result);
+				if (result === undefined) return;
+				if (String(result).split('.')[1]?.length > 12) {
+					const answer = result.toFixed(3).replace(/\.?0*$/, '');
+					setValue(answer);
+					if (history[0] !== `${value} = ${answer}`) setHistory([`${value} = ${answer}`, ...history]);
+				} else {
+					setValue(result);
+					if (history[0] !== `${value} = ${result}`) setHistory([`${value} = ${result}`, ...history]);
+				}
+			} catch (error) {
+				console.log(error);
 			}
-		} catch (error) {
-			console.log(error);
-		}
-	}, [history, value]);
+		},
+		[history, value]
+	);
 
 	const handleClearBtn = useCallback(() => {
 		setValue('');
@@ -47,7 +51,7 @@ function Calculator() {
 	return (
 		<div className="calculatorBg">
 			<div className="left">
-				<div className="calculator">
+				<form className="calculator" onSubmit={handleEqualToBtn}>
 					<input type="text" id="calcInput" value={value} onChange={handleInputChange} autoComplete="off" />
 					<span onClick={handleClearBtn} id="clear">
 						Clear
@@ -73,7 +77,7 @@ function Calculator() {
 					<span onClick={handleEqualToBtn} id="equal">
 						=
 					</span>
-				</div>
+				</form>
 			</div>
 			<div className="calcHistory right">
 				<button className="arrow" type="button" aria-label="Hide">
