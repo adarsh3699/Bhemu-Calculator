@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import NavBar from './components/navBar/NavBar';
 import MenuBar from './components/menuBar/MenuBar';
+import ShowMsg from './components/showMsg/ShowMsg';
 
 import Calculator from './components/screen/calculator/Calculator';
 import STDcalc from './components/screen/stdCalc/STDcalc';
@@ -49,12 +50,24 @@ const menuItems = [
 ];
 
 function App() {
+	const [msg, setMsg] = useState({ text: '', type: '' });
 	const [isDarkMode, setDarkMode] = useState(true);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
 
 	const menuName = location.pathname.split('/')[1] || 'calculator';
+
+	const handleMsgShown = useCallback((msgText, type) => {
+		if (msgText) {
+			setMsg({ text: msgText, type: type });
+			setTimeout(() => {
+				setMsg({ text: '', type: '' });
+			}, 3000);
+		} else {
+			console.log('Please Provide Text Msg');
+		}
+	}, []);
 
 	return (
 		<div className={'background ' + (isDarkMode ? 'dark' : 'light')}>
@@ -69,9 +82,12 @@ function App() {
 				/>
 
 				{menuItems.map((item, index) => (
-					<React.Fragment key={index}>{item.menuName === menuName && <item.screen />}</React.Fragment>
+					<React.Fragment key={index}>
+						{item.menuName === menuName && <item.screen handleMsgShown={handleMsgShown} />}
+					</React.Fragment>
 				))}
 			</div>
+			{msg && <ShowMsg msgText={msg?.text} type={msg?.type} />}
 		</div>
 	);
 }

@@ -1,15 +1,14 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import './numberConverter.css';
 
-const NumberConverter = () => {
+const NumberConverter = ({ handleMsgShown }) => {
 	const [fromType, setFromType] = useState('decimal');
 	const [toType, setToType] = useState('binary');
 	const [inputValue, setInputValue] = useState('');
 	const [result, setResult] = useState('');
 
-	const convertNumber = () => {
+	const convertNumber = useCallback(() => {
+		if (!inputValue) return handleMsgShown('Please Enter a Number', 'warning');
 		let decimal;
 
 		switch (fromType) {
@@ -44,20 +43,20 @@ const NumberConverter = () => {
 			default:
 				setResult(decimal.toString(10));
 		}
-	};
+	}, [fromType, toType, inputValue, handleMsgShown]);
 
-	const reset = () => {
+	const reset = useCallback(() => {
 		setInputValue('');
 		setResult('');
-	};
+	}, []);
 
-	const swap = () => {
+	const swap = useCallback(() => {
 		setFromType(toType);
 		setToType(fromType);
 		const temp = inputValue;
 		setInputValue(result);
 		setResult(temp);
-	};
+	}, [fromType, toType, inputValue, result]);
 
 	return (
 		<div id="numberConverter">

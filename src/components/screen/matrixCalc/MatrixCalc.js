@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import './matrixCalc.css';
 import * as math from 'mathjs';
 
-function MatrixCalc() {
+function MatrixCalc({ handleMsgShown }) {
 	const [rows, setRows] = useState(0);
 	const [cols, setCols] = useState(0);
 	const [matrix, setMatrix] = useState([]);
@@ -64,21 +64,18 @@ function MatrixCalc() {
 		(e) => {
 			e.preventDefault();
 
-			if (rows !== cols) {
-				alert('Determinant can only be calculated for square matrices.');
-				return;
-			}
+			if (rows !== cols)
+				return handleMsgShown('Determinant can only be calculated for square matrices.', 'error');
 
 			try {
 				const result = math.det(matrix); // Use math.det to calculate determinant
 				setDet(result);
 			} catch (error) {
 				console.log(error);
-
-				alert('Error calculating determinant');
+				handleMsgShown('Error calculating determinant');
 			}
 		},
-		[matrix, rows, cols]
+		[rows, cols, handleMsgShown, matrix]
 	);
 
 	return (
