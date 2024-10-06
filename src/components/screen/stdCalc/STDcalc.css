@@ -8,14 +8,6 @@
 	transition-duration: 0.5s;
 }
 
-#title {
-	font-size: 32px;
-	text-decoration: underline;
-	margin-top: 55px;
-	margin-bottom: 50px;
-	font-weight: bold;
-}
-
 /* ..................Light.................... */
 .light #STDcalc {
 	color: black;

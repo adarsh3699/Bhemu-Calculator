@@ -10,7 +10,12 @@ import './aboutDeveloper.css';
 function AboutDeveloper() {
 	return (
 		<div id="aboutDeveloper">
-			<a href="https://www.bhemu.me/about" target="_blank" className="aboutdeveloperTitle" rel="noreferrer">
+			<a
+				href="https://www.adarshsuman.social/about"
+				target="_blank"
+				className="aboutdeveloperTitle"
+				rel="noreferrer"
+			>
 				About developer :-
 			</a>
 			<div className="aboutPoints">My Name is Adarsh Suman & I'm a programmer and a computer geek.</div>
@@ -20,7 +25,7 @@ function AboutDeveloper() {
 				I have experience in JavaScript, React, NodeJs, MySql, MongoDb, MERN, PHP, HTML, CSS and more.
 			</div>
 			<div className="aboutPoints">
-				<a href="https://www.bhemu.me/about" target="_blank" className="" rel="noreferrer">
+				<a href="https://www.adarshsuman.social/about" target="_blank" className="" rel="noreferrer">
 					Click Here{' '}
 				</a>
 				To know more.

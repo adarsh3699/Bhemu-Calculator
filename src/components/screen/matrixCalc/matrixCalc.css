@@ -101,3 +101,32 @@
 	border: rgb(0, 140, 255) 1px solid;
 	box-shadow: 0 0 5px rgba(0, 120, 218, 0.749);
 }
+
+/* ..........................Phone........................... */
+
+@media screen and (max-width: 768px) {
+	.screenInput {
+		min-width: 80%;
+		max-width: unset;
+	}
+	.matrixBox {
+		grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+	}
+	.matrixBoxInput {
+		padding: 7px 5px;
+		font-size: 15px;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.matrixLableInput {
+		width: 100%;
+	}
+	.matrixRowColsInput {
+		width: 100%;
+		margin: unset !important;
+	}
+	.matrixBox {
+		grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+	}
+}

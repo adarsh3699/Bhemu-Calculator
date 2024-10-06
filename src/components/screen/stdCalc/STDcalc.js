@@ -52,7 +52,7 @@ function STDcalc() {
 	}
 	return (
 		<div id="STDcalc">
-			<div id="title">Speed Distance Time Calculator</div>
+			<div className="screenTitle">Speed Distance Time Calculator</div>
 
 			<RenderInputBox name="Speed (meter/sec)" _id="speed" value={speed} onInputChange={handelSpeedChange} />
 			<RenderInputBox

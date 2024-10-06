@@ -94,7 +94,7 @@ function MatrixCalc() {
 					<input
 						type="number"
 						id="matrixRow"
-						className="screenInput f"
+						className="screenInput matrixRowColsInput"
 						name="matrixRow"
 						placeholder="Enter No. of rows"
 						autoComplete="off"

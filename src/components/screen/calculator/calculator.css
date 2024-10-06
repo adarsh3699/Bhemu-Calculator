@@ -20,6 +20,7 @@
 	padding: 20px;
 	border-radius: 10px;
 	box-sizing: border-box;
+	box-shadow: 0 2px 5px rgba(192, 192, 192, 0.1);
 }
 
 #calcInput {
@@ -109,11 +110,11 @@
 	transform: rotate(180deg) translate(calc(80% - 1px), 50%);
 	display: grid;
 	place-items: center;
-	/* cursor: pointer; */
+	cursor: pointer;
 }
 
 .arowCurve {
-	fill: #282c2f;
+	fill: #333;
 	transition-duration: 0.5s;
 }
 
