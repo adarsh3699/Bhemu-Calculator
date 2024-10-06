@@ -67,7 +67,7 @@ function STDcalc() {
 				Reset
 			</button>
 
-			<div id="Concept">
+			<div style={{ padding: '0 20px' }}>
 				<b>Concept:-</b>
 				Write any two of them, and the third will be auto calculated. I.e, if you write speed and distance, then
 				time is automatically calculated.

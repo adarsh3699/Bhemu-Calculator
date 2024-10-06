@@ -9,6 +9,7 @@ import STDcalc from './components/screen/stdCalc/STDcalc';
 import MatrixCalc from './components/screen/matrixCalc/MatrixCalc';
 import PrimeNoChecker from './components/screen/primeNoChecker/PrimeNoChecker';
 import PrimeNoGenerator from './components/screen/primeNoGenerator/PrimeNoGenerator';
+import NumberConverter from './components/screen/numberConverter/NumberConverter';
 import AboutDeveloper from './components/screen/aboutDeveloper/AboutDeveloper';
 
 import './styles/App.css';
@@ -40,9 +41,9 @@ const menuItems = [
 		screen: PrimeNoChecker,
 	},
 	{
-		name: 'Binary No. to decimal No',
-		menuName: 'binary-no-to-decimal-no',
-		screen: STDcalc,
+		name: 'Number Converter',
+		menuName: 'number-converter',
+		screen: NumberConverter,
 	},
 	{ name: 'About Devloper', menuName: 'about-devloper', screen: AboutDeveloper },
 ];
