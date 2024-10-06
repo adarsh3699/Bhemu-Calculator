@@ -54,13 +54,14 @@ const NumberConverter = () => {
 	const swap = () => {
 		setFromType(toType);
 		setToType(fromType);
-		setInputValue('');
-		setResult('');
+		const temp = inputValue;
+		setInputValue(result);
+		setResult(temp);
 	};
 
 	return (
-		<div className="number-converter">
-			<h1>Number Converter</h1>
+		<div id="numberConverter">
+			<div className="screenTitle">Number Converter</div>
 
 			<div className="type-selector-box">
 				<div>
@@ -83,28 +84,31 @@ const NumberConverter = () => {
 				</div>
 			</div>
 
-			<div className="input-box">
-				<label htmlFor="input">Enter {fromType} number</label>
-				<input
-					id="input"
-					type="text"
-					value={inputValue}
-					onChange={(e) => setInputValue(e.target.value)}
-					placeholder={`Enter ${fromType} number`}
-				/>
-			</div>
+			<label htmlFor="input" className="NumberTypeLable">
+				Enter {fromType} number
+			</label>
+			<input
+				id="input"
+				className="screenInput"
+				type="text"
+				value={inputValue}
+				onChange={(e) => setInputValue(e.target.value)}
+				placeholder={`Enter ${fromType} number`}
+			/>
 
-			<div className="button-box">
+			<div className="buttonBox">
 				<button onClick={convertNumber}>Convert</button>
 				<button onClick={reset}>Reset</button>
 				<button onClick={swap}>Swap</button>
 			</div>
 
 			{result && (
-				<div className="result-box">
-					<label htmlFor="result">Result ({toType})</label>
-					<input id="result" type="text" value={result} readOnly />
-				</div>
+				<>
+					<label htmlFor="result" className="NumberTypeLable">
+						Result ({toType.toUpperCase()})
+					</label>
+					<input id="result" type="text" className="screenInput" value={result} readOnly />
+				</>
 			)}
 		</div>
 	);

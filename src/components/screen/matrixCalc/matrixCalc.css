@@ -5,8 +5,6 @@
 	width: 100%;
 	text-align: center;
 	transition-duration: 0.5s;
-	padding: 20px;
-	border-radius: 10px;
 	background-color: #f9f9f9;
 	color: white;
 	background-color: #333;
@@ -39,15 +37,15 @@
 	border: 1px solid #ccc;
 	font-size: 16px;
 	width: 200px;
-	transition: border-color 0.3s ease;
+	transition-duration: 0.5s;
 }
 
 .matrixBox {
-	width: 100%;
+	width: 95%;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
 	gap: 10px;
-	margin: 20px 0;
+	margin: 20px auto;
 }
 
 .matrixBoxInput {
@@ -63,10 +61,11 @@
 	outline: unset;
 	box-shadow: 0 2px 4px rgba(192, 192, 192, 0.1);
 	color: white;
+	transition-duration: 0.5s;
 }
 
 .matrixBoxInput:hover {
-	border: #868686 1px solid;
+	border: #8c8c8c 1px solid;
 }
 
 .matrixBoxInput:focus {
@@ -85,7 +84,6 @@
 .light #matrixCalc {
 	color: black;
 	background-color: white;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .light .matrixBoxInput {

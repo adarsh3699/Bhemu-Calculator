@@ -18,7 +18,9 @@ function AboutDeveloper() {
 			>
 				About developer :-
 			</a>
-			<div className="aboutPoints">My Name is Adarsh Suman & I'm a programmer and a computer geek.</div>
+			<div className="aboutPoints">
+				My Name is <b>Adarsh Suman</b> & I'm a programmer and a computer geek.
+			</div>
 			<div className="aboutPoints">I have skills in web application development as a full-stack developer.</div>
 			<div className="aboutPoints">I have more than two years of experience in this industry.</div>
 			<div className="aboutPoints">

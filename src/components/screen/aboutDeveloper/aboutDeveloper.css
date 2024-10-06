@@ -27,7 +27,8 @@
 	line-height: 32px;
 }
 
-.aboutPoints a:hover {
+.aboutPoints a:hover,
+.aboutdeveloperTitle:hover {
 	text-decoration: underline !important;
 }
 

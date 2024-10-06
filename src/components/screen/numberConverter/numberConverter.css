@@ -5,19 +5,10 @@
 	width: 100%;
 	text-align: center;
 	transition-duration: 0.5s;
-	padding: 20px;
-	border-radius: 10px;
 	background-color: #f9f9f9;
 	color: white;
 	background-color: #333;
 	overflow: auto;
-}
-
-.number-converter {
-	max-width: 400px;
-	margin: 0 auto;
-	padding: 20px;
-	font-family: Arial, sans-serif;
 }
 
 .number-converter h1 {
@@ -28,60 +19,91 @@
 .type-selector-box {
 	display: flex;
 	justify-content: space-between;
-	margin-bottom: 20px;
+	margin-bottom: 40px;
+	width: 50%;
 }
 
 .type-selector-box > div {
 	width: 48%;
+	text-align: left;
 }
 
 .type-selector-box label {
+	font-weight: 600;
 	display: block;
 	margin-bottom: 5px;
 }
 
 .type-selector-box select {
 	width: 100%;
-	padding: 5px;
+	padding: 10px;
+	background-color: #444;
+	color: white;
+	border-radius: 10px;
+	outline: unset;
+	transition-duration: 0.5s;
 }
 
-.input-box {
-	margin-bottom: 20px;
+.type-selector-box select:hover {
+	border: #8c8c8c 1px solid;
 }
 
-.input-box label {
-	display: block;
-	margin-bottom: 5px;
+.type-selector-box select:focus {
+	border-color: #28a745;
+	box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
 }
 
-.input-box input {
-	width: 100%;
-	padding: 5px;
+.NumberTypeLable {
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 10px;
 }
 
-.button-box {
+.buttonBox {
 	display: flex;
 	justify-content: space-between;
 	margin-bottom: 20px;
+	/* background-color: black; */
+	min-width: 50%;
+	max-width: 400px;
 }
 
-.button-box button {
-	padding: 10px;
+.buttonBox button {
+	padding: 12px 10px;
+	font-size: 18px;
 	color: white;
 	border: none;
 	cursor: pointer;
 }
 
-.button-box button:nth-child(1) {
+.buttonBox button:nth-child(1) {
 	background-color: #4caf50;
+	width: 30%;
+	border-radius: 15px;
 }
 
-.button-box button:nth-child(2) {
+.buttonBox button:nth-child(1):hover {
+	background-color: #45a049;
+}
+
+.buttonBox button:nth-child(2) {
 	background-color: #f44336;
+	width: 33%;
+	border-radius: 15px;
+	box-sizing: border-box;
+}
+.buttonBox button:nth-child(2):hover {
+	background-color: #da251d;
 }
 
-.button-box button:nth-child(3) {
+.buttonBox button:nth-child(3) {
 	background-color: #008cba;
+	width: 30%;
+	border-radius: 15px;
+}
+
+.buttonBox button:nth-child(3):hover {
+	background-color: #007baa;
 }
 
 .result-box {
@@ -96,4 +118,33 @@
 .result-box input {
 	width: 100%;
 	padding: 5px;
+}
+/* ..........................Light Theme........................... */
+.light #numberConverter {
+	color: black;
+	background-color: white;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.light .type-selector-box select {
+	background-color: #f9f9f9;
+	color: black;
+}
+
+/* ..........................Phone........................... */
+
+@media screen and (max-width: 768px) {
+	.type-selector-box {
+		width: 80%;
+	}
+	.buttonBox {
+		width: 80%;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.buttonBox button {
+		padding: 10px;
+		font-size: 15px;
+	}
 }

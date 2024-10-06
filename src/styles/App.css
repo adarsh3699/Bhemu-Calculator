@@ -36,6 +36,7 @@
 	padding-left: 15px;
 	margin-bottom: 20px;
 	outline: unset;
+	transition-duration: 0.5s;
 }
 
 .screenInput:hover {
