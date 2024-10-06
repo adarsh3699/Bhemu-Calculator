@@ -90,6 +90,7 @@ const NumberConverter = ({ handleMsgShown }) => {
 				id="input"
 				className="screenInput"
 				type="text"
+				autoComplete="off"
 				value={inputValue}
 				onChange={(e) => setInputValue(e.target.value)}
 				placeholder={`Enter ${fromType} number`}
