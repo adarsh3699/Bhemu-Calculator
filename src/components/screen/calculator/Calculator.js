@@ -40,6 +40,10 @@ function Calculator() {
 	const handleClearBtn = useCallback(() => {
 		setValue('');
 	}, []);
+
+	const handleBackBtn = useCallback(() => {
+		setValue(value.slice(0, -1));
+	}, [value]);
 	return (
 		<div className="calculatorBg">
 			<div className="left">
@@ -48,7 +52,7 @@ function Calculator() {
 					<span onClick={handleClearBtn} id="clear">
 						Clear
 					</span>
-					<span onClick={handleBrnClick}>/</span>
+					<span onClick={handleBackBtn}>DEL</span>
 					<span onClick={handleBrnClick}>*</span>
 					<span onClick={handleBrnClick}>7</span>
 					<span onClick={handleBrnClick}>8</span>
@@ -64,8 +68,8 @@ function Calculator() {
 					<span onClick={handleBrnClick}>2</span>
 					<span onClick={handleBrnClick}>3</span>
 					<span onClick={handleBrnClick}>0</span>
-					<span onClick={handleBrnClick}>00</span>
 					<span onClick={handleBrnClick}>.</span>
+					<span onClick={handleBrnClick}>/</span>
 					<span onClick={handleEqualToBtn} id="equal">
 						=
 					</span>
