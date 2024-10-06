@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import './matrixCalc.css';
 import * as math from 'mathjs';
 
@@ -8,48 +8,38 @@ function MatrixCalc() {
 	const [matrix, setMatrix] = useState([]);
 	const [det, setDet] = useState(null);
 
-	const handleRowChange = (e) => {
+	const handleRowChange = useCallback((e) => {
 		setRows(Number(e.target.value));
 		setMatrix([]);
-	};
+		setDet(null);
+	}, []);
 
-	const handleColChange = (e) => {
+	const handleColChange = useCallback((e) => {
 		setCols(Number(e.target.value));
 		setMatrix([]);
-	};
+		setDet(null);
+	}, []);
 
-	const handleMatrixCreation = (e) => {
-		e.preventDefault();
-		if (rows > 0 && cols > 0) {
-			setMatrix(Array.from({ length: rows }, () => Array(cols).fill(0)));
-		}
-	};
+	const handleMatrixCreation = useCallback(
+		(e) => {
+			e.preventDefault();
+			if (rows > 0 && cols > 0) {
+				setMatrix(Array.from({ length: rows }, () => Array(cols).fill(0)));
+			}
+		},
+		[rows, cols]
+	);
 
-	const handleMatrixChange = (e, rowIndex, colIndex) => {
-		const updatedMatrix = [...matrix];
-		updatedMatrix[rowIndex][colIndex] = Number(e.target.value);
-		setMatrix(updatedMatrix);
-	};
+	const handleMatrixChange = useCallback(
+		(e, rowIndex, colIndex) => {
+			const updatedMatrix = [...matrix];
+			updatedMatrix[rowIndex][colIndex] = Number(e.target.value);
+			setMatrix(updatedMatrix);
+		},
+		[matrix]
+	);
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-
-		if (rows !== cols) {
-			alert('Determinant can only be calculated for square matrices.');
-			return;
-		}
-
-		try {
-			const result = math.det(matrix); // Use math.det to calculate determinant
-			setDet(result);
-		} catch (error) {
-			console.log(error);
-
-			alert('Error calculating determinant');
-		}
-	};
-
-	const createMatrixInputs = () => {
+	const createMatrixInputs = useCallback(() => {
 		const inputs = [];
 		for (let i = 0; i < rows; i++) {
 			inputs.push(
@@ -68,7 +58,28 @@ function MatrixCalc() {
 			);
 		}
 		return inputs;
-	};
+	}, [rows, cols, matrix, handleMatrixChange]);
+
+	const handleDeterminantCalc = useCallback(
+		(e) => {
+			e.preventDefault();
+
+			if (rows !== cols) {
+				alert('Determinant can only be calculated for square matrices.');
+				return;
+			}
+
+			try {
+				const result = math.det(matrix); // Use math.det to calculate determinant
+				setDet(result);
+			} catch (error) {
+				console.log(error);
+
+				alert('Error calculating determinant');
+			}
+		},
+		[matrix, rows, cols]
+	);
 
 	return (
 		<div id="matrixCalc">
@@ -87,7 +98,6 @@ function MatrixCalc() {
 						name="matrixRow"
 						placeholder="Enter No. of rows"
 						autoComplete="off"
-						// value={rows}
 						onChange={handleRowChange}
 					/>
 				</div>
@@ -102,7 +112,6 @@ function MatrixCalc() {
 						name="matrixCol"
 						placeholder="Enter No. of columns"
 						autoComplete="off"
-						// value={cols}
 						onChange={handleColChange}
 					/>
 				</div>
@@ -113,7 +122,7 @@ function MatrixCalc() {
 			</form>
 
 			{matrix.length > 0 && (
-				<form style={{ width: '100%' }} onSubmit={handleSubmit}>
+				<form style={{ width: '100%' }} onSubmit={handleDeterminantCalc}>
 					<div className="matrixBox">{createMatrixInputs()}</div>
 					<button type="submit" className="ScreenBtn">
 						Calculate Determinant
