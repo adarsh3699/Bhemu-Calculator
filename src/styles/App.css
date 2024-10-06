@@ -1,6 +1,6 @@
 .background {
 	min-height: 100vh;
-	background: #282c2f;
+	background-color: #333;
 	transition-duration: 0.5s;
 }
 
@@ -26,30 +26,32 @@
 .screenInput {
 	font-size: 18px;
 	box-shadow: 0 2px 4px rgba(192, 192, 192, 0.1);
-	border: #2e2c2c 2px solid;
-	background-color: #f1f1f1;
+	border: 1px solid #555;
+	background-color: #444;
+	color: white;
 	border-radius: 25px;
 	min-width: 50%;
-	transition-duration: 1s;
 	max-width: 400px;
-	height: 35px;
+	height: 45px;
+	box-sizing: border-box;
 	padding-left: 15px;
 	margin-bottom: 20px;
 	outline: unset;
 }
 
 .screenInput:hover {
-	border: #757575 2px solid;
+	border: #868686 1px solid;
 }
 
 .screenInput:focus {
-	border: rgb(0, 140, 255) 2px solid;
+	border-color: #28a745;
+	box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
 }
 
 .ScreenBtn {
 	font-size: 18px;
 	margin-bottom: 40px;
-	background-color: rgb(229, 130, 70);
+	background-color: #28a745;
 	color: white;
 	font-weight: 700;
 	letter-spacing: 0.5px;
@@ -60,10 +62,12 @@
 	user-select: none;
 	width: 20%;
 	min-width: 150px;
+	box-sizing: border-box;
+	transition: background-color 0.3s ease;
 }
 
 .ScreenBtn:hover {
-	background-color: rgb(197, 102, 43);
+	background-color: #218838;
 }
 
 /* -------dark mode------- */
@@ -72,8 +76,30 @@
 	background: #f1f1f1;
 }
 
+.light .screenTitle {
+	color: #333;
+}
+
 .light .screenInput {
-	background: #d3d3d3;
+	background: #f9f9f9;
+	color: black;
+}
+
+.light .screenInput:hover {
+	border: rgb(0, 140, 255) 1px solid;
+}
+
+.light .screenInput:focus {
+	border: rgb(0, 140, 255) 2px solid;
+	box-shadow: 0 0 5px rgba(0, 120, 218, 0.749);
+}
+
+.light .ScreenBtn {
+	background-color: #0056b3;
+}
+
+.light .ScreenBtn:hover {
+	background-color: #004080;
 }
 
 @media screen and (max-width: 768px) {

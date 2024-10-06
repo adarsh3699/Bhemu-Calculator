@@ -24,6 +24,10 @@
 	background: #ffffff1a;
 }
 
+.menuBtn:active {
+	background: #ffffff2e;
+}
+
 /* ...............Light................. */
 .light .menuBar {
 	background: #b6b6b6;

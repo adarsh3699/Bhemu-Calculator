@@ -6,6 +6,7 @@ import MenuBar from './components/menuBar/MenuBar';
 
 import Calculator from './components/screen/calculator/Calculator';
 import STDcalc from './components/screen/stdCalc/STDcalc';
+import MatrixCalc from './components/screen/matrixCalc/MatrixCalc';
 import PrimeNoChecker from './components/screen/primeNoChecker/PrimeNoChecker';
 import PrimeNoGenerator from './components/screen/primeNoGenerator/PrimeNoGenerator';
 import AboutDeveloper from './components/screen/aboutDeveloper/AboutDeveloper';
@@ -26,7 +27,7 @@ const menuItems = [
 	{
 		name: 'Matrix determinant calculator',
 		menuName: 'matrix-determinant-calculator',
-		screen: STDcalc,
+		screen: MatrixCalc,
 	},
 	{
 		name: 'Prime Number Generator',
