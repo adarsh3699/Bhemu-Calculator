@@ -13,22 +13,22 @@ const NumberConverter = ({ handleMsgShown }) => {
 
 		let decimal;
 
-		// Function to handle fractional conversion for binary, octal, and hexadecimal
+		// Function to handle fractional conversion for binary, octal, and hexadecimal into decimals
 		const convertToDecimal = (numStr, base) => {
+			console.log(numStr.includes('.'));
+
 			if (numStr.includes('.')) {
-				// Split into whole and fractional parts
 				const [wholePart, fractionalPart] = numStr.split('.');
-				// Convert whole part
-				let wholeDecimal = parseInt(wholePart, base);
+
+				let wholeDecimal = parseInt(wholePart || 0, base);
+
 				// Convert fractional part
 				let fractionalDecimal = 0;
 				for (let i = 0; i < fractionalPart.length; i++) {
 					fractionalDecimal += parseInt(fractionalPart[i], base) * Math.pow(base, -(i + 1));
 				}
-				// Combine whole and fractional parts
 				return wholeDecimal + fractionalDecimal;
 			} else {
-				// No fractional part, regular conversion
 				return parseInt(numStr, base);
 			}
 		};
