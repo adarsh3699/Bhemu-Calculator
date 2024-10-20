@@ -15,8 +15,6 @@ const NumberConverter = ({ handleMsgShown }) => {
 
 		// Function to handle fractional conversion for binary, octal, and hexadecimal into decimals
 		const convertToDecimal = (numStr, base) => {
-			console.log(numStr.includes('.'));
-
 			if (numStr.includes('.')) {
 				const [wholePart, fractionalPart] = numStr.split('.');
 
@@ -44,7 +42,7 @@ const NumberConverter = ({ handleMsgShown }) => {
 				decimal = convertToDecimal(inputValue, 16);
 				break;
 			default:
-				decimal = parseInt(inputValue, 10); // Decimal input doesn't require special handling
+				decimal = parseFloat(inputValue, 10); // Decimal input doesn't require special handling
 		}
 
 		if (isNaN(decimal)) {
