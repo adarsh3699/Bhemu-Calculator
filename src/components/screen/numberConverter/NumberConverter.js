@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import './numberConverter.css';
+import { log } from 'mathjs';
 
 const NumberConverter = ({ handleMsgShown }) => {
 	const [fromType, setFromType] = useState('decimal');
@@ -9,20 +10,41 @@ const NumberConverter = ({ handleMsgShown }) => {
 
 	const convertNumber = useCallback(() => {
 		if (!inputValue) return handleMsgShown('Please Enter a Number', 'warning');
+
 		let decimal;
+
+		// Function to handle fractional conversion for binary, octal, and hexadecimal
+		const convertToDecimal = (numStr, base) => {
+			if (numStr.includes('.')) {
+				// Split into whole and fractional parts
+				const [wholePart, fractionalPart] = numStr.split('.');
+				// Convert whole part
+				let wholeDecimal = parseInt(wholePart, base);
+				// Convert fractional part
+				let fractionalDecimal = 0;
+				for (let i = 0; i < fractionalPart.length; i++) {
+					fractionalDecimal += parseInt(fractionalPart[i], base) * Math.pow(base, -(i + 1));
+				}
+				// Combine whole and fractional parts
+				return wholeDecimal + fractionalDecimal;
+			} else {
+				// No fractional part, regular conversion
+				return parseInt(numStr, base);
+			}
+		};
 
 		switch (fromType) {
 			case 'binary':
-				decimal = parseInt(inputValue, 2);
+				decimal = convertToDecimal(inputValue, 2);
 				break;
 			case 'octal':
-				decimal = parseInt(inputValue, 8);
+				decimal = convertToDecimal(inputValue, 8);
 				break;
 			case 'hexadecimal':
-				decimal = parseInt(inputValue, 16);
+				decimal = convertToDecimal(inputValue, 16);
 				break;
 			default:
-				decimal = parseInt(inputValue, 10);
+				decimal = parseInt(inputValue, 10); // Decimal input doesn't require special handling
 		}
 
 		if (isNaN(decimal)) {
