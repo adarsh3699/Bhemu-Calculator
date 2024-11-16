@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import './numberConverter.css';
-import { log } from 'mathjs';
 
 const NumberConverter = ({ handleMsgShown }) => {
 	const [fromType, setFromType] = useState('decimal');
