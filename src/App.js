@@ -11,6 +11,7 @@ import MatrixCalc from './components/screen/matrixCalc/MatrixCalc';
 import PrimeNoChecker from './components/screen/primeNoChecker/PrimeNoChecker';
 import PrimeNoGenerator from './components/screen/primeNoGenerator/PrimeNoGenerator';
 import NumberConverter from './components/screen/numberConverter/NumberConverter';
+import GPA_Calc from './components/screen/gpaCalc/GPA_Calc';
 import AboutDeveloper from './components/screen/aboutDeveloper/AboutDeveloper';
 
 import './styles/App.css';
@@ -32,6 +33,16 @@ const menuItems = [
 		screen: MatrixCalc,
 	},
 	{
+		name: 'Number Converter',
+		menuName: 'number-converter',
+		screen: NumberConverter,
+	},
+	{
+		name: 'GPA Calculator',
+		menuName: 'gpa-calculator',
+		screen: GPA_Calc,
+	},
+	{
 		name: 'Prime Number Generator',
 		menuName: 'number-patterns-generator',
 		screen: PrimeNoGenerator,
@@ -40,11 +51,6 @@ const menuItems = [
 		name: 'Prime Number checker',
 		menuName: 'prime-number-checker',
 		screen: PrimeNoChecker,
-	},
-	{
-		name: 'Number Converter',
-		menuName: 'number-converter',
-		screen: NumberConverter,
 	},
 	{ name: 'About Devloper', menuName: 'about-devloper', screen: AboutDeveloper },
 ];
