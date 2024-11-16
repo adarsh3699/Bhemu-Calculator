@@ -39,7 +39,8 @@
 #GpaCalculator .form-group input {
 	padding: 0.5rem 1rem;
 	background-color: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	/* border: 1px solid rgba(255, 255, 255, 0.2); */
+	border: 1px solid #555;
 	border-radius: 4px;
 	color: #ffffff;
 	font-size: 16px;
@@ -53,10 +54,6 @@
 #GpaCalculator .form-group input:focus {
 	border-color: #28a745;
 	box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
-}
-
-#GpaCalculator .form-group input::placeholder {
-	color: rgba(255, 255, 255, 0.5);
 }
 
 #GpaCalculator .input-form button {
@@ -155,6 +152,37 @@
 
 #GpaCalculator .gpa-result span {
 	color: #3b82f6;
+}
+
+/* -------Light mode------- */
+.light #GpaCalculator .form-group input {
+	background-color: #f9f9f9;
+	color: black;
+}
+
+.light #GpaCalculator .form-group input:hover {
+	border: rgb(0, 140, 255) 1px solid;
+}
+
+.light #GpaCalculator .form-group input:focus {
+	border: rgb(0, 140, 255) 1px solid;
+	box-shadow: 0 0 5px rgba(0, 120, 218, 0.749);
+}
+
+.light #GpaCalculator .subjects-table td {
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.light #GpaCalculator .subjects-table tr:nth-child(even) {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light #GpaCalculator .subjects-table tr:nth-child(odd) {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.light #GpaCalculator .subjects-table tr:hover {
+	background-color: rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {

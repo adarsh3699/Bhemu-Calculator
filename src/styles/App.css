@@ -70,10 +70,11 @@
 	background-color: #218838;
 }
 
-/* -------dark mode------- */
+/* -------Light mode------- */
 
 .light {
 	background: #f1f1f1;
+	color: black;
 }
 
 .light .screenTitle {
