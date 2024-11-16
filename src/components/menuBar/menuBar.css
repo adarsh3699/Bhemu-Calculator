@@ -35,6 +35,11 @@
 	color: black;
 }
 
+.light .menuToggleBar {
+	background: #e0e0e0;
+	border-bottom: thin solid #35353586;
+}
+
 .light .menuBtn:hover,
 .light .activeMenu {
 	background: rgba(0, 0, 0, 0.1);

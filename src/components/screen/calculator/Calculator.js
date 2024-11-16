@@ -80,7 +80,12 @@ function Calculator() {
 				</form>
 			</div>
 			<div className="calcHistory right">
-				<button className="arrow" type="button" aria-label="Hide">
+				<button
+					className="arrow"
+					type="button"
+					aria-label="Hide"
+					onClick={() => alert('Hide Feature Coming Soon')}
+				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 13 96"
