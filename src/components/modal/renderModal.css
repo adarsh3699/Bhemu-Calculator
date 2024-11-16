@@ -1,0 +1,78 @@
+/* ..................Modal.....................  */
+.react-responsive-modal-container {
+	overflow: hidden;
+}
+
+.react-responsive-modal-modal {
+	background-color: #2a2b2d;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	color: white;
+	max-width: 60%;
+	min-width: 300px;
+	max-height: 80%;
+	overflow: auto;
+	padding: unset;
+}
+
+.react-responsive-modal-modal::-webkit-scrollbar {
+	display: none;
+}
+
+.modal-bar {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #ccc;
+	padding: 5px 10px 5px 15px;
+	box-sizing: border-box;
+	font-size: 20px;
+	font-weight: bold;
+	background-color: #2a2b2d;
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+
+.modalTile {
+	display: flex;
+	align-items: center;
+	outline: unset;
+}
+
+.closeBtn {
+	cursor: pointer;
+	padding: 0 10px;
+	font-size: 35px;
+}
+
+.modal-content {
+	padding: 10px;
+	box-sizing: border-box;
+	overflow: auto;
+}
+
+.modalInfo {
+	line-height: 25px;
+	margin-top: unset;
+}
+
+.modalList {
+	padding-left: 15px;
+	line-height: 25px;
+}
+
+@media screen and (max-width: 1000px) {
+	.react-responsive-modal-modal {
+		max-width: 80%;
+		max-height: 80%;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.react-responsive-modal-modal {
+		max-width: 90%;
+	}
+}

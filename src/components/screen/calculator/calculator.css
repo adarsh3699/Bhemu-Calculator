@@ -247,3 +247,17 @@
 		box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.25), -5px -5px 10px rgba(255, 255, 255, 0.1);
 	}
 }
+
+@media screen and (max-width: 500px) {
+	.left {
+		height: 90%;
+	}
+
+	.calculator {
+		height: 100%;
+	}
+
+	.calculator span#equal {
+		grid-row: unset;
+	}
+}

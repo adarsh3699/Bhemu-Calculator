@@ -1,10 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import './gpaCalc.css';
+import 'react-responsive-modal/styles.css';
+
+import RenderModal from '../../modal/RenderModal';
 
 const GpaCalculator = () => {
 	const [subjects, setSubjects] = useState([]);
 	const [newSubject, setNewSubject] = useState({ subjectName: '', grade: '', credit: '' });
 	const [editIndex, setEditIndex] = useState(-1);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [modalType, setmodalType] = useState('grade');
 
 	const handleInputChange = useCallback(
 		(e) => {
@@ -64,6 +69,11 @@ const GpaCalculator = () => {
 		return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
 	}, [subjects]);
 
+	const handleModalToggle = useCallback((name) => {
+		setmodalType(name);
+		setIsModalOpen((prev) => !prev);
+	}, []);
+
 	return (
 		<div id="GpaCalculator">
 			<h1>GPA Calculator</h1>
@@ -81,7 +91,24 @@ const GpaCalculator = () => {
 					/>
 				</div>
 				<div className="form-group">
-					<label htmlFor="grade">Grade</label>
+					<label htmlFor="grade">
+						Grade
+						<svg
+							onClick={() => handleModalToggle('grade')}
+							fill="white"
+							className="iBtn"
+							width="20px"
+							height="20px"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+							<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+							<g id="SVGRepo_iconCarrier">
+								<path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm1,15a1,1,0,0,1-2,0V11a1,1,0,0,1,2,0ZM12,8a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,8Z"></path>
+							</g>
+						</svg>
+					</label>
 					<input
 						id="grade"
 						type="number"
@@ -96,7 +123,24 @@ const GpaCalculator = () => {
 					/>
 				</div>
 				<div className="form-group">
-					<label htmlFor="credit">Credit Hours</label>
+					<label htmlFor="credit">
+						Credit Hours
+						<svg
+							onClick={() => handleModalToggle('ch')}
+							className="iBtn"
+							fill="white"
+							width="20px"
+							height="20px"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+							<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+							<g id="SVGRepo_iconCarrier">
+								<path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm1,15a1,1,0,0,1-2,0V11a1,1,0,0,1,2,0ZM12,8a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,8Z"></path>
+							</g>
+						</svg>
+					</label>
 					<input
 						id="credit"
 						type="number"
@@ -172,6 +216,14 @@ const GpaCalculator = () => {
 			<div className="gpa-result">
 				Calculated GPA: <span>{calculateGPA()}</span>
 			</div>
+			{isModalOpen && (
+				<RenderModal
+					isModalOpen={isModalOpen}
+					setIsModalOpen={setIsModalOpen}
+					handleModalToggle={handleModalToggle}
+					modalType={modalType}
+				/>
+			)}
 		</div>
 	);
 };
