@@ -4,12 +4,18 @@ import 'react-responsive-modal/styles.css';
 
 import RenderModal from '../../modal/RenderModal';
 
+const localData = localStorage.getItem('subjects') ? JSON.parse(localStorage.getItem('subjects')) : [];
+
 const GpaCalculator = () => {
-	const [subjects, setSubjects] = useState([]);
+	const [subjects, setSubjects] = useState(localData);
 	const [newSubject, setNewSubject] = useState({ subjectName: '', grade: '', credit: '' });
 	const [editIndex, setEditIndex] = useState(-1);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [modalType, setmodalType] = useState('grade');
+
+	const updateLocalStorage = useCallback((data) => {
+		localStorage.setItem('subjects', JSON.stringify(data));
+	}, []);
 
 	const handleInputChange = useCallback(
 		(e) => {
@@ -24,14 +30,16 @@ const GpaCalculator = () => {
 			e.preventDefault();
 			if (newSubject.subjectName && newSubject.grade && newSubject.credit) {
 				if (editIndex === -1) {
-					setSubjects([
+					const temp = [
 						...subjects,
 						{
 							subjectName: newSubject.subjectName,
 							grade: parseFloat(newSubject.grade),
 							credit: parseFloat(newSubject.credit),
 						},
-					]);
+					];
+					setSubjects(temp);
+					updateLocalStorage(temp);
 				} else {
 					const updatedSubjects = [...subjects];
 					updatedSubjects[editIndex] = {
@@ -40,12 +48,13 @@ const GpaCalculator = () => {
 						credit: parseFloat(newSubject.credit),
 					};
 					setSubjects(updatedSubjects);
+					updateLocalStorage(updatedSubjects);
 					setEditIndex(-1);
 				}
 				setNewSubject({ subjectName: '', grade: '', credit: '' });
 			}
 		},
-		[editIndex, newSubject, subjects]
+		[editIndex, newSubject, subjects, updateLocalStorage]
 	);
 
 	const editSubject = useCallback(
@@ -58,9 +67,11 @@ const GpaCalculator = () => {
 
 	const deleteSubject = useCallback(
 		(index) => {
-			setSubjects(subjects.filter((_, i) => i !== index));
+			const temp = subjects.filter((_, i) => i !== index);
+			setSubjects(temp);
+			updateLocalStorage(temp);
 		},
-		[subjects]
+		[subjects, updateLocalStorage]
 	);
 
 	const calculateGPA = useCallback(() => {
@@ -116,7 +127,6 @@ const GpaCalculator = () => {
 						placeholder="Grade (0-10)"
 						min="0"
 						max="10"
-						step="1"
 						value={newSubject.grade}
 						onChange={handleInputChange}
 						required
