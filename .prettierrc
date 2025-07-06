@@ -11,7 +11,7 @@
 	"requirePragma": false,
 	"semi": true,
 	"singleAttributePerLine": false,
-	"singleQuote": true,
+	"singleQuote": false,
 	"tabWidth": 4,
 	"trailingComma": "es5",
 	"useTabs": true,

@@ -1,0 +1,228 @@
+/* Profile Drawer Overlay */
+.profile-drawer-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(5px);
+	z-index: 1000;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+/* Profile Drawer */
+.profile-drawer {
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(20px);
+	border-radius: 20px 20px 0 0;
+	width: 100%;
+	max-width: 600px;
+	max-height: 70vh;
+	overflow-y: auto;
+	animation: slideUp 0.3s ease-out;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Light mode drawer */
+.light .profile-drawer {
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideUp {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+/* Drawer Handle */
+.profile-drawer-handle {
+	width: 40px;
+	height: 4px;
+	background: rgba(255, 255, 255, 0.5);
+	border-radius: 2px;
+	margin: 12px auto 8px;
+	cursor: pointer;
+}
+
+.light .profile-drawer-handle {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+/* Drawer Content */
+.profile-drawer-content {
+	padding: 0 20px 20px;
+}
+
+.profile-drawer-content h3 {
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0 0 20px 0;
+	font-size: 1.5rem;
+	text-align: center;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.light .profile-drawer-content h3 {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+/* Profile Grid */
+.profile-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 15px;
+}
+
+/* Profile Card */
+.profile-card {
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 15px;
+	padding: 20px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	position: relative;
+	backdrop-filter: blur(10px);
+}
+
+.light .profile-card {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.profile-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+	border-color: rgba(102, 126, 234, 0.5);
+}
+
+.light .profile-card:hover {
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card.active {
+	border-color: #667eea;
+	background: rgba(102, 126, 234, 0.2);
+}
+
+.light .profile-card.active {
+	background: rgba(102, 126, 234, 0.1);
+}
+
+/* Profile Info */
+.profile-info h4 {
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0 0 8px 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
+.light .profile-info h4 {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+.profile-info p {
+	color: rgba(255, 255, 255, 0.7);
+	margin: 0;
+	font-size: 0.9rem;
+}
+
+.light .profile-info p {
+	color: rgba(51, 51, 51, 0.7);
+}
+
+/* Delete Profile Button */
+.delete-profile-btn {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: rgba(255, 59, 48, 0.8);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+	opacity: 0;
+}
+
+.profile-card:hover .delete-profile-btn {
+	opacity: 1;
+}
+
+.delete-profile-btn:hover {
+	background: rgba(255, 59, 48, 1);
+	transform: scale(1.1);
+}
+
+/* Add Profile Card */
+.profile-card.add-profile {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100px;
+	border: 2px dashed rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.light .profile-card.add-profile {
+	border: 2px dashed rgba(0, 0, 0, 0.3);
+	background: rgba(0, 0, 0, 0.02);
+}
+
+.profile-card.add-profile:hover {
+	border-color: #667eea;
+	background: rgba(102, 126, 234, 0.1);
+}
+
+.add-profile-icon {
+	font-size: 2rem;
+	color: rgba(255, 255, 255, 0.7);
+	margin-bottom: 8px;
+}
+
+.light .add-profile-icon {
+	color: rgba(51, 51, 51, 0.7);
+}
+
+.profile-card.add-profile p {
+	color: rgba(255, 255, 255, 0.7);
+	margin: 0;
+	font-size: 0.9rem;
+}
+
+.light .profile-card.add-profile p {
+	color: rgba(51, 51, 51, 0.7);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+	.profile-drawer {
+		max-height: 80vh;
+	}
+
+	.profile-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.profile-drawer-content {
+		padding: 0 15px 15px;
+	}
+}

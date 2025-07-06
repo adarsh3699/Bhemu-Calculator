@@ -1,0 +1,565 @@
+/* ===== BASE NAVBAR STYLES ===== */
+.navBar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #1d1d1d;
+	border-bottom: thin solid #ffffff4d;
+	box-shadow: 0 2px 4px -1px #0003, 0 4px 5px 0 #00000024, 0 1px 10px 0 #0000001f;
+	max-height: 45px;
+	min-height: 45px;
+	width: 100%;
+	padding: 0 20px;
+	box-sizing: border-box;
+	transition: all 0.3s ease;
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+}
+
+.navTitle {
+	font-size: 1.5rem;
+	font-weight: bold;
+	color: white;
+}
+
+.menuToggle {
+	display: none;
+	font-size: 1.5rem;
+	color: white;
+	cursor: pointer;
+	user-select: none;
+	padding: 5px;
+	border-radius: 4px;
+	transition: background-color 0.3s ease;
+}
+
+.menuToggle:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== NAVIGATION MENU STYLES ===== */
+.navMenu {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	height: 100%;
+}
+
+.navMenuItem {
+	position: relative;
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.navMenuBtn {
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+	padding: 10px 15px;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	height: 100%;
+}
+
+.navMenuBtn:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navMenuBtn.active {
+	background-color: rgba(255, 255, 255, 0.2);
+	font-weight: 600;
+}
+
+/* ===== DROPDOWN STYLES ===== */
+.dropdown {
+	position: relative;
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.dropdown-arrow {
+	font-size: 10px;
+	transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.open {
+	transform: rotate(180deg);
+}
+
+.dropdownContent {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background: #2d2d2d;
+	border: 1px solid #444;
+	border-radius: 4px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+	z-index: 1000;
+	min-width: 200px;
+	overflow: hidden;
+}
+
+.dropdownItem {
+	display: block;
+	width: 100%;
+	background: none;
+	border: none;
+	color: white;
+	padding: 12px 16px;
+	text-align: left;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s ease;
+}
+
+.dropdownItem:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdownItem.active {
+	background-color: rgba(255, 255, 255, 0.2);
+	font-weight: 600;
+}
+
+/* ===== MOBILE MENU STYLES ===== */
+.backdrop {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.5s ease-in-out, visibility 0.5s;
+	z-index: 900;
+}
+
+.backdrop.open {
+	display: block;
+	opacity: 1;
+	visibility: visible;
+}
+
+.menuBar {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 300px;
+	max-width: 35%;
+	transform: translateX(-100%);
+	transition: transform 0.3s ease-in-out;
+	background: #1d1d1d;
+	z-index: 1000;
+	border-right: 0.5px solid rgba(255, 255, 255, 0.3);
+	overflow: hidden;
+}
+
+.menuBar.open {
+	display: block;
+	transform: translateX(0);
+}
+
+.menuToggleBar {
+	display: flex;
+	align-items: center;
+	background: #202020;
+	border-bottom: thin solid #ffffff4d;
+	max-height: 45px;
+	min-height: 45px;
+	padding: 0 20px;
+	box-sizing: border-box;
+	font-size: 1.5rem;
+	color: white;
+}
+
+.menuToggleBar span {
+	margin-right: 20px;
+	cursor: pointer;
+	padding: 5px;
+	border-radius: 4px;
+	transition: background-color 0.3s ease;
+}
+
+.menuToggleBar span:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menuBtn {
+	display: block;
+	width: 100%;
+	background: none;
+	border: none;
+	color: white;
+	padding: 15px 20px;
+	text-align: left;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s ease;
+	border-bottom: thin solid #ffffff1a;
+}
+
+.menuBtn:hover,
+.activeMenu {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menuBtn:active {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== AUTH SECTION STYLES ===== */
+.navAuth {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.profileSection {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.profileIcon {
+	width: 35px;
+	height: 35px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	user-select: none;
+}
+
+.profileIcon:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.profileDropdown {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	background: #2d2d2d;
+	border: 1px solid #444;
+	border-radius: 8px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+	z-index: 1000;
+	min-width: 250px;
+	overflow: hidden;
+	margin-top: 8px;
+}
+
+.profileHeader {
+	padding: 16px;
+	border-bottom: 1px solid #444;
+}
+
+.profileInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.profileName {
+	color: white;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.profileEmail {
+	color: #999;
+	font-size: 12px;
+}
+
+.profileActions {
+	padding: 8px 0;
+}
+
+.profileAction {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	background: none;
+	border: none;
+	color: white;
+	padding: 12px 16px;
+	text-align: left;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s ease;
+}
+
+.profileAction:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profileAction.logout {
+	color: #f56565;
+}
+
+.profileAction.logout:hover {
+	background-color: rgba(245, 101, 101, 0.1);
+}
+
+.themeToggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.toggleSwitch {
+	position: relative;
+	width: 40px;
+	height: 20px;
+	background: #555;
+	border-radius: 20px;
+	transition: background 0.3s ease;
+	cursor: pointer;
+}
+
+.toggleSwitch.on {
+	background: #667eea;
+}
+
+.toggleSlider {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	background: white;
+	border-radius: 50%;
+	transition: transform 0.3s ease;
+}
+
+.toggleSwitch.on .toggleSlider {
+	transform: translateX(20px);
+}
+
+.authBtn {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border: none;
+	color: white;
+	padding: 8px 16px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.authBtn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* ===== LIGHT THEME STYLES ===== */
+.light .navBar {
+	background-color: #b6b6b6;
+	border-bottom: thin solid #3535354d;
+	color: black;
+}
+
+.light .navTitle {
+	color: black;
+}
+
+.light .menuToggle {
+	color: black;
+}
+
+.light .menuToggle:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .navMenuBtn {
+	color: black;
+}
+
+.light .navMenuBtn:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .navMenuBtn.active {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.light .dropdownContent {
+	background: #e0e0e0;
+	border: 1px solid #ccc;
+}
+
+.light .dropdownItem {
+	color: black;
+}
+
+.light .dropdownItem:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .dropdownItem.active {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.light .menuBar {
+	background: #b6b6b6;
+	border-right: 0.5px solid rgba(53, 53, 53, 0.3);
+}
+
+.light .menuToggleBar {
+	background: #e0e0e0;
+	border-bottom: thin solid #35353586;
+	color: black;
+}
+
+.light .menuBtn {
+	color: black;
+	border-bottom: thin solid #3535351a;
+}
+
+.light .menuBtn:hover,
+.light .activeMenu {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .menuBtn:active {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.light .profileDropdown {
+	background: #e0e0e0;
+	border: 1px solid #ccc;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.light .profileHeader {
+	border-bottom: 1px solid #ccc;
+}
+
+.light .profileName {
+	color: black;
+}
+
+.light .profileEmail {
+	color: #666;
+}
+
+.light .profileAction {
+	color: black;
+}
+
+.light .profileAction:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .profileAction.logout {
+	color: #c53030;
+}
+
+.light .profileAction.logout:hover {
+	background-color: rgba(197, 48, 48, 0.1);
+}
+
+.light .toggleSwitch {
+	background: #ccc;
+}
+
+.light .toggleSwitch.on {
+	background: #667eea;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+@media (max-width: 900px) {
+	.menuToggle {
+		display: block;
+	}
+
+	.navTitle {
+		font-size: 1.2rem;
+	}
+
+	.navMenu {
+		display: none;
+	}
+
+	.navAuth {
+		gap: 8px;
+	}
+
+	.profileIcon {
+		width: 30px;
+		height: 30px;
+		font-size: 12px;
+	}
+
+	.profileDropdown {
+		min-width: 220px;
+		right: -10px;
+	}
+
+	.authBtn {
+		padding: 6px 12px;
+		font-size: 11px;
+	}
+
+	/* Mobile menu visibility */
+	.backdrop {
+		display: block !important;
+	}
+
+	.menuBar {
+		display: block !important;
+	}
+}
+
+@media (max-width: 500px) {
+	.navBar {
+		padding: 0 15px;
+	}
+
+	.navTitle {
+		font-size: 1rem;
+	}
+
+	.profileIcon {
+		width: 28px;
+		height: 28px;
+		font-size: 11px;
+	}
+
+	.profileDropdown {
+		min-width: 200px;
+		right: -15px;
+	}
+
+	.authBtn {
+		padding: 5px 10px;
+		font-size: 10px;
+	}
+
+	.menuBar {
+		min-width: 65% !important;
+		max-width: 80% !important;
+		width: 250px !important;
+	}
+}

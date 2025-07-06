@@ -1,0 +1,847 @@
+/* Modern GPA Calculator Styles - Consistent with App Theme */
+#GpaCalculator {
+	width: 100%;
+	font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	background: transparent;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 20px;
+	text-align: center;
+	transition: all 0.3s ease;
+}
+
+/* Header Section */
+.header {
+	text-align: center;
+	margin-bottom: 40px;
+	position: relative;
+}
+
+.header h1 {
+	font-size: 2.5rem;
+	font-weight: 700;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	margin: 0 0 10px 0;
+	letter-spacing: -0.02em;
+}
+
+.subtitle {
+	font-size: 1.1rem;
+	color: rgba(255, 255, 255, 0.7);
+	margin: 0;
+	font-weight: 400;
+}
+
+/* Profile Selection */
+.profile-selection {
+	margin-bottom: 30px;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.profile-selector {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	color: rgba(255, 255, 255, 0.9);
+	font-weight: 500;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.profile-selector:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateY(-2px);
+}
+
+.profile-selector .icon {
+	width: 18px;
+	height: 18px;
+	color: #667eea;
+}
+
+/* CGPA Display */
+.cgpa-display {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 3rem;
+	margin-bottom: 40px;
+	padding: 30px;
+	box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(20px);
+	border-radius: 24px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	position: relative;
+	width: 100%;
+	max-width: 850px;
+}
+
+.cgpa-display::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.cgpa-circle {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 120px;
+	height: 120px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+	position: relative;
+}
+
+.cgpa-value {
+	font-size: 2rem;
+	font-weight: 700;
+	color: white;
+	line-height: 1;
+}
+
+.cgpa-label {
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.9);
+	margin-top: 0.3rem;
+}
+
+.cgpa-stats {
+	display: flex;
+	gap: 2rem;
+}
+
+.stat {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1rem;
+	box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 16px;
+	min-width: 80px;
+	backdrop-filter: blur(10px);
+}
+
+.stat-value {
+	font-size: 1.8rem;
+	font-weight: 700;
+	color: rgba(255, 255, 255, 0.9);
+	line-height: 1;
+}
+
+.stat-label {
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.7);
+	margin-top: 0.3rem;
+	text-align: center;
+}
+
+/* Semester Management */
+.semester-management {
+	margin-bottom: 40px;
+	width: 100%;
+	max-width: 850px;
+}
+
+.semester-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 30px;
+}
+
+.semester-header h2 {
+	font-size: 1.8rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0;
+}
+
+.add-semester-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 12px 24px;
+	box-sizing: border-box;
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	color: white;
+	border: none;
+	border-radius: 12px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.add-semester-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.add-semester-btn .icon {
+	width: 18px;
+	height: 18px;
+}
+
+/* Semester Tabs */
+.semester-tabs {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 30px;
+	flex-wrap: wrap;
+}
+
+.semester-tab {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 16px 20px;
+	box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	border-radius: 16px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	position: relative;
+}
+
+.semester-tab:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.semester-tab.active {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-color: #667eea;
+	color: white;
+}
+
+.semester-name {
+	font-size: 1rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	margin-bottom: 0.25rem;
+}
+
+.semester-tab.active .semester-name {
+	color: white;
+}
+
+.semester-gpa {
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.semester-tab.active .semester-gpa {
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.delete-semester-btn {
+	position: absolute;
+	top: -8px;
+	right: -8px;
+	width: 24px;
+	height: 24px;
+	background: #ef4444;
+	color: white;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.semester-tab:hover .delete-semester-btn {
+	display: flex;
+}
+
+.delete-semester-btn:hover {
+	background: #dc2626;
+	transform: scale(1.1);
+}
+
+.delete-semester-btn .icon {
+	width: 12px;
+	height: 12px;
+}
+
+/* Subject Form */
+.subject-form-container {
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(20px);
+	border-radius: 24px;
+	padding: 30px;
+	box-sizing: border-box;
+	margin-bottom: 40px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	position: relative;
+	width: 100%;
+	max-width: 850px;
+}
+
+.subject-form-container::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.subject-form-container h3 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0 0 20px 0;
+	text-align: center;
+}
+
+.subject-form .form-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr auto;
+	gap: 1rem;
+	align-items: end;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+}
+
+.form-group label {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.8);
+	margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.form-group label button {
+	background: none;
+	border: none;
+	color: rgba(255, 255, 255, 0.6);
+	cursor: pointer;
+	font-size: 0.8rem;
+}
+
+.form-group label button:hover {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.info-icon {
+	font-size: 0.7rem;
+}
+
+.form-group input,
+.form-group select {
+	padding: 0.75rem;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 0.9rem;
+	transition: all 0.3s ease;
+}
+
+.form-group input::placeholder {
+	color: rgba(255, 255, 255, 0.6);
+	opacity: 1;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+	outline: none;
+	border-color: #667eea;
+	background: rgba(255, 255, 255, 0.15);
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.submit-btn {
+	padding: 0.75rem 1.5rem;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	min-height: 42.5px;
+}
+
+.submit-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Semesters Container */
+.semesters-container {
+	width: 100%;
+	max-width: 850px;
+}
+
+.semester-card {
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(20px);
+	border-radius: 24px;
+	padding: 30px;
+	margin-bottom: 30px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	position: relative;
+}
+
+.semester-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.semester-card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.semester-info h3 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0;
+}
+
+.semester-meta {
+	display: flex;
+	gap: 1rem;
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.subject-count,
+.total-credits {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.semester-gpa-display {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1rem;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 16px;
+	backdrop-filter: blur(10px);
+}
+
+.gpa-number {
+	font-size: 2rem;
+	font-weight: 700;
+	color: rgba(255, 255, 255, 0.9);
+	line-height: 1;
+}
+
+.gpa-label {
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.7);
+	margin-top: 0.25rem;
+}
+
+/* Subjects Grid */
+.subjects-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1rem;
+	margin-top: 20px;
+}
+
+.subject-card {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 16px;
+	padding: 1.5rem;
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	transition: all 0.3s ease;
+}
+
+.subject-card:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.subject-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.subject-name {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0;
+}
+
+.subject-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.edit-btn,
+.delete-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 8px;
+	transition: all 0.3s ease;
+	opacity: 0.7;
+}
+
+.edit-btn {
+	color: #3b82f6;
+}
+
+.edit-btn:hover {
+	background: rgba(59, 130, 246, 0.1);
+	opacity: 1;
+}
+
+.delete-btn {
+	color: #ef4444;
+}
+
+.delete-btn:hover {
+	background: rgba(239, 68, 68, 0.1);
+	opacity: 1;
+}
+
+.icon {
+	width: 16px;
+	height: 16px;
+}
+
+.subject-details {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+
+.detail-item {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.detail-label {
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.detail-value {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.grade-value {
+	font-weight: 700;
+	color: #00db93;
+}
+
+.no-subjects,
+.no-semesters {
+	text-align: center;
+	padding: 2rem;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.no-subjects h3,
+.no-semesters h3 {
+	font-size: 1.5rem;
+	margin-bottom: 0.5rem;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.no-subjects p,
+.no-semesters p {
+	font-size: 1rem;
+	margin: 0;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+/* Light Mode Styles */
+.light #GpaCalculator {
+	background: transparent;
+}
+
+.light .header h1 {
+	background: linear-gradient(135deg, #4338ca 0%, #7c3aed 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.light .subtitle {
+	color: rgba(51, 51, 51, 0.7);
+}
+
+.light .semester-header h2 {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+.light .profile-selector {
+	background: rgba(255, 255, 255, 0.9);
+	color: rgba(51, 51, 51, 0.9);
+}
+
+.light .cgpa-display {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(67, 56, 202, 0.1);
+	box-shadow: 0 20px 40px rgba(67, 56, 202, 0.1);
+}
+
+.light .subject-form-container {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(67, 56, 202, 0.1);
+	box-shadow: 0 20px 40px rgba(67, 56, 202, 0.1);
+}
+
+.light .semester-card {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(67, 56, 202, 0.1);
+	box-shadow: 0 20px 40px rgba(67, 56, 202, 0.1);
+}
+
+.light .semester-tab {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(67, 56, 202, 0.1);
+}
+
+.light .subject-card {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(67, 56, 202, 0.1);
+}
+
+.light .stat {
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(67, 56, 202, 0.1);
+}
+
+.light .stat-value {
+	color: #4338ca;
+}
+
+.light .stat-label {
+	color: rgba(67, 56, 202, 0.7);
+}
+
+.light .form-group input,
+.light .form-group select {
+	background: rgba(67, 56, 202, 0.05);
+	color: #4338ca;
+	border-color: rgba(67, 56, 202, 0.2);
+}
+
+.light .form-group input:focus,
+.light .form-group select:focus {
+	border-color: #7c3aed;
+	background: rgba(67, 56, 202, 0.1);
+	box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.light .form-group input::placeholder {
+	color: rgba(67, 56, 202, 0.7);
+	opacity: 1;
+}
+
+.light .form-group label {
+	color: #4338ca;
+}
+
+.light .form-group label button {
+	color: rgba(67, 56, 202, 0.6);
+}
+
+.light .form-group label button:hover {
+	color: #4338ca;
+}
+
+.light .subject-form-container h3 {
+	color: #4338ca;
+}
+
+.light .semester-info h3 {
+	color: #4338ca;
+}
+
+.light .semester-meta {
+	color: rgba(67, 56, 202, 0.7);
+}
+
+.light .subject-name {
+	color: #4338ca;
+}
+
+.light .detail-label {
+	color: rgba(67, 56, 202, 0.6);
+}
+
+.light .detail-value {
+	color: #4338ca;
+}
+
+.light .no-subjects,
+.light .no-semesters {
+	color: rgba(67, 56, 202, 0.7);
+}
+
+.light .no-subjects h3,
+.light .no-semesters h3 {
+	color: rgba(67, 56, 202, 0.8);
+}
+
+.light .no-subjects p,
+.light .no-semesters p {
+	color: rgba(67, 56, 202, 0.6);
+}
+
+.light .semester-header h2,
+.light .no-subjects h3 {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+.light .no-subjects p {
+	color: rgba(51, 51, 51, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.cgpa-display {
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.cgpa-stats {
+		flex-direction: row;
+		gap: 1rem;
+	}
+
+	.semester-header {
+		flex-direction: column;
+		gap: 1rem;
+		align-items: stretch;
+	}
+
+	.semester-tabs {
+		justify-content: center;
+	}
+
+	.semester-tab {
+		min-width: 120px;
+	}
+
+	.subject-form .form-row {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.semester-card-header {
+		flex-direction: column;
+		gap: 1rem;
+		align-items: stretch;
+	}
+
+	.subjects-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.subject-details {
+		grid-template-columns: 1fr;
+		gap: 0.5rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.cgpa-circle {
+		width: 100px;
+		height: 100px;
+	}
+
+	.cgpa-value {
+		font-size: 2rem;
+	}
+
+	.subject-form-container {
+		padding: 20px;
+	}
+
+	.semester-card {
+		padding: 20px;
+	}
+
+	.subject-card {
+		padding: 1rem;
+	}
+}
+
+/* Animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.semester-card,
+.subject-card {
+	animation: fadeIn 0.5s ease-out;
+}

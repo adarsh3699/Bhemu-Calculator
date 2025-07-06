@@ -1,0 +1,159 @@
+#numberConverter {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	text-align: center;
+	transition: all 0.3s ease;
+	background-color: #333;
+	color: white;
+	overflow: auto;
+}
+
+.number-converter h1 {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.type-selector-box {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 40px;
+	width: 50%;
+}
+
+.type-selector-box > div {
+	width: 48%;
+	text-align: left;
+}
+
+.type-selector-box label {
+	font-weight: 600;
+	display: block;
+	margin-bottom: 5px;
+}
+
+.type-selector-box select {
+	width: 100%;
+	padding: 10px;
+	background-color: #444;
+	color: white;
+	border: 1px solid #555;
+	border-radius: 10px;
+	outline: unset;
+	transition: all 0.3s ease;
+}
+
+.type-selector-box select:hover {
+	border: #8c8c8c 1px solid;
+}
+
+.type-selector-box select:focus {
+	border-color: #28a745;
+	box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.NumberTypeLable {
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 10px;
+}
+
+.buttonBox {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 20px;
+	/* background-color: black; */
+	min-width: 50%;
+	max-width: 400px;
+}
+
+.buttonBox button {
+	padding: 12px 10px;
+	font-size: 18px;
+	color: white;
+	border: none;
+	cursor: pointer;
+}
+
+.buttonBox button:nth-child(1) {
+	background-color: #4caf50;
+	width: 30%;
+	border-radius: 15px;
+}
+
+.buttonBox button:nth-child(1):hover {
+	background-color: #45a049;
+}
+
+.buttonBox button:nth-child(2) {
+	background-color: #f44336;
+	width: 33%;
+	border-radius: 15px;
+	box-sizing: border-box;
+}
+.buttonBox button:nth-child(2):hover {
+	background-color: #da251d;
+}
+
+.buttonBox button:nth-child(3) {
+	background-color: #008cba;
+	width: 30%;
+	border-radius: 15px;
+}
+
+.buttonBox button:nth-child(3):hover {
+	background-color: #007baa;
+}
+
+.result-box {
+	margin-top: 20px;
+}
+
+.result-box label {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.result-box input {
+	width: 100%;
+	padding: 5px;
+}
+/* ..........................Light Theme........................... */
+.light #numberConverter {
+	color: black;
+	background-color: #f9f9f9;
+}
+
+.light .type-selector-box select {
+	background-color: #f9f9f9;
+	color: black;
+	border: 1px solid #ccc;
+}
+
+.light .type-selector-box select:hover {
+	border: 1px solid #007baa;
+}
+
+.light .type-selector-box select:focus {
+	border-color: #007baa;
+	box-shadow: 0 0 5px rgba(0, 123, 170, 0.5);
+}
+
+/* ..........................Phone........................... */
+
+@media screen and (max-width: 768px) {
+	.type-selector-box {
+		width: 80%;
+	}
+	.buttonBox {
+		width: 80%;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.buttonBox button {
+		padding: 10px;
+		font-size: 15px;
+	}
+}

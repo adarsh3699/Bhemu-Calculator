@@ -1,0 +1,218 @@
+/* Input Modal Overlay */
+.input-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(8px);
+	z-index: 1100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: fadeIn 0.2s ease-out;
+}
+
+/* Input Modal */
+.input-modal {
+	background: rgba(30, 30, 30, 0.98);
+	backdrop-filter: blur(25px);
+	border-radius: 20px;
+	border: 1px solid rgba(102, 126, 234, 0.3);
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+	width: 100%;
+	max-width: 450px;
+	margin: 20px;
+	animation: slideIn 0.3s ease-out;
+	overflow: hidden;
+}
+
+/* Light mode modal */
+.light .input-modal {
+	background: rgba(255, 255, 255, 0.98);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal Header */
+.input-modal-header {
+	padding: 24px 24px 16px;
+	border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+	background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.light .input-modal-header {
+	background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.input-modal-header h3 {
+	margin: 0;
+	font-size: 1.4rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	text-align: center;
+}
+
+.light .input-modal-header h3 {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+/* Modal Form */
+.input-modal-form {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Modal Body */
+.input-modal-body {
+	padding: 24px;
+}
+
+.input-modal-input {
+	width: 100%;
+	padding: 16px 20px;
+	border: 2px solid rgba(102, 126, 234, 0.3);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.05);
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 1rem;
+	font-family: inherit;
+	transition: all 0.3s ease;
+	outline: none;
+	box-sizing: border-box;
+}
+
+.light .input-modal-input {
+	background: rgba(255, 255, 255, 0.8);
+	color: rgba(51, 51, 51, 0.9);
+	border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.input-modal-input:focus {
+	border-color: #667eea;
+	background: rgba(102, 126, 234, 0.1);
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.light .input-modal-input:focus {
+	background: rgba(102, 126, 234, 0.05);
+	border-color: #667eea;
+}
+
+.input-modal-input::placeholder {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.light .input-modal-input::placeholder {
+	color: rgba(51, 51, 51, 0.5);
+}
+
+/* Modal Actions */
+.input-modal-actions {
+	display: flex;
+	gap: 12px;
+	padding: 16px 24px 24px;
+	justify-content: flex-end;
+}
+
+.input-modal-btn {
+	padding: 12px 24px;
+	border: none;
+	border-radius: 10px;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	min-width: 80px;
+	font-family: inherit;
+}
+
+.cancel-btn {
+	background: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.8);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.light .cancel-btn {
+	background: rgba(0, 0, 0, 0.05);
+	color: rgba(51, 51, 51, 0.8);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.cancel-btn:hover {
+	background: rgba(255, 255, 255, 0.15);
+	transform: translateY(-1px);
+}
+
+.light .cancel-btn:hover {
+	background: rgba(0, 0, 0, 0.08);
+}
+
+.confirm-btn {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.confirm-btn:hover:not(:disabled) {
+	transform: translateY(-1px);
+	box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.confirm-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-20px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+	.input-modal {
+		margin: 10px;
+		max-width: calc(100% - 20px);
+	}
+
+	.input-modal-header {
+		padding: 20px 20px 12px;
+	}
+
+	.input-modal-body {
+		padding: 20px;
+	}
+
+	.input-modal-actions {
+		padding: 12px 20px 20px;
+		flex-direction: column;
+	}
+
+	.input-modal-btn {
+		width: 100%;
+	}
+}
