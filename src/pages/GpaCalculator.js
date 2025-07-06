@@ -26,7 +26,7 @@ const GpaCalculator = () => {
 
 	const [editIndex, setEditIndex] = useState(-1);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [modalType, setModalType] = useState("grade");
+	const [modalType, setModalType] = useState("");
 	const [activeSemester, setActiveSemester] = useState(null);
 
 	const currentProfile = profiles.find((p) => p.id === activeProfile) || profiles[0];
@@ -189,9 +189,18 @@ const GpaCalculator = () => {
 	}, [semesters, calculateSemesterGPA]);
 
 	// Handle modal toggle
-	const handleModalToggle = useCallback((type) => {
+	const handleModalToggle = useCallback((type, event) => {
+		event.stopPropagation();
+		event.preventDefault();
 		setModalType(type);
 		setIsModalOpen(true);
+	}, []);
+
+	// Handle modal close
+	const handleModalClose = useCallback(() => {
+		setIsModalOpen(false);
+		// Don't reset modalType immediately to prevent flash effect
+		// modalType will be set when a new modal is opened
 	}, []);
 
 	// Handle drawer toggle
@@ -207,8 +216,18 @@ const GpaCalculator = () => {
 	}, [semesters, activeSemester]);
 
 	// Icon components
-	const InfoIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor">
+	const InfoIcon = ({ onClick }) => (
+		<svg
+			viewBox="0 0 24 24"
+			fill="currentColor"
+			height="15px"
+			width="15px"
+			onClick={onClick}
+			style={{ cursor: "pointer", marginLeft: "4px" }}
+			role="button"
+			aria-label="Information"
+			tabIndex={0}
+		>
 			<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
 		</svg>
 	);
@@ -238,7 +257,7 @@ const GpaCalculator = () => {
 	);
 
 	const UserIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor">
+		<svg viewBox="0 0 24 24" fill="currentColor" height="30px" width="30px">
 			<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
 		</svg>
 	);
@@ -276,7 +295,7 @@ const GpaCalculator = () => {
 				<div className="profile-selection">
 					<div className="profile-selector" onClick={toggleDrawer}>
 						<UserIcon />
-						<span>{currentProfile?.name}</span>
+						<span className="profile-text">{currentProfile?.name}</span>
 					</div>
 				</div>
 
@@ -368,9 +387,7 @@ const GpaCalculator = () => {
 								<div className="form-group">
 									<label htmlFor="grade">
 										Grade
-										<button type="button" onClick={() => handleModalToggle("grade")}>
-											<InfoIcon />
-										</button>
+										<InfoIcon onClick={(e) => handleModalToggle("grade", e)} />
 									</label>
 									<select
 										id="grade"
@@ -396,9 +413,7 @@ const GpaCalculator = () => {
 								<div className="form-group">
 									<label htmlFor="credit">
 										Credits
-										<button type="button" onClick={() => handleModalToggle("ch")}>
-											<InfoIcon />
-										</button>
+										<InfoIcon onClick={(e) => handleModalToggle("ch", e)} />
 									</label>
 									<input
 										id="credit"
@@ -507,7 +522,7 @@ const GpaCalculator = () => {
 					</div>
 				)}
 
-				<RenderModal modalType={modalType} isModalOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+				<RenderModal modalType={modalType} isModalOpen={isModalOpen} onClose={handleModalClose} />
 			</div>
 		</div>
 	);
