@@ -1,90 +1,235 @@
-import React, { useCallback, useState, useEffect, useMemo } from "react";
+import React, { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import "../styles/gpaCalc.css";
 import "react-responsive-modal/styles.css";
 
 import { RenderModal, ProfileDrawer } from "../components/GpaCalculator";
+import { LoginRecommendation, useMessage } from "../components/common";
+import { useAuth } from "../firebase/AuthContext";
+import { createGPAService } from "../firebase/gpaService";
 
 const GpaCalculator = () => {
-	const [profiles, setProfiles] = useState(() => {
-		const saved = localStorage.getItem("gpaProfiles");
-		return saved ? JSON.parse(saved) : [{ id: 1, name: "Default Profile", semesters: [] }];
-	});
+	const { currentUser } = useAuth();
+	const { showMessage } = useMessage();
 
-	const [activeProfile, setActiveProfile] = useState(() => {
-		const saved = localStorage.getItem("activeGpaProfile");
-		return saved ? parseInt(saved) : 1;
-	});
-
+	// ===== STATE MANAGEMENT =====
+	const [profiles, setProfiles] = useState([]);
+	const [activeProfile, setActiveProfile] = useState(null);
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const [saving, setSaving] = useState(false);
+	const [sharedProfiles, setSharedProfiles] = useState([]);
 
+	// Use ref to prevent race conditions - refs don't trigger re-renders
+	const isInitializingRef = useRef(false);
+	const hasInitializedRef = useRef(false);
+
+	// Subject form state
 	const [newSubject, setNewSubject] = useState({
 		subjectName: "",
 		grade: "",
 		credit: "",
-		weighted: false,
 	});
-
 	const [editIndex, setEditIndex] = useState(-1);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [modalType, setModalType] = useState("");
 	const [activeSemester, setActiveSemester] = useState(null);
 
-	const currentProfile = profiles.find((p) => p.id === activeProfile) || profiles[0];
+	// Modal state
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [modalType, setModalType] = useState("");
+
+	// ===== SERVICES & COMPUTED VALUES =====
+	const gpaService = useMemo(() => {
+		return currentUser ? createGPAService(currentUser.uid) : null;
+	}, [currentUser]);
+
+	const sortedProfiles = useMemo(() => {
+		return [...profiles].sort((a, b) => {
+			if (a.isDefault && !b.isDefault) return -1;
+			if (!a.isDefault && b.isDefault) return 1;
+			return a.name.localeCompare(b.name);
+		});
+	}, [profiles]);
+
+	const currentProfile = sortedProfiles.find((p) => p.id === activeProfile) || sortedProfiles[0];
 	const semesters = useMemo(() => currentProfile?.semesters || [], [currentProfile]);
 
-	// Save profiles to localStorage
-	const updateProfiles = useCallback((newProfiles) => {
-		localStorage.setItem("gpaProfiles", JSON.stringify(newProfiles));
-		setProfiles(newProfiles);
-	}, []);
+	// ===== UTILITY FUNCTIONS =====
+	const generateProfileName = useCallback(() => {
+		const userName = currentUser?.displayName || currentUser?.email?.split("@")[0] || "User";
+		return `${userName} (Default)`;
+	}, [currentUser]);
 
-	// Save active profile to localStorage
-	const updateActiveProfile = useCallback((profileId) => {
-		localStorage.setItem("activeGpaProfile", profileId.toString());
-		setActiveProfile(profileId);
-		setDrawerOpen(false); // Close drawer when profile is selected
-	}, []);
+	const saveProfile = useCallback(
+		async (profileData) => {
+			if (!gpaService || !profileData) return;
 
-	// Profile management functions
-
-	const deleteProfile = useCallback(
-		(profileId) => {
-			if (profiles.length <= 1) return; // Don't delete the last profile
-
-			const updatedProfiles = profiles.filter((profile) => profile.id !== profileId);
-			updateProfiles(updatedProfiles);
-
-			if (activeProfile === profileId) {
-				updateActiveProfile(updatedProfiles[0].id);
+			try {
+				setSaving(true);
+				await gpaService.saveProfile(profileData);
+			} catch (error) {
+				console.error("Error saving profile:", error);
+				showMessage("Error saving data. Please try again.", "error");
+			} finally {
+				setSaving(false);
 			}
 		},
-		[profiles, activeProfile, updateProfiles, updateActiveProfile]
+		[gpaService, showMessage]
 	);
 
-	// Update semester data for current profile
-	const updateSemesters = useCallback(
-		(newSemesters) => {
-			const updatedProfiles = profiles.map((profile) =>
-				profile.id === activeProfile ? { ...profile, semesters: newSemesters } : profile
-			);
-			updateProfiles(updatedProfiles);
+	const calculateGPA = useCallback((subjects) => {
+		if (!subjects || subjects.length === 0) return "0.00";
+
+		const totalPoints = subjects.reduce((acc, subject) => acc + subject.grade * subject.credit, 0);
+		const totalCredits = subjects.reduce((acc, subject) => acc + subject.credit, 0);
+
+		return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+	}, []);
+
+	const calculateCGPA = useCallback(() => {
+		if (!semesters || semesters.length === 0) return "0.00";
+		const allSubjects = semesters.flatMap((semester) => semester.subjects);
+		return calculateGPA(allSubjects);
+	}, [semesters, calculateGPA]);
+
+	// ===== PROFILE MANAGEMENT =====
+	const updateActiveProfile = useCallback((profileId) => {
+		setActiveProfile(profileId);
+		setDrawerOpen(false);
+		localStorage.setItem("activeGpaProfile", profileId.toString());
+	}, []);
+
+	const createProfile = useCallback(
+		async (name) => {
+			try {
+				const newProfile = {
+					id: Date.now(),
+					name: name,
+					semesters: [],
+					isDefault: false,
+				};
+
+				if (gpaService) {
+					await gpaService.saveProfile(newProfile);
+
+					// Immediately switch to the new profile
+					updateActiveProfile(newProfile.id);
+
+					// Also update localStorage to ensure persistence
+					localStorage.setItem("activeGpaProfile", newProfile.id.toString());
+
+					showMessage("Profile created successfully!", "success");
+				}
+			} catch (error) {
+				console.error("Error creating profile:", error);
+				showMessage("Error creating profile. Please try again.", "error");
+			}
 		},
-		[profiles, activeProfile, updateProfiles]
+		[gpaService, updateActiveProfile, showMessage]
 	);
 
-	// Add new semester
+	const deleteProfile = useCallback(
+		async (profileId) => {
+			if (profiles.length <= 1) {
+				showMessage("Cannot delete the last profile", "warning");
+				return;
+			}
+
+			const profileToDelete = profiles.find((p) => p.id === profileId);
+			if (!profileToDelete) {
+				showMessage("Profile not found", "error");
+				return;
+			}
+
+			if (profileToDelete.isDefault) {
+				showMessage("Cannot delete the default profile", "warning");
+				return;
+			}
+
+			try {
+				if (gpaService) {
+					await gpaService.deleteProfile(profileId);
+
+					if (activeProfile === profileId) {
+						const remainingProfiles = sortedProfiles.filter((profile) => profile.id !== profileId);
+						updateActiveProfile(remainingProfiles[0].id);
+					}
+
+					showMessage("Profile deleted successfully", "success");
+				}
+			} catch (error) {
+				console.error("Error deleting profile:", error);
+				showMessage("Error deleting profile. Please try again.", "error");
+			}
+		},
+		[profiles, sortedProfiles, activeProfile, updateActiveProfile, gpaService, showMessage]
+	);
+
+	const shareProfile = useCallback(
+		async (profileId, shareOptions = {}) => {
+			if (!gpaService) return;
+
+			try {
+				const result = await gpaService.shareProfile(profileId, shareOptions);
+				if (result.success) {
+					await navigator.clipboard.writeText(result.shareUrl);
+					showMessage("Profile shared! Link copied to clipboard.", "success");
+					return result;
+				} else {
+					showMessage(result.error || "Error sharing profile", "error");
+				}
+			} catch (error) {
+				console.error("Error sharing profile:", error);
+				showMessage("Error sharing profile. Please try again.", "error");
+			}
+		},
+		[gpaService, showMessage]
+	);
+
+	const unshareProfile = useCallback(
+		async (shareId) => {
+			if (!gpaService) return;
+
+			try {
+				const result = await gpaService.unshareProfile(shareId);
+				if (result.success) {
+					showMessage("Profile unshared successfully", "success");
+				} else {
+					showMessage(result.error || "Error unsharing profile", "error");
+				}
+			} catch (error) {
+				console.error("Error unsharing profile:", error);
+				showMessage("Error unsharing profile. Please try again.", "error");
+			}
+		},
+		[gpaService, showMessage]
+	);
+
+	// ===== SEMESTER MANAGEMENT =====
+	const updateSemesters = useCallback(
+		async (newSemesters) => {
+			const currentProfileData = profiles.find((profile) => profile.id === activeProfile);
+			if (currentProfileData) {
+				const updatedProfile = { ...currentProfileData, semesters: newSemesters };
+				await saveProfile(updatedProfile);
+
+				const updatedProfiles = profiles.map((profile) =>
+					profile.id === activeProfile ? updatedProfile : profile
+				);
+				localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
+			}
+		},
+		[profiles, activeProfile, saveProfile]
+	);
+
 	const addSemester = useCallback(() => {
 		const newSemester = {
 			id: Date.now(),
 			name: `Semester ${semesters.length + 1}`,
 			subjects: [],
-			isWeighted: false,
 		};
 		updateSemesters([...semesters, newSemester]);
 		setActiveSemester(newSemester.id);
 	}, [semesters, updateSemesters]);
 
-	// Delete semester
 	const deleteSemester = useCallback(
 		(semesterId) => {
 			const updatedSemesters = semesters.filter((semester) => semester.id !== semesterId);
@@ -96,13 +241,12 @@ const GpaCalculator = () => {
 		[semesters, activeSemester, updateSemesters]
 	);
 
-	// Handle input changes
+	// ===== SUBJECT MANAGEMENT =====
 	const handleInputChange = useCallback((e) => {
 		const { name, value } = e.target;
 		setNewSubject((prev) => ({ ...prev, [name]: value }));
 	}, []);
 
-	// Add or update subject
 	const addOrUpdateSubject = useCallback(
 		(e) => {
 			e.preventDefault();
@@ -135,13 +279,12 @@ const GpaCalculator = () => {
 			});
 
 			updateSemesters(updatedSemesters);
-			setNewSubject({ subjectName: "", grade: "", credit: "", weighted: false });
+			setNewSubject({ subjectName: "", grade: "", credit: "" });
 			setEditIndex(-1);
 		},
 		[newSubject, semesters, activeSemester, editIndex, updateSemesters]
 	);
 
-	// Edit subject
 	const editSubject = useCallback((semesterId, subject) => {
 		setEditIndex(subject.id);
 		setActiveSemester(semesterId);
@@ -149,11 +292,9 @@ const GpaCalculator = () => {
 			subjectName: subject.subjectName,
 			grade: subject.grade.toString(),
 			credit: subject.credit.toString(),
-			weighted: subject.weighted || false,
 		});
 	}, []);
 
-	// Delete subject
 	const deleteSubject = useCallback(
 		(semesterId, subjectId) => {
 			const updatedSemesters = semesters.map((semester) => {
@@ -170,25 +311,7 @@ const GpaCalculator = () => {
 		[semesters, updateSemesters]
 	);
 
-	// Calculate semester GPA
-	const calculateSemesterGPA = useCallback((subjects) => {
-		if (!subjects || subjects.length === 0) return "0.00";
-
-		const totalPoints = subjects.reduce((acc, subject) => acc + subject.grade * subject.credit, 0);
-		const totalCredits = subjects.reduce((acc, subject) => acc + subject.credit, 0);
-
-		return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-	}, []);
-
-	// Calculate CGPA
-	const calculateCGPA = useCallback(() => {
-		if (!semesters || semesters.length === 0) return "0.00";
-
-		const allSubjects = semesters.flatMap((semester) => semester.subjects);
-		return calculateSemesterGPA(allSubjects);
-	}, [semesters, calculateSemesterGPA]);
-
-	// Handle modal toggle
+	// ===== UI HANDLERS =====
 	const handleModalToggle = useCallback((type, event) => {
 		event.stopPropagation();
 		event.preventDefault();
@@ -196,17 +319,254 @@ const GpaCalculator = () => {
 		setIsModalOpen(true);
 	}, []);
 
-	// Handle modal close
 	const handleModalClose = useCallback(() => {
 		setIsModalOpen(false);
-		// Don't reset modalType immediately to prevent flash effect
-		// modalType will be set when a new modal is opened
 	}, []);
 
-	// Handle drawer toggle
 	const toggleDrawer = useCallback(() => {
 		setDrawerOpen(!drawerOpen);
 	}, [drawerOpen]);
+
+	// ===== INITIALIZATION =====
+	useEffect(() => {
+		if (!gpaService || !currentUser || hasInitializedRef.current) return;
+
+		// Check if we're already initializing
+		if (isInitializingRef.current) {
+			console.log("Initialization already in progress, skipping...");
+			return;
+		}
+
+		console.log("Starting initialization for user:", currentUser.email);
+		setLoading(true);
+		isInitializingRef.current = true; // Set flag immediately to prevent re-runs
+
+		let profilesUnsubscribe = null;
+		let sharedProfilesUnsubscribe = null;
+
+		const cleanupDuplicateProfiles = async () => {
+			try {
+				console.log("Checking for duplicate profiles to clean up...");
+				const profilesResult = await gpaService.getProfiles();
+
+				if (!profilesResult.success || profilesResult.profiles.length <= 1) {
+					console.log("No duplicates found or cleanup not needed");
+					return;
+				}
+
+				// Find profiles with same name pattern (Default profiles)
+				const defaultProfiles = profilesResult.profiles.filter(
+					(p) => p.name.includes("(Default)") || p.isDefault
+				);
+
+				if (defaultProfiles.length > 1) {
+					console.log(`Found ${defaultProfiles.length} default profiles, cleaning up...`);
+
+					// Keep the first one, delete the rest
+					for (let i = 1; i < defaultProfiles.length; i++) {
+						const profileToDelete = defaultProfiles[i];
+						console.log(
+							`Deleting duplicate default profile: ${profileToDelete.name} (${profileToDelete.id})`
+						);
+						await gpaService.deleteProfile(profileToDelete.id);
+					}
+
+					// Wait a moment for deletion to complete
+					await new Promise((resolve) => setTimeout(resolve, 500));
+
+					showMessage("Cleaned up duplicate profiles", "info");
+				}
+			} catch (error) {
+				console.error("Error cleaning up duplicates:", error);
+				// Don't throw error - allow initialization to continue
+			}
+		};
+
+		const initializeData = async () => {
+			try {
+				console.log("Initializing GPA Calculator for user:", currentUser.email);
+
+				// Step 1: Clean up any existing duplicate profiles first
+				await cleanupDuplicateProfiles();
+
+				// Step 2: Migrate from localStorage if needed
+				const migrationResult = await gpaService.migrateFromLocalStorage();
+				console.log("Migration completed:", migrationResult.success);
+
+				// Step 3: Wait for migration to complete
+				await new Promise((resolve) => setTimeout(resolve, 300));
+
+				// Step 4: Get current profiles with retry logic
+				let profilesResult;
+				let retryCount = 0;
+				const maxRetries = 3;
+
+				do {
+					profilesResult = await gpaService.getProfiles();
+					if (profilesResult.success) break;
+
+					retryCount++;
+					console.log(`Retry ${retryCount}/${maxRetries} for getting profiles`);
+					await new Promise((resolve) => setTimeout(resolve, 200));
+				} while (retryCount < maxRetries);
+
+				if (!profilesResult.success) {
+					throw new Error("Failed to get profiles after multiple retries");
+				}
+
+				console.log("Current profiles in database:", profilesResult.profiles?.length || 0);
+
+				// Step 5: Check if profiles exist and create default if needed
+				if (profilesResult.profiles.length === 0) {
+					console.log("No profiles found, creating SINGLE default profile");
+
+					// Additional check: query database one more time to be absolutely sure
+					const doubleCheckResult = await gpaService.getProfiles();
+					if (doubleCheckResult.success && doubleCheckResult.profiles.length > 0) {
+						console.log("Profiles found on double-check, skipping creation");
+						return;
+					}
+
+					// Create default profile with unique timestamp
+					const defaultProfile = {
+						id: `default_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Unique ID
+						name: generateProfileName(),
+						semesters: [],
+						isDefault: true,
+						createdAt: new Date(),
+					};
+
+					const saveResult = await gpaService.saveProfile(defaultProfile);
+					if (saveResult.success) {
+						console.log("Default profile created successfully:", defaultProfile.id);
+						showMessage("Welcome! Created your first profile.", "success");
+					} else {
+						console.error("Failed to create default profile:", saveResult.error);
+						throw new Error("Failed to create default profile");
+					}
+				} else {
+					console.log(`Found ${profilesResult.profiles.length} existing profiles`);
+
+					// Check for duplicates and clean them up
+					const duplicateNames = profilesResult.profiles
+						.map((p) => p.name)
+						.filter((name, index, arr) => arr.indexOf(name) !== index);
+
+					if (duplicateNames.length > 0) {
+						console.log("Found duplicate profile names, cleaning up:", duplicateNames);
+
+						for (const duplicateName of [...new Set(duplicateNames)]) {
+							const profilesWithSameName = profilesResult.profiles.filter(
+								(p) => p.name === duplicateName
+							);
+							// Keep the first one, delete the rest
+							for (let i = 1; i < profilesWithSameName.length; i++) {
+								console.log(
+									`Deleting duplicate profile: ${profilesWithSameName[i].name} (${profilesWithSameName[i].id})`
+								);
+								await gpaService.deleteProfile(profilesWithSameName[i].id);
+							}
+						}
+					}
+
+					// Ensure at least one profile is marked as default
+					const remainingProfiles = await gpaService.getProfiles();
+					if (remainingProfiles.success && remainingProfiles.profiles.length > 0) {
+						const hasDefault = remainingProfiles.profiles.some((p) => p.isDefault);
+						if (!hasDefault) {
+							console.log("No default profile found, marking first as default");
+							const firstProfile = remainingProfiles.profiles[0];
+							await gpaService.saveProfile({ ...firstProfile, isDefault: true });
+						}
+					}
+				}
+
+				// Step 6: Set up real-time listeners
+				setupRealtimeListeners();
+
+				console.log("Initialization completed successfully");
+			} catch (error) {
+				console.error("Initialization error:", error);
+				showMessage("Error loading your data. Please try again.", "error");
+				setLoading(false);
+			} finally {
+				// Reset initialization flag and mark as complete
+				isInitializingRef.current = false;
+				hasInitializedRef.current = true;
+			}
+		};
+
+		const setupRealtimeListeners = () => {
+			// Profiles listener
+			profilesUnsubscribe = gpaService.onProfilesChange((result) => {
+				if (result.success && result.profiles.length > 0) {
+					console.log("Profiles updated:", result.profiles.length);
+
+					// Clean profiles (remove any remaining duplicates)
+					const cleanProfiles = result.profiles
+						.filter((profile, index, arr) => {
+							// Remove duplicates by name - keep first occurrence
+							return arr.findIndex((p) => p.name === profile.name) === index;
+						})
+						.map((profile) => ({ ...profile, id: profile.id.toString() }));
+
+					if (cleanProfiles.length !== result.profiles.length) {
+						console.log(
+							`Filtered ${result.profiles.length - cleanProfiles.length} duplicate profiles from UI`
+						);
+					}
+
+					setProfiles(cleanProfiles);
+
+					// Set active profile - preserve current choice if it still exists
+					setActiveProfile((prev) => {
+						const savedActiveProfile = localStorage.getItem("activeGpaProfile");
+
+						if (savedActiveProfile && cleanProfiles.find((p) => p.id === savedActiveProfile)) {
+							return savedActiveProfile;
+						}
+
+						if (prev && cleanProfiles.find((p) => p.id === prev)) {
+							return prev;
+						}
+
+						const firstProfile = cleanProfiles[0];
+						if (firstProfile) {
+							localStorage.setItem("activeGpaProfile", firstProfile.id);
+							return firstProfile.id;
+						}
+						return prev;
+					});
+
+					localStorage.setItem("gpaProfiles", JSON.stringify(cleanProfiles));
+				} else if (result.error) {
+					console.error("Error loading profiles:", result.error);
+					showMessage("Error loading profiles. Please refresh.", "error");
+				}
+				setLoading(false);
+			});
+
+			// Shared profiles listener
+			sharedProfilesUnsubscribe = gpaService.onSharedProfilesChange((result) => {
+				if (result.success) {
+					setSharedProfiles(result.sharedProfiles);
+				}
+			});
+		};
+
+		// Load active profile from localStorage
+		const savedActiveProfile = localStorage.getItem("activeGpaProfile");
+		if (savedActiveProfile) {
+			setActiveProfile(savedActiveProfile);
+		}
+
+		initializeData();
+
+		return () => {
+			profilesUnsubscribe?.();
+			sharedProfilesUnsubscribe?.();
+		};
+	}, [currentUser, gpaService, showMessage, generateProfileName]);
 
 	// Set initial active semester
 	useEffect(() => {
@@ -215,7 +575,7 @@ const GpaCalculator = () => {
 		}
 	}, [semesters, activeSemester]);
 
-	// Icon components
+	// ===== ICON COMPONENTS =====
 	const InfoIcon = ({ onClick }) => (
 		<svg
 			viewBox="0 0 24 24"
@@ -233,13 +593,13 @@ const GpaCalculator = () => {
 	);
 
 	const EditIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor">
+		<svg viewBox="0 0 24 24" fill="currentColor" height="20px" width="20px">
 			<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
 		</svg>
 	);
 
 	const DeleteIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor">
+		<svg viewBox="0 0 24 24" fill="currentColor" height="20px" width="20px">
 			<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
 		</svg>
 	);
@@ -262,30 +622,38 @@ const GpaCalculator = () => {
 		</svg>
 	);
 
+	// ===== RENDER =====
+	if (!currentUser) {
+		return <LoginRecommendation feature="GPA Calculator" />;
+	}
+
+	if (loading) {
+		return (
+			<div className="gpa-loading">
+				<div className="loading-spinner"></div>
+				<p>Loading your GPA data...</p>
+			</div>
+		);
+	}
+
 	return (
 		<div>
-			{/* Profile Drawer */}
 			<ProfileDrawer
 				isOpen={drawerOpen}
 				onClose={() => setDrawerOpen(false)}
-				profiles={profiles}
+				profiles={sortedProfiles}
 				currentProfile={activeProfile}
 				onProfileSelect={updateActiveProfile}
-				onCreateProfile={(name) => {
-					const newProfile = {
-						id: Date.now(),
-						name: name,
-						semesters: [],
-					};
-					const updatedProfiles = [...profiles, newProfile];
-					updateProfiles(updatedProfiles);
-					updateActiveProfile(newProfile.id);
-				}}
+				onCreateProfile={createProfile}
 				onDeleteProfile={deleteProfile}
+				onShareProfile={shareProfile}
+				onUnshareProfile={unshareProfile}
+				sharedProfiles={sharedProfiles}
+				isLoading={saving}
 			/>
 
-			{/* Main Content */}
 			<div id="GpaCalculator">
+				{/* Header */}
 				<div className="header">
 					<h1>GPA Calculator</h1>
 					<p className="subtitle">Calculate your semester GPA and cumulative GPA</p>
@@ -329,6 +697,16 @@ const GpaCalculator = () => {
 					</div>
 				</div>
 
+				{/* Save Status */}
+				{saving && (
+					<div className="save-status">
+						<div className="save-indicator">
+							<div className="save-spinner"></div>
+							<span>Saving...</span>
+						</div>
+					</div>
+				)}
+
 				{/* Semester Management */}
 				<div className="semester-management">
 					<div className="semester-header">
@@ -349,7 +727,7 @@ const GpaCalculator = () => {
 									onClick={() => setActiveSemester(semester.id)}
 								>
 									<span className="semester-name">{semester.name}</span>
-									<span className="semester-gpa">GPA: {calculateSemesterGPA(semester.subjects)}</span>
+									<span className="semester-gpa">GPA: {calculateGPA(semester.subjects)}</span>
 									<button
 										className="delete-semester-btn"
 										onClick={(e) => {
@@ -459,7 +837,7 @@ const GpaCalculator = () => {
 										</div>
 									</div>
 									<div className="semester-gpa-display">
-										<div className="gpa-number">{calculateSemesterGPA(semester.subjects)}</div>
+										<div className="gpa-number">{calculateGPA(semester.subjects)}</div>
 										<div className="gpa-label">Semester GPA</div>
 									</div>
 								</div>

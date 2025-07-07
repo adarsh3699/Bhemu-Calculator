@@ -142,11 +142,73 @@
 	color: rgba(51, 51, 51, 0.7);
 }
 
-/* Delete Profile Button */
-.delete-profile-btn {
+/* Profile Actions */
+.profile-actions {
 	position: absolute;
 	top: 10px;
 	right: 10px;
+	display: flex;
+	gap: 5px;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.profile-card:hover .profile-actions {
+	opacity: 1;
+}
+
+/* Share Button */
+.share-btn {
+	background: rgba(52, 199, 89, 0.8);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+}
+
+.share-btn:hover {
+	background: rgba(52, 199, 89, 1);
+	transform: scale(1.1);
+}
+
+.share-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Unshare Button */
+.unshare-btn {
+	background: rgba(255, 149, 0, 0.8);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+}
+
+.unshare-btn:hover {
+	background: rgba(255, 149, 0, 1);
+	transform: scale(1.1);
+}
+
+.unshare-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Delete Profile Button */
+.delete-profile-btn {
 	background: rgba(255, 59, 48, 0.8);
 	color: white;
 	border: none;
@@ -159,16 +221,32 @@
 	align-items: center;
 	justify-content: center;
 	transition: all 0.3s ease;
-	opacity: 0;
-}
-
-.profile-card:hover .delete-profile-btn {
-	opacity: 1;
 }
 
 .delete-profile-btn:hover {
 	background: rgba(255, 59, 48, 1);
 	transform: scale(1.1);
+}
+
+/* Shared Badge */
+.shared-badge {
+	display: inline-block;
+	background: rgba(52, 199, 89, 0.2);
+	color: rgba(52, 199, 89, 0.9);
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-top: 5px;
+	border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
+.light .shared-badge {
+	background: rgba(52, 199, 89, 0.1);
+	color: rgba(52, 199, 89, 0.8);
+	border: 1px solid rgba(52, 199, 89, 0.2);
 }
 
 /* Add Profile Card */
@@ -212,6 +290,124 @@
 	color: rgba(51, 51, 51, 0.7);
 }
 
+/* Shared Profiles Section */
+.shared-profiles-section {
+	margin-top: 30px;
+	padding-top: 20px;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.light .shared-profiles-section {
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shared-profiles-section h4 {
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0 0 15px 0;
+	font-size: 1.2rem;
+	font-weight: 600;
+}
+
+.light .shared-profiles-section h4 {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+.shared-profiles-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.shared-profile-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+	transition: all 0.3s ease;
+}
+
+.light .shared-profile-item {
+	background: rgba(0, 0, 0, 0.02);
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shared-profile-item:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(102, 126, 234, 0.3);
+}
+
+.light .shared-profile-item:hover {
+	background: rgba(0, 0, 0, 0.05);
+}
+
+.shared-profile-info {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.shared-profile-name {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.light .shared-profile-name {
+	color: rgba(51, 51, 51, 0.9);
+}
+
+.shared-profile-url {
+	font-size: 0.75rem;
+	color: rgba(255, 255, 255, 0.6);
+	font-family: monospace;
+	word-break: break-all;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.light .shared-profile-url {
+	color: rgba(51, 51, 51, 0.6);
+}
+
+.shared-profile-meta {
+	display: flex;
+	gap: 10px;
+	font-size: 0.7rem;
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.light .shared-profile-meta {
+	color: rgba(51, 51, 51, 0.5);
+}
+
+.copy-link-btn {
+	background: rgba(52, 199, 89, 0.8);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 6px 12px;
+	font-size: 0.8rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	white-space: nowrap;
+}
+
+.copy-link-btn:hover {
+	background: rgba(52, 199, 89, 1);
+	transform: translateY(-1px);
+}
+
+.copy-link-btn:active {
+	transform: translateY(0);
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
 	.profile-drawer {
@@ -224,5 +420,24 @@
 
 	.profile-drawer-content {
 		padding: 0 15px 15px;
+	}
+
+	.shared-profile-url {
+		max-width: 150px;
+	}
+
+	.shared-profile-meta {
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.shared-profile-item {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.copy-link-btn {
+		align-self: flex-end;
 	}
 }

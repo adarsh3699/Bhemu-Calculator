@@ -42,6 +42,16 @@ export function AuthProvider({ children }) {
 
 	// Sign out
 	function logout() {
+		// Clear all local storage data
+		localStorage.removeItem("gpaProfiles");
+		localStorage.removeItem("activeGpaProfile");
+
+		// Clear all localStorage data for extra safety
+		localStorage.clear();
+
+		// Clear sessionStorage as well (if any data exists)
+		sessionStorage.clear();
+
 		return signOut(auth);
 	}
 
