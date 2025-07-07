@@ -3,7 +3,7 @@ import "../styles/gpaCalc.css";
 import "react-responsive-modal/styles.css";
 
 import { RenderModal, ProfileDrawer } from "../components/GpaCalculator";
-import { LoginRecommendation, useMessage } from "../components/common";
+import { LoginRecommendation, useMessage, ShareModal } from "../components/common";
 import { useAuth } from "../firebase/AuthContext";
 import { createGPAService } from "../firebase/gpaService";
 
@@ -18,6 +18,8 @@ const GpaCalculator = () => {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [sharedProfiles, setSharedProfiles] = useState([]);
+	const [sharedWithMeProfiles, setSharedWithMeProfiles] = useState([]);
+	const [mySharedProfiles, setMySharedProfiles] = useState([]);
 
 	// Use ref to prevent race conditions - refs don't trigger re-renders
 	const isInitializingRef = useRef(false);
@@ -36,6 +38,10 @@ const GpaCalculator = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [modalType, setModalType] = useState("");
 
+	// Share modal state
+	const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+	const [profileToShare, setProfileToShare] = useState(null);
+
 	// ===== SERVICES & COMPUTED VALUES =====
 	const gpaService = useMemo(() => {
 		return currentUser ? createGPAService(currentUser.uid) : null;
@@ -49,8 +55,26 @@ const GpaCalculator = () => {
 		});
 	}, [profiles]);
 
-	const currentProfile = sortedProfiles.find((p) => p.id === activeProfile) || sortedProfiles[0];
+	// Combined profiles including shared profiles
+	const allProfiles = useMemo(() => {
+		const combined = [...sortedProfiles, ...sharedWithMeProfiles];
+		return combined.sort((a, b) => {
+			// Own profiles first, then shared profiles
+			if (!a.isShared && b.isShared) return -1;
+			if (a.isShared && !b.isShared) return 1;
+
+			// Within same category, sort by default then name
+			if (a.isDefault && !b.isDefault) return -1;
+			if (!a.isDefault && b.isDefault) return 1;
+			return a.name.localeCompare(b.name);
+		});
+	}, [sortedProfiles, sharedWithMeProfiles]);
+
+	const currentProfile = allProfiles.find((p) => p.id === activeProfile) || allProfiles[0];
 	const semesters = useMemo(() => currentProfile?.semesters || [], [currentProfile]);
+
+	// Check if current profile is read-only
+	const isReadOnlyProfile = currentProfile?.isShared && currentProfile?.permission === "read";
 
 	// ===== UTILITY FUNCTIONS =====
 	const generateProfileName = useCallback(() => {
@@ -64,7 +88,13 @@ const GpaCalculator = () => {
 
 			try {
 				setSaving(true);
-				await gpaService.saveProfile(profileData);
+
+				// Use collaborative save if the profile is shared with edit permissions
+				if (profileData.isShared && profileData.permission === "edit") {
+					await gpaService.saveProfileWithCollaboration(profileData);
+				} else {
+					await gpaService.saveProfile(profileData);
+				}
 			} catch (error) {
 				console.error("Error saving profile:", error);
 				showMessage("Error saving data. Please try again.", "error");
@@ -163,6 +193,85 @@ const GpaCalculator = () => {
 		[profiles, sortedProfiles, activeProfile, updateActiveProfile, gpaService, showMessage]
 	);
 
+	// ===== ENHANCED SHARING FUNCTIONS =====
+	const handleShareProfile = useCallback(
+		(profileId) => {
+			const profile = profiles.find((p) => p.id === profileId);
+			if (profile) {
+				setProfileToShare(profile);
+				setIsShareModalOpen(true);
+			}
+		},
+		[profiles]
+	);
+
+	const handleShareWithUser = useCallback(
+		async (emailOrAction, permission) => {
+			if (!gpaService || !profileToShare) return;
+
+			try {
+				// Handle unshare action
+				if (permission === "unshare") {
+					const result = await gpaService.unshareProfileWithUser(emailOrAction);
+					if (result.success) {
+						showMessage("Profile unshared successfully", "success");
+						// Refresh shared profiles list
+						const mySharedResult = await gpaService.getMySharedProfiles();
+						if (mySharedResult.success) {
+							setMySharedProfiles(mySharedResult.sharedProfiles);
+						}
+					} else {
+						showMessage(result.error || "Error unsharing profile", "error");
+					}
+					return;
+				}
+
+				// Handle share action
+				const result = await gpaService.shareProfileWithUser(profileToShare.id, emailOrAction, permission);
+
+				if (result.success) {
+					showMessage(`Profile shared with ${emailOrAction} (${permission} access)`, "success");
+
+					// Refresh shared profiles list
+					const mySharedResult = await gpaService.getMySharedProfiles();
+					if (mySharedResult.success) {
+						setMySharedProfiles(mySharedResult.sharedProfiles);
+					}
+				} else {
+					showMessage(result.error || "Error sharing profile", "error");
+					throw new Error(result.error);
+				}
+			} catch (error) {
+				console.error("Error in share operation:", error);
+				showMessage("Error sharing profile. Please try again.", "error");
+				throw error;
+			}
+		},
+		[gpaService, profileToShare, showMessage]
+	);
+
+	const handleCopySharedProfile = useCallback(
+		async (shareId, profileName) => {
+			if (!gpaService) return;
+
+			try {
+				const result = await gpaService.copySharedProfileToMyAccount(shareId, `Copy of ${profileName}`);
+
+				if (result.success) {
+					showMessage("Profile copied to your account successfully!", "success");
+					updateActiveProfile(result.profile.id);
+				} else {
+					showMessage(result.error || "Error copying profile", "error");
+				}
+			} catch (error) {
+				console.error("Error copying shared profile:", error);
+				showMessage("Error copying profile. Please try again.", "error");
+			}
+		},
+		[gpaService, showMessage, updateActiveProfile]
+	);
+
+	// Legacy sharing functions for backward compatibility
 	const shareProfile = useCallback(
 		async (profileId, shareOptions = {}) => {
 			if (!gpaService) return;
@@ -343,6 +452,7 @@ const GpaCalculator = () => {
 
 		let profilesUnsubscribe = null;
 		let sharedProfilesUnsubscribe = null;
+		let cleanupCollaborativeListeners = null;
 
 		const cleanupDuplicateProfiles = async () => {
 			try {
@@ -481,10 +591,17 @@ const GpaCalculator = () => {
 					}
 				}
 
-				// Step 6: Set up real-time listeners
-				setupRealtimeListeners();
+				// Step 6: Load shared profiles
+				await loadSharedWithMeProfiles();
+				await loadMySharedProfiles();
+
+				// Step 7: Set up real-time listeners
+				const cleanupCollaborativeListeners = setupRealtimeListeners();
 
 				console.log("Initialization completed successfully");
+
+				// Store cleanup function for collaborative listeners
+				return cleanupCollaborativeListeners;
 			} catch (error) {
 				console.error("Initialization error:", error);
 				showMessage("Error loading your data. Please try again.", "error");
@@ -546,12 +663,68 @@ const GpaCalculator = () => {
 				setLoading(false);
 			});
 
-			// Shared profiles listener
+			// Legacy shared profiles listener (for backward compatibility)
 			sharedProfilesUnsubscribe = gpaService.onSharedProfilesChange((result) => {
 				if (result.success) {
 					setSharedProfiles(result.sharedProfiles);
 				}
 			});
+
+			// Enhanced sharing listeners
+			const incomingSharesUnsubscribe = gpaService.onIncomingSharesChange((result) => {
+				if (result.success) {
+					console.log("Incoming shares updated:", result.shares.length);
+					loadSharedWithMeProfiles();
+				}
+			});
+
+			// Add collaborative profile listeners for active shared profiles
+			const collaborativeListeners = [];
+			sharedWithMeProfiles.forEach((profile) => {
+				if (profile.permission === "edit") {
+					const unsubscribe = gpaService.onCollaborativeProfileChange(profile.id, (result) => {
+						if (result.success) {
+							// Update the specific profile in the shared profiles list
+							setSharedWithMeProfiles((prev) =>
+								prev.map((p) =>
+									p.id === profile.id ? { ...result.profile, isShared: true, permission: "edit" } : p
+								)
+							);
+						}
+					});
+					collaborativeListeners.push(unsubscribe);
+				}
+			});
+
+			// Return cleanup function
+			return () => {
+				incomingSharesUnsubscribe?.();
+				collaborativeListeners.forEach((unsubscribe) => unsubscribe?.());
+			};
+		};
+
+		const loadSharedWithMeProfiles = async () => {
+			try {
+				const result = await gpaService.getSharedWithMeProfiles();
+				if (result.success) {
+					console.log("Shared with me profiles loaded:", result.sharedProfiles.length);
+					setSharedWithMeProfiles(result.sharedProfiles);
+				}
+			} catch (error) {
+				console.error("Error loading shared profiles:", error);
+			}
+		};
+
+		const loadMySharedProfiles = async () => {
+			try {
+				const result = await gpaService.getMySharedProfiles();
+				if (result.success) {
+					console.log("My shared profiles loaded:", result.sharedProfiles.length);
+					setMySharedProfiles(result.sharedProfiles);
+				}
+			} catch (error) {
+				console.error("Error loading my shared profiles:", error);
+			}
 		};
 
 		// Load active profile from localStorage
@@ -560,11 +733,14 @@ const GpaCalculator = () => {
 			setActiveProfile(savedActiveProfile);
 		}
 
-		initializeData();
+		initializeData().then((cleanup) => {
+			cleanupCollaborativeListeners = cleanup;
+		});
 
 		return () => {
 			profilesUnsubscribe?.();
 			sharedProfilesUnsubscribe?.();
+			cleanupCollaborativeListeners?.();
 		};
 	}, [currentUser, gpaService, showMessage, generateProfileName]);
 
@@ -641,15 +817,28 @@ const GpaCalculator = () => {
 			<ProfileDrawer
 				isOpen={drawerOpen}
 				onClose={() => setDrawerOpen(false)}
-				profiles={sortedProfiles}
+				profiles={allProfiles}
 				currentProfile={activeProfile}
 				onProfileSelect={updateActiveProfile}
 				onCreateProfile={createProfile}
 				onDeleteProfile={deleteProfile}
-				onShareProfile={shareProfile}
+				onShareProfile={handleShareProfile}
 				onUnshareProfile={unshareProfile}
+				onCopySharedProfile={handleCopySharedProfile}
 				sharedProfiles={sharedProfiles}
+				mySharedProfiles={mySharedProfiles}
 				isLoading={saving}
+			/>
+
+			<ShareModal
+				isOpen={isShareModalOpen}
+				onClose={() => {
+					setIsShareModalOpen(false);
+					setProfileToShare(null);
+				}}
+				onShareWithUser={handleShareWithUser}
+				profileName={profileToShare?.name}
+				currentShares={mySharedProfiles.filter((share) => share.profileId === profileToShare?.id)}
 			/>
 
 			<div id="GpaCalculator">
@@ -710,10 +899,10 @@ const GpaCalculator = () => {
 				{/* Semester Management */}
 				<div className="semester-management">
 					<div className="semester-header">
-						<h2>Manage Semesters</h2>
-						<button className="add-semester-btn" onClick={addSemester}>
+						<h2>{isReadOnlyProfile ? "View Semesters" : "Manage Semesters"}</h2>
+						<button className="add-semester-btn" onClick={addSemester} disabled={isReadOnlyProfile}>
 							<PlusIcon />
-							Add Semester
+							{isReadOnlyProfile ? "Read-Only Profile" : "Add Semester"}
 						</button>
 					</div>
 
@@ -734,6 +923,8 @@ const GpaCalculator = () => {
 											e.stopPropagation();
 											deleteSemester(semester.id);
 										}}
+										disabled={isReadOnlyProfile}
+										title={isReadOnlyProfile ? "Read-only profile" : "Delete semester"}
 									>
 										<CloseIcon />
 									</button>
@@ -746,7 +937,11 @@ const GpaCalculator = () => {
 				{/* Subject Form */}
 				{activeSemester && (
 					<div className="subject-form-container">
-						<h3>Add Subject to {semesters.find((s) => s.id === activeSemester)?.name}</h3>
+						<h3>
+							{isReadOnlyProfile ? "View Subjects in " : "Add Subject to "}
+							{semesters.find((s) => s.id === activeSemester)?.name}
+							{isReadOnlyProfile && <span className="read-only-badge">Read-Only</span>}
+						</h3>
 						<form className="subject-form" onSubmit={addOrUpdateSubject}>
 							<div className="form-row">
 								<div className="form-group">
@@ -755,9 +950,10 @@ const GpaCalculator = () => {
 										id="subjectName"
 										type="text"
 										name="subjectName"
-										placeholder='e.g. "Mathematics"'
+										placeholder={isReadOnlyProfile ? "Read-only profile" : 'e.g. "Mathematics"'}
 										value={newSubject.subjectName}
 										onChange={handleInputChange}
+										disabled={isReadOnlyProfile}
 										required
 									/>
 								</div>
@@ -772,6 +968,7 @@ const GpaCalculator = () => {
 										name="grade"
 										value={newSubject.grade}
 										onChange={handleInputChange}
+										disabled={isReadOnlyProfile}
 										required
 									>
 										<option value="">Select Grade</option>
@@ -797,17 +994,18 @@ const GpaCalculator = () => {
 										id="credit"
 										type="number"
 										name="credit"
-										placeholder="Credits"
+										placeholder={isReadOnlyProfile ? "Read-only profile" : "Credits"}
 										min="0"
 										step="0.5"
 										value={newSubject.credit}
 										onChange={handleInputChange}
+										disabled={isReadOnlyProfile}
 										required
 									/>
 								</div>
 
 								<div className="form-group">
-									<button type="submit" className="submit-btn">
+									<button type="submit" className="submit-btn" disabled={isReadOnlyProfile}>
 										{editIndex === -1 ? "Add Subject" : "Update Subject"}
 									</button>
 								</div>
@@ -852,12 +1050,22 @@ const GpaCalculator = () => {
 														<button
 															className="edit-btn"
 															onClick={() => editSubject(semester.id, subject)}
+															disabled={isReadOnlyProfile}
+															title={
+																isReadOnlyProfile ? "Read-only profile" : "Edit subject"
+															}
 														>
 															<EditIcon />
 														</button>
 														<button
 															className="delete-btn"
 															onClick={() => deleteSubject(semester.id, subject.id)}
+															disabled={isReadOnlyProfile}
+															title={
+																isReadOnlyProfile
+																	? "Read-only profile"
+																	: "Delete subject"
+															}
 														>
 															<DeleteIcon />
 														</button>

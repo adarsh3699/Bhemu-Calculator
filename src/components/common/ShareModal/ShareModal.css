@@ -1,0 +1,380 @@
+/* ShareModal.css */
+
+.share-modal {
+	max-width: 600px;
+	width: 90%;
+	border-radius: 20px;
+	border: none;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+	color: white;
+	overflow: hidden;
+}
+
+/* Custom Close Button Styling */
+.share-modal-close-btn {
+	cursor: pointer;
+	padding: 8px 12px;
+	font-size: 24px;
+	color: rgba(255, 255, 255, 0.7);
+	transition: all 0.3s ease;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	background: none;
+	border: none;
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	z-index: 1000;
+}
+
+.share-modal-close-btn:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.9);
+	transform: scale(1.1);
+}
+
+.share-modal-close-btn:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5);
+}
+
+.share-modal-close-btn:active:not(:disabled) {
+	transform: scale(0.95);
+}
+
+.share-modal-close-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.light .share-modal {
+	background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+	color: #2d3748;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Close Button - Light Mode */
+.light .share-modal-close-btn {
+	color: rgba(45, 55, 72, 0.7);
+}
+
+.light .share-modal-close-btn:hover:not(:disabled) {
+	background: rgba(45, 55, 72, 0.1);
+	color: rgba(45, 55, 72, 0.9);
+	transform: scale(1.1);
+}
+
+.light .share-modal-close-btn:focus {
+	box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.5);
+}
+
+.share-modal-overlay {
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(4px);
+}
+
+.share-modal-content {
+	padding: 32px;
+}
+
+.share-modal-content h2 {
+	margin: 0 0 8px 0;
+	font-size: 1.75rem;
+	font-weight: 700;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.share-modal-subtitle {
+	margin: 0 0 24px 0;
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 1rem;
+}
+
+.light .share-modal-subtitle {
+	color: rgba(45, 55, 72, 0.7);
+}
+
+/* Share Form */
+.share-form {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.form-group label {
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.light .form-group label {
+	color: rgba(45, 55, 72, 0.9);
+}
+
+.form-group input,
+.form-group select {
+	padding: 12px 16px;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	font-size: 1rem;
+	transition: all 0.3s ease;
+}
+
+.light .form-group input,
+.light .form-group select {
+	background: rgba(45, 55, 72, 0.05);
+	border-color: rgba(45, 55, 72, 0.2);
+	color: #2d3748;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+	outline: none;
+	border-color: #667eea;
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.form-group input::placeholder {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.light .form-group input::placeholder {
+	color: rgba(45, 55, 72, 0.5);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Permission Info */
+.permission-info {
+	margin-top: 8px;
+	padding: 12px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	border-left: 4px solid #667eea;
+}
+
+.light .permission-info {
+	background: rgba(102, 126, 234, 0.1);
+}
+
+.permission-info p {
+	margin: 0;
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.light .permission-info p {
+	color: rgba(45, 55, 72, 0.8);
+}
+
+/* Error Message */
+.error-message {
+	padding: 12px;
+	background: rgba(239, 68, 68, 0.2);
+	border: 1px solid rgba(239, 68, 68, 0.5);
+	border-radius: 8px;
+	color: #f87171;
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+/* Form Actions */
+.form-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+	margin-top: 24px;
+}
+
+.share-modal .cancel-btn,
+.share-modal .share-btn {
+	padding: 12px 24px;
+	border-radius: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: none;
+	font-size: 1rem;
+}
+
+.share-modal .cancel-btn {
+	background: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.9);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.light .share-modal .cancel-btn {
+	background: rgba(45, 55, 72, 0.1);
+	color: rgba(45, 55, 72, 0.9);
+	border-color: rgba(45, 55, 72, 0.3);
+}
+
+.share-modal .cancel-btn:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.2);
+	transform: translateY(-1px);
+}
+
+.light .share-modal .cancel-btn:hover:not(:disabled) {
+	background: rgba(45, 55, 72, 0.2);
+}
+
+.share-modal .share-btn {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.share-modal .share-btn:hover:not(:disabled) {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.share-modal .cancel-btn:disabled,
+.share-modal .share-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Current Shares */
+.current-shares {
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .current-shares {
+	border-color: rgba(45, 55, 72, 0.1);
+}
+
+.current-shares h3 {
+	margin: 0 0 16px 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.light .current-shares h3 {
+	color: rgba(45, 55, 72, 0.9);
+}
+
+.shares-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.share-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .share-item {
+	background: rgba(45, 55, 72, 0.05);
+	border-color: rgba(45, 55, 72, 0.1);
+}
+
+.share-info {
+	flex: 1;
+}
+
+.share-email {
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.9);
+	margin-bottom: 4px;
+}
+
+.light .share-email {
+	color: rgba(45, 55, 72, 0.9);
+}
+
+.share-permission {
+	font-size: 0.9rem;
+	color: #667eea;
+	font-weight: 500;
+	margin-bottom: 4px;
+}
+
+.share-date {
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+.light .share-date {
+	color: rgba(45, 55, 72, 0.6);
+}
+
+.share-modal .unshare-btn {
+	padding: 8px 16px;
+	background: rgba(239, 68, 68, 0.2);
+	color: #f87171;
+	border: 1px solid rgba(239, 68, 68, 0.5);
+	border-radius: 8px;
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.share-modal .unshare-btn:hover:not(:disabled) {
+	background: rgba(239, 68, 68, 0.3);
+	transform: translateY(-1px);
+}
+
+.share-modal .unshare-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.share-modal {
+		width: 95%;
+		margin: 16px;
+	}
+
+	.share-modal-content {
+		padding: 24px;
+	}
+
+	.form-actions {
+		flex-direction: column;
+	}
+
+	.share-item {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.share-modal .unshare-btn {
+		align-self: flex-end;
+	}
+}

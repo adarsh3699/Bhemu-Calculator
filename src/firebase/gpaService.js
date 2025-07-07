@@ -13,13 +13,17 @@ import {
 	serverTimestamp,
 	writeBatch,
 	onSnapshot,
+	arrayUnion,
+	arrayRemove,
 } from "firebase/firestore";
 import { db } from "./config";
 
-// Database structure:
+// Enhanced Database structure:
 // users/{userId}/profiles/{profileId} - user's private profiles
-// sharedProfiles/{shareId} - publicly shared profiles
-// users/{userId}/sharedProfiles/{shareId} - user's shared profile references
+// userShares/{userId}/outgoing/{shareId} - profiles shared by user
+// userShares/{userId}/incoming/{shareId} - profiles shared with user
+// collaborativeProfiles/{profileId} - profiles with edit permissions for real-time sync
+// sharedProfiles/{shareId} - publicly shared profiles (legacy)
 
 export class GPAService {
 	constructor(userId) {
@@ -27,6 +31,12 @@ export class GPAService {
 		this.userProfilesRef = collection(db, "users", userId, "profiles");
 		this.sharedProfilesRef = collection(db, "sharedProfiles");
 		this.userSharedRef = collection(db, "users", userId, "sharedProfiles");
+
+		// Enhanced sharing collections
+		// Note: userShares/{userId} is a document reference (2 segments), not a collection reference
+		this.outgoingSharesRef = collection(db, "userShares", userId, "outgoing");
+		this.incomingSharesRef = collection(db, "userShares", userId, "incoming");
+		this.collaborativeProfilesRef = collection(db, "collaborativeProfiles");
 	}
 
 	// ===== PROFILE MANAGEMENT =====
@@ -346,6 +356,340 @@ export class GPAService {
 		} catch (error) {
 			console.error("Error unsharing profile:", error);
 			return { success: false, error: error.message };
+		}
+	}
+
+	// ===== ENHANCED USER-SPECIFIC SHARING =====
+
+	async shareProfileWithUser(profileId, targetUserEmail, permission = "read") {
+		try {
+			// Get the profile first
+			const profileResult = await this.getProfile(profileId);
+			if (!profileResult.success) {
+				return { success: false, error: "Profile not found" };
+			}
+
+			const profile = profileResult.profile;
+			const shareId = this.generateShareId();
+
+			// Get target user ID by email (you might need to implement user lookup)
+			const targetUserId = await this.getUserIdByEmail(targetUserEmail);
+			if (!targetUserId) {
+				return { success: false, error: "User not found" };
+			}
+
+			const batch = writeBatch(db);
+
+			// Create share data
+			const shareData = {
+				shareId,
+				profileId,
+				profileName: profile.name,
+				ownerUserId: this.userId,
+				targetUserId,
+				targetUserEmail,
+				permission, // "read" or "edit"
+				sharedAt: serverTimestamp(),
+				isActive: true,
+			};
+
+			// Add to owner's outgoing shares
+			const outgoingShareRef = doc(this.outgoingSharesRef, shareId);
+			batch.set(outgoingShareRef, shareData);
+
+			// Add to target user's incoming shares
+			const targetIncomingRef = doc(db, "userShares", targetUserId, "incoming", shareId);
+			batch.set(targetIncomingRef, shareData);
+
+			// If edit permission, create collaborative profile
+			if (permission === "edit") {
+				const collaborativeProfileRef = doc(this.collaborativeProfilesRef, profileId);
+				batch.set(collaborativeProfileRef, {
+					...profile,
+					collaborators: arrayUnion(targetUserId),
+					permissions: {
+						[this.userId]: "owner",
+						[targetUserId]: "edit",
+					},
+					lastModified: serverTimestamp(),
+				});
+			}
+
+			await batch.commit();
+
+			return {
+				success: true,
+				shareId,
+				shareData,
+			};
+		} catch (error) {
+			console.error("Error sharing profile with user:", error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async getSharedWithMeProfiles() {
+		try {
+			const snapshot = await getDocs(query(this.incomingSharesRef, where("isActive", "==", true)));
+			const sharedProfiles = [];
+
+			for (const docSnap of snapshot.docs) {
+				const shareData = docSnap.data();
+
+				// Get the actual profile data
+				if (shareData.permission === "edit") {
+					// Get from collaborative profiles
+					const collaborativeProfileRef = doc(this.collaborativeProfilesRef, shareData.profileId);
+					const collaborativeProfileSnap = await getDoc(collaborativeProfileRef);
+
+					if (collaborativeProfileSnap.exists()) {
+						const profileData = collaborativeProfileSnap.data();
+						sharedProfiles.push({
+							...profileData,
+							id: shareData.profileId,
+							shareId: shareData.shareId,
+							permission: shareData.permission,
+							ownerUserId: shareData.ownerUserId,
+							sharedAt: shareData.sharedAt,
+							isShared: true,
+						});
+					}
+				} else {
+					// Get from owner's profiles (read-only)
+					const ownerProfileRef = doc(db, "users", shareData.ownerUserId, "profiles", shareData.profileId);
+					const ownerProfileSnap = await getDoc(ownerProfileRef);
+
+					if (ownerProfileSnap.exists()) {
+						const profileData = ownerProfileSnap.data();
+						sharedProfiles.push({
+							...profileData,
+							id: shareData.profileId,
+							shareId: shareData.shareId,
+							permission: shareData.permission,
+							ownerUserId: shareData.ownerUserId,
+							sharedAt: shareData.sharedAt,
+							isShared: true,
+						});
+					}
+				}
+			}
+
+			return { success: true, sharedProfiles };
+		} catch (error) {
+			console.error("Error fetching shared profiles:", error);
+			return { success: false, error: error.message, sharedProfiles: [] };
+		}
+	}
+
+	async getMySharedProfiles() {
+		try {
+			const snapshot = await getDocs(query(this.outgoingSharesRef, where("isActive", "==", true)));
+			const sharedProfiles = snapshot.docs.map((doc) => ({
+				id: doc.id,
+				...doc.data(),
+			}));
+			return { success: true, sharedProfiles };
+		} catch (error) {
+			console.error("Error fetching my shared profiles:", error);
+			return { success: false, error: error.message, sharedProfiles: [] };
+		}
+	}
+
+	async unshareProfileWithUser(shareId) {
+		try {
+			const batch = writeBatch(db);
+
+			// Get share data first
+			const shareRef = doc(this.outgoingSharesRef, shareId);
+			const shareSnap = await getDoc(shareRef);
+
+			if (!shareSnap.exists()) {
+				return { success: false, error: "Share not found" };
+			}
+
+			const shareData = shareSnap.data();
+
+			// Remove from owner's outgoing shares
+			batch.delete(shareRef);
+
+			// Remove from target user's incoming shares
+			const targetIncomingRef = doc(db, "userShares", shareData.targetUserId, "incoming", shareId);
+			batch.delete(targetIncomingRef);
+
+			// If edit permission, update collaborative profile
+			if (shareData.permission === "edit") {
+				const collaborativeProfileRef = doc(this.collaborativeProfilesRef, shareData.profileId);
+				batch.update(collaborativeProfileRef, {
+					collaborators: arrayRemove(shareData.targetUserId),
+					[`permissions.${shareData.targetUserId}`]: null,
+					lastModified: serverTimestamp(),
+				});
+			}
+
+			await batch.commit();
+			return { success: true };
+		} catch (error) {
+			console.error("Error unsharing profile with user:", error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Save profile with collaboration support
+	async saveProfileWithCollaboration(profile) {
+		try {
+			const batch = writeBatch(db);
+
+			// Save to user's profiles
+			const userProfileRef = doc(this.userProfilesRef, profile.id.toString());
+			const profileData = {
+				...profile,
+				userId: this.userId,
+				updatedAt: serverTimestamp(),
+				createdAt: profile.createdAt || serverTimestamp(),
+			};
+			batch.set(userProfileRef, profileData);
+
+			// If profile has collaborators, update collaborative profile
+			if (profile.isShared && profile.permission === "edit") {
+				const collaborativeProfileRef = doc(this.collaborativeProfilesRef, profile.id.toString());
+				batch.set(collaborativeProfileRef, {
+					...profileData,
+					lastModified: serverTimestamp(),
+				});
+			}
+
+			await batch.commit();
+			return { success: true, profile: profileData };
+		} catch (error) {
+			console.error("Error saving profile with collaboration:", error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Listen to collaborative profile changes
+	onCollaborativeProfileChange(profileId, callback) {
+		try {
+			const docRef = doc(this.collaborativeProfilesRef, profileId.toString());
+			const unsubscribe = onSnapshot(
+				docRef,
+				(docSnap) => {
+					if (docSnap.exists()) {
+						const profile = { id: docSnap.id, ...docSnap.data() };
+						callback({ success: true, profile });
+					} else {
+						callback({ success: false, error: "Collaborative profile not found" });
+					}
+				},
+				(error) => {
+					console.error("Error listening to collaborative profile:", error);
+					callback({ success: false, error: error.message });
+				}
+			);
+
+			return unsubscribe;
+		} catch (error) {
+			console.error("Error setting up collaborative profile listener:", error);
+			callback({ success: false, error: error.message });
+			return () => {};
+		}
+	}
+
+	// Listen to incoming shares
+	onIncomingSharesChange(callback) {
+		try {
+			const q = query(this.incomingSharesRef, where("isActive", "==", true));
+			const unsubscribe = onSnapshot(
+				q,
+				(snapshot) => {
+					const shares = snapshot.docs.map((doc) => ({
+						id: doc.id,
+						...doc.data(),
+					}));
+					callback({ success: true, shares });
+				},
+				(error) => {
+					console.error("Error listening to incoming shares:", error);
+					callback({ success: false, error: error.message, shares: [] });
+				}
+			);
+
+			return unsubscribe;
+		} catch (error) {
+			console.error("Error setting up incoming shares listener:", error);
+			callback({ success: false, error: error.message, shares: [] });
+			return () => {};
+		}
+	}
+
+	// Copy shared profile to user's account
+	async copySharedProfileToMyAccount(shareId, newProfileName) {
+		try {
+			// Get the share data
+			const shareRef = doc(this.incomingSharesRef, shareId);
+			const shareSnap = await getDoc(shareRef);
+
+			if (!shareSnap.exists()) {
+				return { success: false, error: "Share not found" };
+			}
+
+			const shareData = shareSnap.data();
+
+			// Get the profile data
+			let profileData;
+			if (shareData.permission === "edit") {
+				const collaborativeProfileRef = doc(this.collaborativeProfilesRef, shareData.profileId);
+				const collaborativeProfileSnap = await getDoc(collaborativeProfileRef);
+				profileData = collaborativeProfileSnap.data();
+			} else {
+				const ownerProfileRef = doc(db, "users", shareData.ownerUserId, "profiles", shareData.profileId);
+				const ownerProfileSnap = await getDoc(ownerProfileRef);
+				profileData = ownerProfileSnap.data();
+			}
+
+			if (!profileData) {
+				return { success: false, error: "Profile data not found" };
+			}
+
+			// Create new profile
+			const newProfile = {
+				id: Date.now(),
+				name: newProfileName || `Copy of ${profileData.name}`,
+				semesters: profileData.semesters || [],
+				isDefault: false,
+				copiedFrom: {
+					shareId,
+					originalUserId: shareData.ownerUserId,
+					originalProfileId: shareData.profileId,
+					copiedAt: serverTimestamp(),
+				},
+			};
+
+			// Save the copied profile
+			const saveResult = await this.saveProfile(newProfile);
+			return saveResult;
+		} catch (error) {
+			console.error("Error copying shared profile:", error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Helper method to get user ID by email (you might need to implement user lookup)
+	async getUserIdByEmail(email) {
+		try {
+			// This is a simplified version - you might need to implement a proper user lookup
+			// For now, we'll use a users collection to store email-to-uid mappings
+			const usersRef = collection(db, "users");
+			const q = query(usersRef, where("email", "==", email), limit(1));
+			const snapshot = await getDocs(q);
+
+			if (!snapshot.empty) {
+				return snapshot.docs[0].id;
+			}
+
+			return null;
+		} catch (error) {
+			console.error("Error getting user ID by email:", error);
+			return null;
 		}
 	}
 

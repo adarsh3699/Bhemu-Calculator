@@ -67,14 +67,26 @@ function RenderModal({ isModalOpen, onClose, modalType }) {
 	}
 
 	return (
-		<Modal open={isModalOpen} onClose={handleClose} classNames="modal" center>
+		<Modal open={isModalOpen} onClose={handleClose} classNames="modal" center showCloseIcon={false}>
 			<div className="modal-bar">
 				<a href={modalData?.url} className="modalTile" target="_blank" rel="noreferrer">
 					{modalData?.name?.toUpperCase()}
 				</a>
 
 				<span className="closeBtn" onClick={handleClose}>
-					&times;
+					<svg
+						width="25"
+						height="25"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
 				</span>
 			</div>
 			<div className="modal-content">

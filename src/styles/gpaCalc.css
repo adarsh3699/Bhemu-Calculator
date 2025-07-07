@@ -464,6 +464,9 @@
 	color: rgba(255, 255, 255, 0.9);
 	margin: 0 0 20px 0;
 	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .subject-form .form-row {
@@ -560,6 +563,66 @@
 .submit-btn:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Read-Only Profile Styles */
+.read-only-badge {
+	display: inline-flex;
+	align-items: center;
+	margin-left: 10px;
+	padding: 4px 12px;
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	color: white;
+	font-size: 0.75rem;
+	font-weight: 600;
+	border-radius: 20px;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+	animation: fadeIn 0.3s ease;
+	vertical-align: middle;
+}
+
+/* Disabled Elements Styles */
+.subject-form input:disabled,
+.subject-form select:disabled,
+.submit-btn:disabled,
+.add-semester-btn:disabled,
+.edit-btn:disabled,
+.delete-btn:disabled,
+.delete-semester-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	background: rgba(255, 255, 255, 0.1) !important;
+	border-color: rgba(255, 255, 255, 0.2) !important;
+	color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.subject-form input:disabled::placeholder {
+	color: rgba(255, 255, 255, 0.4);
+}
+
+.submit-btn:disabled,
+.add-semester-btn:disabled {
+	background: rgba(255, 255, 255, 0.1) !important;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+.edit-btn:disabled,
+.delete-btn:disabled,
+.delete-semester-btn:disabled {
+	background: rgba(255, 255, 255, 0.1) !important;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+.edit-btn:disabled:hover,
+.delete-btn:disabled:hover,
+.delete-semester-btn:disabled:hover,
+.submit-btn:disabled:hover,
+.add-semester-btn:disabled:hover {
+	background: rgba(255, 255, 255, 0.1) !important;
+	transform: none !important;
+	box-shadow: none !important;
 }
 
 /* Semesters Container */
@@ -832,14 +895,48 @@
 }
 
 .light .semester-card {
-	background: rgba(255, 255, 255, 0.8);
-	border: 1px solid rgba(67, 56, 202, 0.1);
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid rgba(67, 56, 202, 0.2);
 	box-shadow: 0 20px 40px rgba(67, 56, 202, 0.1);
 }
 
+.light .semester-card::before {
+	background: linear-gradient(90deg, transparent, rgba(67, 56, 202, 0.3), transparent);
+}
+
 .light .semester-tab {
-	background: rgba(255, 255, 255, 0.8);
-	border: 1px solid rgba(67, 56, 202, 0.1);
+	background: rgba(255, 255, 255, 0.95);
+	border: 2px solid rgba(67, 56, 202, 0.2);
+	box-shadow: 0 4px 12px rgba(67, 56, 202, 0.1);
+}
+
+.light .semester-tab:hover {
+	background: rgba(255, 255, 255, 1);
+	border-color: rgba(67, 56, 202, 0.3);
+	box-shadow: 0 8px 25px rgba(67, 56, 202, 0.15);
+}
+
+.light .semester-tab.active {
+	background: linear-gradient(135deg, #4338ca 0%, #7c3aed 100%);
+	border-color: #4338ca;
+	color: white;
+}
+
+.light .semester-name {
+	color: #4338ca;
+	font-weight: 600;
+}
+
+.light .semester-tab.active .semester-name {
+	color: white;
+}
+
+.light .semester-gpa {
+	color: rgba(67, 56, 202, 0.7);
+}
+
+.light .semester-tab.active .semester-gpa {
+	color: rgba(255, 255, 255, 0.9);
 }
 
 .light .subject-card {
@@ -848,8 +945,8 @@
 }
 
 .light .stat {
-	background: rgba(255, 255, 255, 0.8);
-	border: 1px solid rgba(67, 56, 202, 0.1);
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid rgba(67, 56, 202, 0.2);
 }
 
 .light .stat-value {
@@ -857,6 +954,19 @@
 }
 
 .light .stat-label {
+	color: rgba(67, 56, 202, 0.7);
+}
+
+.light .semester-gpa-display {
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid rgba(67, 56, 202, 0.2);
+}
+
+.light .gpa-number {
+	color: #4338ca;
+}
+
+.light .gpa-label {
 	color: rgba(67, 56, 202, 0.7);
 }
 
@@ -895,6 +1005,9 @@
 
 .light .subject-form-container h3 {
 	color: #4338ca;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .light .semester-info h3 {
@@ -932,13 +1045,42 @@
 	color: rgba(67, 56, 202, 0.6);
 }
 
-.light .semester-header h2,
-.light .no-subjects h3 {
-	color: rgba(51, 51, 51, 0.9);
+.light .semester-header h2 {
+	color: #4338ca;
+	font-weight: 600;
 }
 
-.light .no-subjects p {
-	color: rgba(51, 51, 51, 0.7);
+.light .no-subjects h3,
+.light .no-semesters h3 {
+	color: #4338ca;
+}
+
+.light .no-subjects p,
+.light .no-semesters p {
+	color: rgba(67, 56, 202, 0.7);
+}
+
+/* Light Mode Disabled Elements */
+.light .subject-form input:disabled,
+.light .subject-form select:disabled,
+.light .submit-btn:disabled,
+.light .add-semester-btn:disabled,
+.light .edit-btn:disabled,
+.light .delete-btn:disabled,
+.light .delete-semester-btn:disabled {
+	opacity: 0.6;
+	background: rgba(107, 114, 128, 0.1) !important;
+	border-color: rgba(107, 114, 128, 0.2) !important;
+	color: rgba(107, 114, 128, 0.5) !important;
+}
+
+.light .subject-form input:disabled::placeholder {
+	color: rgba(107, 114, 128, 0.4);
+}
+
+.light .read-only-badge {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
 /* Responsive Design */

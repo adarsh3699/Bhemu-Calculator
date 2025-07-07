@@ -15,7 +15,8 @@
 
 /* Profile Drawer */
 .profile-drawer {
-	background: rgba(255, 255, 255, 0.1);
+	/* background: rgba(255, 255, 255, 0.15); */
+	background: rgba(85, 85, 85, 0.6);
 	backdrop-filter: blur(20px);
 	border-radius: 20px 20px 0 0;
 	width: 100%;
@@ -94,6 +95,10 @@
 	transition: all 0.3s ease;
 	position: relative;
 	backdrop-filter: blur(10px);
+	min-height: 100px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
 .light .profile-card {
@@ -121,11 +126,23 @@
 }
 
 /* Profile Info */
+.profile-info {
+	flex: 1;
+	padding-right: 50px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 60px;
+}
+
 .profile-info h4 {
 	color: rgba(255, 255, 255, 0.9);
 	margin: 0 0 8px 0;
 	font-size: 1.1rem;
 	font-weight: 600;
+	line-height: 1.3;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 .light .profile-info h4 {
@@ -136,6 +153,7 @@
 	color: rgba(255, 255, 255, 0.7);
 	margin: 0;
 	font-size: 0.9rem;
+	line-height: 1.4;
 }
 
 .light .profile-info p {
@@ -145,12 +163,13 @@
 /* Profile Actions */
 .profile-actions {
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 12px;
+	right: 12px;
 	display: flex;
-	gap: 5px;
-	opacity: 0;
+	gap: 8px;
+	opacity: 0.8;
 	transition: opacity 0.3s ease;
+	z-index: 10;
 }
 
 .profile-card:hover .profile-actions {
@@ -158,74 +177,451 @@
 }
 
 /* Share Button */
-.share-btn {
-	background: rgba(52, 199, 89, 0.8);
+.profile-drawer .share-btn {
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 	color: white;
 	border: none;
-	border-radius: 50%;
-	width: 24px;
-	height: 24px;
+	border-radius: 12px;
+	width: 32px;
+	height: 32px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+	position: relative;
+	overflow: hidden;
+}
+
+.profile-drawer .share-btn::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	transition: left 0.5s ease;
+}
+
+.profile-drawer .share-btn:hover::before {
+	left: 100%;
+}
+
+.profile-drawer .share-btn:hover {
+	background: linear-gradient(135deg, #059669 0%, #047857 100%);
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.profile-drawer .share-btn:active {
+	transform: translateY(-1px) scale(1.02);
+	transition: all 0.1s ease;
+}
+
+.profile-drawer .share-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.profile-drawer .share-btn:disabled:hover {
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	transform: none;
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.profile-drawer .share-btn svg {
+	width: 18px;
+	height: 18px;
+	color: white;
+	fill: currentColor;
+	flex-shrink: 0;
 	transition: all 0.3s ease;
 }
 
-.share-btn:hover {
-	background: rgba(52, 199, 89, 1);
+.profile-drawer .share-btn:hover svg {
 	transform: scale(1.1);
-}
-
-.share-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
 }
 
 /* Unshare Button */
-.unshare-btn {
-	background: rgba(255, 149, 0, 0.8);
+.profile-drawer .unshare-btn {
+	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 	color: white;
 	border: none;
-	border-radius: 50%;
-	width: 24px;
-	height: 24px;
+	border-radius: 12px;
+	width: 32px;
+	height: 32px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+	position: relative;
+	overflow: hidden;
+}
+
+.profile-drawer .unshare-btn::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	transition: left 0.5s ease;
+}
+
+.profile-drawer .unshare-btn:hover::before {
+	left: 100%;
+}
+
+.profile-drawer .unshare-btn:hover {
+	background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+}
+
+.profile-drawer .unshare-btn:active {
+	transform: translateY(-1px) scale(1.02);
+	transition: all 0.1s ease;
+}
+
+.profile-drawer .unshare-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.profile-drawer .unshare-btn:disabled:hover {
+	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	transform: none;
+	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.profile-drawer .unshare-btn svg {
+	width: 18px;
+	height: 18px;
+	color: white;
+	fill: currentColor;
+	flex-shrink: 0;
 	transition: all 0.3s ease;
 }
 
-.unshare-btn:hover {
-	background: rgba(255, 149, 0, 1);
+.profile-drawer .unshare-btn:hover svg {
 	transform: scale(1.1);
 }
 
-.unshare-btn:disabled {
-	opacity: 0.5;
+/* Copy Button */
+.profile-drawer .copy-btn {
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	color: white;
+	border: none;
+	border-radius: 12px;
+	width: 32px;
+	height: 32px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+	position: relative;
+	overflow: hidden;
+}
+
+.profile-drawer .copy-btn::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	transition: left 0.5s ease;
+}
+
+.profile-drawer .copy-btn:hover::before {
+	left: 100%;
+}
+
+.profile-drawer .copy-btn:hover {
+	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.profile-drawer .copy-btn:active {
+	transform: translateY(-1px) scale(1.02);
+	transition: all 0.1s ease;
+}
+
+.profile-drawer .copy-btn:disabled {
+	opacity: 0.6;
 	cursor: not-allowed;
+	transform: none;
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.profile-drawer .copy-btn:disabled:hover {
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	transform: none;
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.profile-drawer .copy-btn svg {
+	width: 18px;
+	height: 18px;
+	color: white;
+	fill: currentColor;
+	flex-shrink: 0;
+	transition: all 0.3s ease;
+}
+
+.profile-drawer .copy-btn:hover svg {
+	transform: scale(1.1);
+}
+
+/* Shared Profile Styling */
+.shared-profile {
+	border-left: 4px solid #667eea;
+	background: rgba(102, 126, 234, 0.1);
+}
+
+.light .shared-profile {
+	background: rgba(102, 126, 234, 0.05);
+}
+
+.shared-info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-top: 8px;
+}
+
+.permission-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	border-radius: 6px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.permission-badge.read {
+	background: rgba(59, 130, 246, 0.2);
+	color: #60a5fa;
+}
+
+.permission-badge.edit {
+	background: rgba(34, 197, 94, 0.2);
+	color: #4ade80;
+}
+
+.shared-by {
+	font-size: 0.7rem;
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.light .shared-by {
+	color: rgba(45, 55, 72, 0.5);
+}
+
+/* Light Mode Button Styles */
+.light .profile-drawer .share-btn {
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.light .profile-drawer .share-btn:hover {
+	background: linear-gradient(135deg, #059669 0%, #047857 100%);
+	box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+}
+
+.light .profile-drawer .share-btn:disabled {
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+}
+
+.light .profile-drawer .share-btn:disabled:hover {
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+}
+
+.light .profile-drawer .copy-btn {
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.light .profile-drawer .copy-btn:hover {
+	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+	box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+}
+
+.light .profile-drawer .copy-btn:disabled {
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.light .profile-drawer .copy-btn:disabled:hover {
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.light .profile-drawer .unshare-btn {
+	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.light .profile-drawer .unshare-btn:hover {
+	background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+	box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+}
+
+.light .profile-drawer .unshare-btn:disabled {
+	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+}
+
+.light .profile-drawer .unshare-btn:disabled:hover {
+	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+}
+
+.light .profile-drawer .delete-profile-btn {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.light .profile-drawer .delete-profile-btn:hover {
+	background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+	box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+}
+
+.light .profile-drawer .delete-profile-btn:disabled {
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+}
+
+.light .profile-drawer .delete-profile-btn:disabled:hover {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+}
+
+/* Light mode SVG icon styling */
+.light .profile-drawer .share-btn svg,
+.light .profile-drawer .copy-btn svg,
+.light .profile-drawer .unshare-btn svg,
+.light .profile-drawer .delete-profile-btn svg {
+	color: white;
+	fill: currentColor;
+}
+
+.light .profile-drawer .profile-actions button svg {
+	color: white;
+	fill: currentColor;
+}
+
+.shared-section {
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light .shared-section {
+	border-color: rgba(45, 55, 72, 0.1);
+}
+
+.shared-section h3 {
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0 0 16px 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
+.light .shared-section h3 {
+	color: rgba(45, 55, 72, 0.9);
 }
 
 /* Delete Profile Button */
-.delete-profile-btn {
-	background: rgba(255, 59, 48, 0.8);
+.profile-drawer .delete-profile-btn {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 	color: white;
 	border: none;
-	border-radius: 50%;
-	width: 24px;
-	height: 24px;
+	border-radius: 12px;
+	width: 32px;
+	height: 32px;
 	cursor: pointer;
 	font-size: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+	position: relative;
+	overflow: hidden;
+}
+
+.profile-drawer .delete-profile-btn::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	transition: left 0.5s ease;
+}
+
+.profile-drawer .delete-profile-btn:hover::before {
+	left: 100%;
+}
+
+.profile-drawer .delete-profile-btn:hover {
+	background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.profile-drawer .delete-profile-btn:active {
+	transform: translateY(-1px) scale(1.02);
+	transition: all 0.1s ease;
+}
+
+.profile-drawer .delete-profile-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.profile-drawer .delete-profile-btn:disabled:hover {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	transform: none;
+	box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.profile-drawer .delete-profile-btn svg {
+	width: 18px;
+	height: 18px;
+	color: white;
+	fill: currentColor;
+	flex-shrink: 0;
 	transition: all 0.3s ease;
 }
 
-.delete-profile-btn:hover {
-	background: rgba(255, 59, 48, 1);
+.profile-drawer .delete-profile-btn:hover svg {
 	transform: scale(1.1);
+}
+
+/* General action button icon styling */
+.profile-drawer .profile-actions button svg {
+	pointer-events: none;
+	z-index: 1;
+	position: relative;
 }
 
 /* Shared Badge */
@@ -233,14 +629,16 @@
 	display: inline-block;
 	background: rgba(52, 199, 89, 0.2);
 	color: rgba(52, 199, 89, 0.9);
-	padding: 2px 8px;
-	border-radius: 10px;
-	font-size: 0.7rem;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	margin-top: 5px;
+	margin-top: 8px;
 	border: 1px solid rgba(52, 199, 89, 0.3);
+	align-self: flex-start;
+	backdrop-filter: blur(10px);
 }
 
 .light .shared-badge {
@@ -420,6 +818,46 @@
 
 	.profile-drawer-content {
 		padding: 0 15px 15px;
+	}
+
+	.profile-card {
+		min-height: 90px;
+		padding: 16px;
+	}
+
+	.profile-info {
+		padding-right: 45px;
+		min-height: 50px;
+	}
+
+	.profile-info h4 {
+		font-size: 1rem;
+		margin-bottom: 6px;
+	}
+
+	.profile-info p {
+		font-size: 0.85rem;
+	}
+
+	.profile-actions {
+		top: 10px;
+		right: 10px;
+	}
+
+	.profile-drawer .share-btn,
+	.profile-drawer .copy-btn,
+	.profile-drawer .unshare-btn,
+	.profile-drawer .delete-profile-btn {
+		width: 28px;
+		height: 28px;
+	}
+
+	.profile-drawer .share-btn svg,
+	.profile-drawer .copy-btn svg,
+	.profile-drawer .unshare-btn svg,
+	.profile-drawer .delete-profile-btn svg {
+		width: 16px;
+		height: 16px;
 	}
 
 	.shared-profile-url {
