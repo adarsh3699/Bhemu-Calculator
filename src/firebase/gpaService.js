@@ -4,7 +4,6 @@ import {
 	getDoc,
 	getDocs,
 	setDoc,
-	updateDoc,
 	deleteDoc,
 	query,
 	where,
@@ -530,6 +529,93 @@ export class GPAService {
 			return { success: true };
 		} catch (error) {
 			console.error("Error unsharing profile with user:", error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Update share permission for an existing share
+	async updateSharePermission(shareId, newPermission) {
+		try {
+			const batch = writeBatch(db);
+
+			// Get share data first
+			const shareRef = doc(this.outgoingSharesRef, shareId);
+			const shareSnap = await getDoc(shareRef);
+
+			if (!shareSnap.exists()) {
+				return { success: false, error: "Share not found" };
+			}
+
+			const shareData = shareSnap.data();
+			const oldPermission = shareData.permission;
+
+			// If permission hasn't changed, no need to update
+			if (oldPermission === newPermission) {
+				return { success: true };
+			}
+
+			// Update share data with new permission
+			const updatedShareData = {
+				...shareData,
+				permission: newPermission,
+				updatedAt: serverTimestamp(),
+			};
+
+			// Update owner's outgoing shares
+			batch.update(shareRef, updatedShareData);
+
+			// Update target user's incoming shares
+			const targetIncomingRef = doc(db, "userShares", shareData.targetUserId, "incoming", shareId);
+			batch.update(targetIncomingRef, updatedShareData);
+
+			// Handle collaborative profile changes
+			const collaborativeProfileRef = doc(this.collaborativeProfilesRef, shareData.profileId);
+
+			if (oldPermission === "edit" && newPermission === "read") {
+				// Removing edit access - remove from collaborative profile
+				batch.update(collaborativeProfileRef, {
+					collaborators: arrayRemove(shareData.targetUserId),
+					[`permissions.${shareData.targetUserId}`]: null,
+					lastModified: serverTimestamp(),
+				});
+			} else if (oldPermission === "read" && newPermission === "edit") {
+				// Granting edit access - add to collaborative profile
+				// First get the original profile data
+				const originalProfileRef = doc(this.userProfilesRef, shareData.profileId);
+				const originalProfileSnap = await getDoc(originalProfileRef);
+
+				if (originalProfileSnap.exists()) {
+					const profileData = originalProfileSnap.data();
+
+					// Check if collaborative profile exists
+					const collaborativeProfileSnap = await getDoc(collaborativeProfileRef);
+
+					if (collaborativeProfileSnap.exists()) {
+						// Update existing collaborative profile
+						batch.update(collaborativeProfileRef, {
+							collaborators: arrayUnion(shareData.targetUserId),
+							[`permissions.${shareData.targetUserId}`]: "edit",
+							lastModified: serverTimestamp(),
+						});
+					} else {
+						// Create new collaborative profile
+						batch.set(collaborativeProfileRef, {
+							...profileData,
+							collaborators: [shareData.targetUserId],
+							permissions: {
+								[this.userId]: "owner",
+								[shareData.targetUserId]: "edit",
+							},
+							lastModified: serverTimestamp(),
+						});
+					}
+				}
+			}
+
+			await batch.commit();
+			return { success: true, shareData: updatedShareData };
+		} catch (error) {
+			console.error("Error updating share permission:", error);
 			return { success: false, error: error.message };
 		}
 	}

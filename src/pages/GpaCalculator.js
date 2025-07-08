@@ -6,6 +6,7 @@ import { RenderModal, ProfileDrawer } from "../components/GpaCalculator";
 import { LoginRecommendation, useMessage, ShareModal } from "../components/common";
 import { useAuth } from "../firebase/AuthContext";
 import { createGPAService } from "../firebase/gpaService";
+import { InfoIcon, EditIcon, DeleteIcon, PlusIcon, CloseIcon, UserIcon } from "../assets/icons";
 
 const GpaCalculator = () => {
 	const { currentUser } = useAuth();
@@ -206,7 +207,7 @@ const GpaCalculator = () => {
 	);
 
 	const handleShareWithUser = useCallback(
-		async (emailOrAction, permission) => {
+		async (emailOrAction, permission, action = "share") => {
 			if (!gpaService || !profileToShare) return;
 
 			try {
@@ -222,6 +223,26 @@ const GpaCalculator = () => {
 						}
 					} else {
 						showMessage(result.error || "Error unsharing profile", "error");
+					}
+					return;
+				}
+
+				// Handle permission update action
+				if (action === "updatePermission") {
+					const result = await gpaService.updateSharePermission(emailOrAction, permission);
+					if (result.success) {
+						showMessage(
+							`Permission updated to ${permission === "read" ? "Read Only" : "Edit Access"}`,
+							"success"
+						);
+						// Refresh shared profiles list
+						const mySharedResult = await gpaService.getMySharedProfiles();
+						if (mySharedResult.success) {
+							setMySharedProfiles(mySharedResult.sharedProfiles);
+						}
+					} else {
+						showMessage(result.error || "Error updating permission", "error");
+						throw new Error(result.error);
 					}
 					return;
 				}
@@ -272,26 +293,7 @@ const GpaCalculator = () => {
 	);
 
 	// Legacy sharing functions for backward compatibility
-	const shareProfile = useCallback(
-		async (profileId, shareOptions = {}) => {
-			if (!gpaService) return;
-
-			try {
-				const result = await gpaService.shareProfile(profileId, shareOptions);
-				if (result.success) {
-					await navigator.clipboard.writeText(result.shareUrl);
-					showMessage("Profile shared! Link copied to clipboard.", "success");
-					return result;
-				} else {
-					showMessage(result.error || "Error sharing profile", "error");
-				}
-			} catch (error) {
-				console.error("Error sharing profile:", error);
-				showMessage("Error sharing profile. Please try again.", "error");
-			}
-		},
-		[gpaService, showMessage]
-	);
+	// shareProfile function removed as it was unused
 
 	const unshareProfile = useCallback(
 		async (shareId) => {
@@ -742,7 +744,7 @@ const GpaCalculator = () => {
 			sharedProfilesUnsubscribe?.();
 			cleanupCollaborativeListeners?.();
 		};
-	}, [currentUser, gpaService, showMessage, generateProfileName]);
+	}, [currentUser, gpaService, showMessage, generateProfileName, sharedWithMeProfiles]);
 
 	// Set initial active semester
 	useEffect(() => {
@@ -750,53 +752,6 @@ const GpaCalculator = () => {
 			setActiveSemester(semesters[0].id);
 		}
 	}, [semesters, activeSemester]);
-
-	// ===== ICON COMPONENTS =====
-	const InfoIcon = ({ onClick }) => (
-		<svg
-			viewBox="0 0 24 24"
-			fill="currentColor"
-			height="15px"
-			width="15px"
-			onClick={onClick}
-			style={{ cursor: "pointer", marginLeft: "4px" }}
-			role="button"
-			aria-label="Information"
-			tabIndex={0}
-		>
-			<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-		</svg>
-	);
-
-	const EditIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor" height="20px" width="20px">
-			<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-		</svg>
-	);
-
-	const DeleteIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor" height="20px" width="20px">
-			<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-		</svg>
-	);
-
-	const PlusIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor" height="30px" width="30px">
-			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-		</svg>
-	);
-
-	const CloseIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor">
-			<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-		</svg>
-	);
-
-	const UserIcon = () => (
-		<svg viewBox="0 0 24 24" fill="currentColor" height="30px" width="30px">
-			<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-		</svg>
-	);
 
 	// ===== RENDER =====
 	if (!currentUser) {
@@ -834,7 +789,9 @@ const GpaCalculator = () => {
 				isOpen={isShareModalOpen}
 				onClose={() => {
 					setIsShareModalOpen(false);
-					setProfileToShare(null);
+					setTimeout(() => {
+						setProfileToShare(null);
+					}, 300);
 				}}
 				onShareWithUser={handleShareWithUser}
 				profileName={profileToShare?.name}
