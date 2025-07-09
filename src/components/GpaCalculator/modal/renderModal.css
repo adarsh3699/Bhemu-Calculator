@@ -119,28 +119,6 @@
 	margin-bottom: 12px;
 	font-size: 1rem;
 	color: rgba(255, 255, 255, 0.85);
-	animation: fadeInLeft 0.4s ease-out;
-}
-
-.modalList li:nth-child(1) {
-	animation-delay: 0.1s;
-}
-.modalList li:nth-child(2) {
-	animation-delay: 0.2s;
-}
-.modalList li:nth-child(3) {
-	animation-delay: 0.3s;
-}
-
-@keyframes fadeInLeft {
-	from {
-		opacity: 0;
-		transform: translateX(-10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
 }
 
 /* Grade Table Styling */
@@ -178,7 +156,6 @@
 
 .subjects-table tbody tr:hover {
 	background: rgba(255, 255, 255, 0.1);
-	transform: translateX(2px);
 }
 
 .subjects-table tbody tr:last-child td {
@@ -359,71 +336,12 @@
 	background: linear-gradient(90deg, transparent, rgba(67, 56, 202, 0.3), transparent);
 }
 
-/* Smooth table row animations */
+/* Table row styles */
 .subjects-table tbody tr {
-	animation: fadeInUp 0.3s ease-out;
 }
 
-.subjects-table tbody tr:nth-child(1) {
-	animation-delay: 0.1s;
-}
-.subjects-table tbody tr:nth-child(2) {
-	animation-delay: 0.2s;
-}
-.subjects-table tbody tr:nth-child(3) {
-	animation-delay: 0.3s;
-}
-.subjects-table tbody tr:nth-child(4) {
-	animation-delay: 0.4s;
-}
-.subjects-table tbody tr:nth-child(5) {
-	animation-delay: 0.5s;
-}
-.subjects-table tbody tr:nth-child(6) {
-	animation-delay: 0.6s;
-}
-.subjects-table tbody tr:nth-child(7) {
-	animation-delay: 0.7s;
-}
-.subjects-table tbody tr:nth-child(8) {
-	animation-delay: 0.8s;
-}
-
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-/* List item animations */
+/* List item styles */
 .modalList li {
-	animation: fadeInLeft 0.4s ease-out;
-}
-
-.modalList li:nth-child(1) {
-	animation-delay: 0.1s;
-}
-.modalList li:nth-child(2) {
-	animation-delay: 0.2s;
-}
-.modalList li:nth-child(3) {
-	animation-delay: 0.3s;
-}
-
-@keyframes fadeInLeft {
-	from {
-		opacity: 0;
-		transform: translateX(-10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
 }
 
 /* Modal content fade in */

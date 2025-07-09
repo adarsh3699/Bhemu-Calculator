@@ -448,7 +448,6 @@ const GpaCalculator = () => {
 			return;
 		}
 
-		console.log("Starting initialization for user:", currentUser.email);
 		setLoading(true);
 		isInitializingRef.current = true; // Set flag immediately to prevent re-runs
 
@@ -496,8 +495,6 @@ const GpaCalculator = () => {
 
 		const initializeData = async () => {
 			try {
-				console.log("Initializing GPA Calculator for user:", currentUser.email);
-
 				// Step 1: Clean up any existing duplicate profiles first
 				await cleanupDuplicateProfiles();
 
@@ -637,23 +634,27 @@ const GpaCalculator = () => {
 
 					setProfiles(cleanProfiles);
 
-					// Set active profile - preserve current choice if it still exists
+					// Smart profile restoration - check localStorage and current state
 					setActiveProfile((prev) => {
 						const savedActiveProfile = localStorage.getItem("activeGpaProfile");
 
+						// If there's a saved profile that exists in user's profiles, use it
 						if (savedActiveProfile && cleanProfiles.find((p) => p.id === savedActiveProfile)) {
 							return savedActiveProfile;
 						}
 
+						// If current active profile exists in user's profiles, keep it
 						if (prev && cleanProfiles.find((p) => p.id === prev)) {
 							return prev;
 						}
 
-						const firstProfile = cleanProfiles[0];
-						if (firstProfile) {
+						// Only set to first profile if no active profile exists
+						if (!prev && cleanProfiles.length > 0) {
+							const firstProfile = cleanProfiles[0];
 							localStorage.setItem("activeGpaProfile", firstProfile.id);
 							return firstProfile.id;
 						}
+
 						return prev;
 					});
 
@@ -745,6 +746,14 @@ const GpaCalculator = () => {
 			cleanupCollaborativeListeners?.();
 		};
 	}, [currentUser, gpaService, showMessage, generateProfileName, sharedWithMeProfiles]);
+
+	// Restore active profile when shared profiles are loaded
+	useEffect(() => {
+		const savedActiveProfile = localStorage.getItem("activeGpaProfile");
+		if (savedActiveProfile && sharedWithMeProfiles.find((p) => p.id === savedActiveProfile)) {
+			setActiveProfile(savedActiveProfile);
+		}
+	}, [sharedWithMeProfiles]);
 
 	// Set initial active semester
 	useEffect(() => {
