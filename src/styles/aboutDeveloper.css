@@ -22,7 +22,6 @@
 	display: block;
 	font-size: 2.5rem;
 	font-weight: 700;
-	cursor: pointer;
 	margin: 0 0 3rem 0;
 	text-align: center;
 	color: #ffffff;
@@ -48,7 +47,7 @@
 .aboutPoints {
 	font-size: 1.1rem;
 	line-height: 1.8;
-	margin: 1.8rem 0;
+	margin: 1rem 0;
 	padding: 0 0 0 2rem;
 	position: relative;
 	color: #e0e0e0;
@@ -73,7 +72,7 @@
 
 /* Contact Section */
 #contact {
-	margin: 4rem 0;
+	margin: 0 0 4rem 0;
 	padding: 3rem 0;
 }
 

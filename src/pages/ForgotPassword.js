@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/AuthContext";
 import "../styles/auth.css";
 
@@ -8,7 +8,15 @@ function ForgotPassword() {
 	const [message, setMessage] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const { resetPassword } = useAuth();
+	const { resetPassword, currentUser } = useAuth();
+	const navigate = useNavigate();
+
+	// Redirect if already logged in
+	useEffect(() => {
+		if (currentUser) {
+			navigate("/gpa-calculator", { replace: true });
+		}
+	}, [currentUser, navigate]);
 
 	async function handleSubmit(e) {
 		e.preventDefault();

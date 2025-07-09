@@ -7,7 +7,6 @@ import "../styles/profile.css";
 const Profile = () => {
 	const {
 		currentUser,
-		logout,
 		updateDisplayName,
 		createPassword,
 		changePassword,

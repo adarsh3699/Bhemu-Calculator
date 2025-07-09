@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/AuthContext";
 import { GoogleIcon } from "../assets/icons";
@@ -11,8 +11,15 @@ function Signup() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const { signup, signInWithGoogle } = useAuth();
+	const { signup, signInWithGoogle, currentUser } = useAuth();
 	const navigate = useNavigate();
+
+	// Redirect if already logged in
+	useEffect(() => {
+		if (currentUser) {
+			navigate("/gpa-calculator", { replace: true });
+		}
+	}, [currentUser, navigate]);
 
 	async function handleSubmit(e) {
 		e.preventDefault();

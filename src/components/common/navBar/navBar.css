@@ -33,14 +33,12 @@
 	/* Transitions */
 	--transition-fast: 0.2s ease;
 	--transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	--transition-slow: 0.6s ease;
 
 	/* Borders */
 	--border-radius: 8px;
 	--border-radius-lg: 12px;
 
 	/* Shadows */
-	--shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
 	--shadow-md: 0 8px 32px rgba(0, 0, 0, 0.1);
 	--shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
 
@@ -67,6 +65,23 @@
 	position: sticky;
 	top: 0;
 	z-index: 1000;
+}
+
+/* ===== REMOVE UNDERLINES FROM ALL NAVLINKS ===== */
+.navBar a,
+.navBar a:hover,
+.navBar a:focus,
+.navBar a:active,
+.navBar a:visited {
+	text-decoration: none;
+}
+
+.menuBar a,
+.menuBar a:hover,
+.menuBar a:focus,
+.menuBar a:active,
+.menuBar a:visited {
+	text-decoration: none;
 }
 
 /* ===== BRAND SECTION ===== */
@@ -117,24 +132,8 @@
 	padding: var(--spacing-sm);
 	border-radius: var(--border-radius);
 	transition: var(--transition-smooth);
-	position: relative;
-	overflow: hidden;
-}
-
-.menuToggle::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-	transform: translateX(-100%);
-	transition: transform var(--transition-slow);
-}
-
-.menuToggle:hover::after {
-	transform: translateX(100%);
+	background: none;
+	border: none;
 }
 
 .menuToggle:hover {
@@ -206,13 +205,6 @@
 }
 
 /* ===== DROPDOWN STYLES ===== */
-.dropdown {
-	position: relative;
-	height: 100%;
-	display: flex;
-	align-items: center;
-}
-
 .dropdown-arrow {
 	font-size: 10px;
 	transition: var(--transition-smooth);
@@ -297,7 +289,6 @@
 
 /* ===== MOBILE MENU ===== */
 .backdrop {
-	display: none;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -306,20 +297,10 @@
 	background: rgba(0, 0, 0, 0.6);
 	backdrop-filter: blur(4px);
 	-webkit-backdrop-filter: blur(4px);
-	opacity: 0;
-	visibility: hidden;
-	transition: var(--transition-smooth);
 	z-index: 900;
 }
 
-.backdrop.open {
-	display: block;
-	opacity: 1;
-	visibility: visible;
-}
-
 .menuBar {
-	display: none;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -338,7 +319,6 @@
 }
 
 .menuBar.open {
-	display: block;
 	transform: translateX(0);
 }
 
@@ -381,9 +361,7 @@
 	text-align: left;
 	cursor: pointer;
 	font-size: 14px;
-	font-weight: 500;
 	transition: var(--transition-smooth);
-	border-bottom: 1px solid var(--border-dark-subtle);
 	position: relative;
 	overflow: hidden;
 }
@@ -391,11 +369,11 @@
 .menuBtn::after {
 	content: "";
 	position: absolute;
-	right: 0;
+	left: 0;
 	top: 0;
 	width: 0;
 	height: 100%;
-	background: linear-gradient(270deg, rgba(102, 126, 234, 0.3), transparent);
+	background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), transparent);
 	transition: var(--transition-smooth);
 }
 
@@ -404,75 +382,53 @@
 }
 
 .menuBtn:hover {
+	background: var(--hover-dark);
 	color: var(--primary-color);
-	box-shadow: inset 3px 0 0 0 var(--primary-color);
 }
 
 .activeMenu {
-	color: var(--primary-color) !important;
-	font-weight: 600 !important;
-	box-shadow: inset 4px 0 0 0 var(--primary-color) !important;
+	background: rgba(102, 126, 234, 0.2);
+	color: var(--primary-color);
+	font-weight: 600;
 }
 
 .activeMenu::after {
-	width: 100% !important;
-	background: linear-gradient(270deg, rgba(102, 126, 234, 0.4), transparent) !important;
+	width: 100%;
 }
 
-.menuBtn:active {
-	background: var(--hover-dark);
-}
-
-/* ===== PROFILE & AUTH SECTION ===== */
+/* ===== AUTHENTICATION SECTION ===== */
 .navAuth {
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-lg);
+	gap: var(--spacing-md);
 }
 
 .profileSection {
 	position: relative;
 	display: flex;
 	align-items: center;
-	gap: var(--spacing-md);
 }
 
 .profileIcon {
-	width: 36px;
-	height: 36px;
+	width: 40px;
+	height: 40px;
 	border-radius: 50%;
 	background: var(--gradient-primary);
-	color: white;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	color: white;
 	font-weight: 600;
 	cursor: pointer;
 	transition: var(--transition-smooth);
+	border: 2px solid transparent;
 	position: relative;
 	overflow: hidden;
-	box-shadow: var(--shadow-sm);
-}
-
-.profileIcon::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-	transform: translateX(-100%);
-	transition: var(--transition-slow);
-}
-
-.profileIcon:hover::after {
-	transform: translateX(100%);
 }
 
 .profileIcon:hover {
 	transform: scale(1.1);
-	box-shadow: var(--shadow-md);
+	border-color: var(--primary-color);
 }
 
 .profileDropdown {
@@ -486,7 +442,7 @@
 	border-radius: var(--border-radius-lg);
 	box-shadow: var(--shadow-lg);
 	z-index: 1000;
-	min-width: 220px;
+	min-width: 200px;
 	overflow: hidden;
 	margin-top: var(--spacing-sm);
 	animation: fadeIn var(--transition-smooth);
@@ -498,7 +454,6 @@
 }
 
 .profileName {
-	font-size: 14px;
 	font-weight: 600;
 	color: var(--text-dark);
 	margin-bottom: var(--spacing-xs);
@@ -512,6 +467,7 @@
 .profileAction {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	width: 100%;
 	background: none;
 	border: none;
@@ -522,54 +478,24 @@
 	font-size: 14px;
 	transition: var(--transition-smooth);
 	position: relative;
-	overflow: hidden;
-}
-
-.profileAction::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 0;
-	height: 100%;
-	background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), transparent);
-	transition: var(--transition-smooth);
-}
-
-.profileAction:hover::before {
-	width: 100%;
 }
 
 .profileAction:hover {
 	background: var(--hover-dark);
 	color: var(--primary-color);
-	box-shadow: inset 3px 0 0 0 var(--primary-color);
-}
-
-.profileAction.logout {
-	color: #ff6b6b;
 }
 
 .profileAction.logout:hover {
-	color: #ff5252;
-	box-shadow: inset 3px 0 0 0 #ff5252;
-}
-
-.themeToggle {
-	display: flex;
-	align-items: center;
-	gap: var(--spacing-sm);
-	justify-content: space-between;
+	color: #ef4444;
 }
 
 .toggleSwitch {
-	width: 44px;
-	height: 24px;
+	width: 32px;
+	height: 16px;
 	background: rgba(255, 255, 255, 0.2);
-	border-radius: 12px;
-	cursor: pointer;
-	transition: var(--transition-smooth);
+	border-radius: 8px;
 	position: relative;
+	transition: var(--transition-smooth);
 }
 
 .toggleSwitch.on {
@@ -577,63 +503,43 @@
 }
 
 .toggleSlider {
-	width: 20px;
-	height: 20px;
+	width: 12px;
+	height: 12px;
 	background: white;
 	border-radius: 50%;
 	position: absolute;
 	top: 2px;
 	left: 2px;
 	transition: var(--transition-smooth);
-	box-shadow: var(--shadow-sm);
 }
 
 .toggleSwitch.on .toggleSlider {
-	left: 22px;
+	transform: translateX(16px);
 }
 
 .authBtn {
 	background: var(--gradient-primary);
-	color: white;
 	border: none;
-	padding: var(--spacing-sm) var(--spacing-lg);
+	color: white;
+	cursor: pointer;
+	padding: var(--spacing-md) var(--spacing-lg);
 	border-radius: var(--border-radius);
 	font-size: 14px;
-	font-weight: 500;
-	cursor: pointer;
+	font-weight: 600;
 	transition: var(--transition-smooth);
 	position: relative;
 	overflow: hidden;
-	box-shadow: var(--shadow-sm);
-}
-
-.authBtn::after {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-	transform: translateX(-100%);
-	transition: var(--transition-slow);
-}
-
-.authBtn:hover::after {
-	transform: translateX(100%);
 }
 
 .authBtn:hover {
-	transform: translateY(-2px);
+	transform: translateY(-1px);
 	box-shadow: var(--shadow-md);
 }
 
-/* ===== LIGHT THEME ===== */
+/* ===== LIGHT THEME OVERRIDES ===== */
 .light .navBar {
 	background: var(--bg-light);
-	border-bottom: 1px solid var(--border-light);
-	box-shadow: var(--shadow-sm);
-	color: var(--text-light);
+	border-bottom-color: var(--border-light);
 }
 
 .light .navTitle {
@@ -654,8 +560,7 @@
 
 .light .dropdownContent {
 	background: var(--bg-light);
-	border: 1px solid var(--border-light);
-	box-shadow: var(--shadow-md);
+	border-color: var(--border-light);
 }
 
 .light .dropdownItem {
@@ -666,42 +571,28 @@
 	background: var(--hover-light);
 }
 
-.light .dropdownItem::after {
-	background: linear-gradient(90deg, rgba(102, 126, 234, 0.2), transparent);
-}
-
 .light .menuBar {
 	background: var(--bg-light);
-	border-right: 1px solid var(--border-light);
+	border-right-color: var(--border-light);
 }
 
 .light .menuToggleBar {
 	background: var(--bg-light-alt);
-	border-bottom: 1px solid var(--border-light);
+	border-bottom-color: var(--border-light);
 	color: var(--text-light);
 }
 
 .light .menuBtn {
 	color: var(--text-light);
-	border-bottom: 1px solid var(--border-light-subtle);
 }
 
 .light .menuBtn:hover {
-	color: var(--primary-color);
-}
-
-.light .menuBtn::after {
-	background: linear-gradient(270deg, rgba(102, 126, 234, 0.2), transparent);
-}
-
-.light .menuBtn:active {
 	background: var(--hover-light);
 }
 
 .light .profileDropdown {
 	background: var(--bg-light);
-	border: 1px solid var(--border-light);
-	box-shadow: var(--shadow-md);
+	border-color: var(--border-light);
 }
 
 .light .profileName {
@@ -709,7 +600,7 @@
 }
 
 .light .profileEmail {
-	color: rgba(0, 0, 0, 0.6);
+	color: rgba(0, 0, 0, 0.7);
 }
 
 .light .profileAction {
@@ -718,10 +609,6 @@
 
 .light .profileAction:hover {
 	background: var(--hover-light);
-}
-
-.light .profileAction::before {
-	background: linear-gradient(90deg, rgba(102, 126, 234, 0.2), transparent);
 }
 
 .light .toggleSwitch {
@@ -733,33 +620,34 @@
 	.menuToggle {
 		display: block;
 	}
+
 	.navBar {
 		padding: 0 var(--spacing-lg);
 	}
+
 	.navTitle {
 		font-size: 1.3rem;
 	}
+
 	.navMenu {
 		display: none;
 	}
+
 	.navAuth {
-		gap: var(--spacing-md);
+		gap: var(--spacing-sm);
 	}
+
 	.profileIcon {
-		width: 32px;
-		height: 32px;
+		width: 35px;
+		height: 35px;
 	}
+
 	.profileDropdown {
-		min-width: 200px;
+		right: -10px;
 	}
+
 	.authBtn {
 		padding: var(--spacing-sm) var(--spacing-md);
-	}
-	.backdrop {
-		display: block;
-	}
-	.menuBar {
-		display: block;
 	}
 }
 
@@ -767,25 +655,33 @@
 	.navBar {
 		padding: 0 var(--spacing-md);
 	}
+
 	.navTitle {
 		font-size: 1.2rem;
 	}
+
 	.profileIcon {
-		width: 28px;
-		height: 28px;
+		width: 32px;
+		height: 32px;
 	}
+
 	.profileDropdown {
-		min-width: 180px;
+		right: -15px;
 	}
+
 	.authBtn {
-		padding: var(--spacing-xs) var(--spacing-md);
+		padding: var(--spacing-sm);
+		font-size: 12px;
 	}
+
 	.menuBar {
 		width: 280px;
 	}
+
 	.menuToggleBar {
 		padding: 0 var(--spacing-lg);
 	}
+
 	.menuBtn {
 		padding: var(--spacing-md) var(--spacing-lg);
 	}
@@ -795,19 +691,25 @@
 	.navBar {
 		padding: 0 var(--spacing-sm);
 	}
+
 	.navTitle {
 		font-size: 1.1rem;
 	}
+
 	.profileIcon {
-		width: 24px;
-		height: 24px;
+		width: 30px;
+		height: 30px;
 	}
+
 	.profileDropdown {
-		min-width: 160px;
+		right: -20px;
 	}
+
 	.authBtn {
-		padding: var(--spacing-xs) var(--spacing-sm);
+		padding: 6px var(--spacing-sm);
+		font-size: 11px;
 	}
+
 	.menuBar {
 		width: 260px;
 	}

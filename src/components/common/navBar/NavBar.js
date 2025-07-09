@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { useAuth } from "../../../firebase/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./navBar.css";
 
 // Menu configuration
@@ -75,14 +75,10 @@ const NavBar = () => {
 
 	const toggleTheme = useCallback(() => setDarkMode((prev) => !prev), []);
 
-	const navigateToPath = useCallback(
-		(path) => {
-			navigate(`/${path}`);
-			setOpenDropdownIndex(null);
-			setIsMenuOpen(false);
-		},
-		[navigate]
-	);
+	const closeMenus = useCallback(() => {
+		setOpenDropdownIndex(null);
+		setIsMenuOpen(false);
+	}, []);
 
 	const toggleDropdown = useCallback((index) => {
 		setOpenDropdownIndex((prev) => (prev === index ? null : index));
@@ -121,7 +117,6 @@ const NavBar = () => {
 					toggleTheme();
 					break;
 				default:
-					// Handle unknown actions gracefully
 					console.warn(`Unknown profile action: ${action}`);
 					break;
 			}
@@ -138,37 +133,39 @@ const NavBar = () => {
 	return (
 		<>
 			{/* Mobile Menu */}
-			<div className={`backdrop ${isMenuOpen ? "open" : ""}`} onClick={handleBackdropClick} />
-			<div className={`menuBar ${isMenuOpen ? "open" : ""}`}>
+			{isMenuOpen && <div className="backdrop" onClick={handleBackdropClick} />}
+			<nav className={`menuBar ${isMenuOpen ? "open" : ""}`}>
 				<div className="menuToggleBar">
 					<span onClick={() => setIsMenuOpen(false)}>✕</span> Menu
 				</div>
 				{flatMenuItems.map(({ path, name }) => (
-					<div
+					<NavLink
 						key={path}
-						className={`menuBtn ${currentPath === path ? "activeMenu" : ""}`}
-						onClick={() => navigateToPath(path)}
+						to={`/${path}`}
+						className={({ isActive }) => `menuBtn ${isActive ? "activeMenu" : ""}`}
+						onClick={closeMenus}
 					>
 						{name}
-					</div>
+					</NavLink>
 				))}
-			</div>
+			</nav>
 
 			{/* Main NavBar */}
-			<div className="navBar">
-				<div className="menuToggle" onClick={() => setIsMenuOpen((prev) => !prev)}>
+			<nav className="navBar">
+				<button className="menuToggle" onClick={() => setIsMenuOpen((prev) => !prev)}>
 					☰
-				</div>
-				<div className="navTitle" onClick={() => navigateToPath("gpa-calculator")}>
+				</button>
+
+				<NavLink to="/gpa-calculator" className="navTitle">
 					<span className="brandIcon"></span>
 					Bhemu Calculator
-				</div>
+				</NavLink>
 
 				<div className="navMenu" ref={navMenuRef}>
 					{menuItems.map((item, index) => (
 						<div key={index} className="navMenuItem">
 							{item.subItems ? (
-								<div className="dropdown">
+								<>
 									<button
 										className={`navMenuBtn ${
 											item.subItems.some((subItem) => subItem.path === currentPath)
@@ -185,26 +182,27 @@ const NavBar = () => {
 									{openDropdownIndex === index && (
 										<div className="dropdownContent">
 											{item.subItems.map((subItem) => (
-												<button
+												<NavLink
 													key={subItem.path}
-													className={`dropdownItem ${
-														subItem.path === currentPath ? "active" : ""
-													}`}
-													onClick={() => navigateToPath(subItem.path)}
+													to={`/${subItem.path}`}
+													className={({ isActive }) =>
+														`dropdownItem ${isActive ? "active" : ""}`
+													}
+													onClick={closeMenus}
 												>
 													{subItem.name}
-												</button>
+												</NavLink>
 											))}
 										</div>
 									)}
-								</div>
+								</>
 							) : (
-								<button
-									className={`navMenuBtn ${item.path === currentPath ? "active" : ""}`}
-									onClick={() => navigateToPath(item.path)}
+								<NavLink
+									to={`/${item.path}`}
+									className={({ isActive }) => `navMenuBtn ${isActive ? "active" : ""}`}
 								>
 									{item.name}
-								</button>
+								</NavLink>
 							)}
 						</div>
 					))}
@@ -213,13 +211,13 @@ const NavBar = () => {
 				<div className="navAuth">
 					{currentUser ? (
 						<div className="profileSection" ref={profileDropdownRef}>
-							<div
+							<button
 								className="profileIcon"
 								onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
 								title="Profile Menu"
 							>
 								{getUserInitial()}
-							</div>
+							</button>
 							{isProfileDropdownOpen && (
 								<div className="profileDropdown">
 									<div className="profileHeader">
@@ -260,7 +258,7 @@ const NavBar = () => {
 						</button>
 					)}
 				</div>
-			</div>
+			</nav>
 		</>
 	);
 };

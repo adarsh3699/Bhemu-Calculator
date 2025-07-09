@@ -17,7 +17,6 @@ import {
 	doc,
 	setDoc,
 	serverTimestamp,
-	deleteDoc,
 	collection,
 	getDocs,
 	writeBatch,
@@ -167,7 +166,7 @@ export function AuthProvider({ children }) {
 			try {
 				if (isGoogleUser()) {
 					// For Google users, re-authenticate with Google popup
-					const result = await signInWithPopup(auth, googleProvider);
+					await signInWithPopup(auth, googleProvider);
 					// User is already re-authenticated through the popup
 				} else {
 					// For email/password users, require password

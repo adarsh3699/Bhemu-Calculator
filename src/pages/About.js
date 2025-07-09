@@ -12,15 +12,7 @@ import "../styles/aboutDeveloper.css";
 function AboutDeveloper() {
 	return (
 		<div id="aboutDeveloper">
-			<a
-				href="https://www.bhemu.me/about"
-				target="_blank"
-				className="aboutdeveloperTitle"
-				rel="noreferrer"
-				aria-label="Learn more about the developer"
-			>
-				About Developer
-			</a>
+			<div className="aboutdeveloperTitle">About Developer</div>
 
 			<section className="about-content">
 				<div className="aboutPoints">
