@@ -134,7 +134,13 @@ const GpaCalculator = () => {
 				const newProfile = {
 					id: Date.now(),
 					name: name,
-					semesters: [],
+					semesters: [
+						{
+							id: Date.now(),
+							name: "Semester 1",
+							subjects: [],
+						},
+					],
 					isDefault: false,
 				};
 
@@ -346,7 +352,9 @@ const GpaCalculator = () => {
 			const updatedSemesters = semesters.filter((semester) => semester.id !== semesterId);
 			updateSemesters(updatedSemesters);
 			if (activeSemester === semesterId) {
-				setActiveSemester(updatedSemesters.length > 0 ? updatedSemesters[0].id : null);
+				setActiveSemester(
+					updatedSemesters.length > 0 ? updatedSemesters[updatedSemesters.length - 1].id : null
+				);
 			}
 		},
 		[semesters, activeSemester, updateSemesters]
@@ -540,7 +548,13 @@ const GpaCalculator = () => {
 					const defaultProfile = {
 						id: `default_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Unique ID
 						name: generateProfileName(),
-						semesters: [],
+						semesters: [
+							{
+								id: Date.now(),
+								name: "Semester 1",
+								subjects: [],
+							},
+						],
 						isDefault: true,
 						createdAt: new Date(),
 					};
@@ -624,7 +638,22 @@ const GpaCalculator = () => {
 							// Remove duplicates by name - keep first occurrence
 							return arr.findIndex((p) => p.name === profile.name) === index;
 						})
-						.map((profile) => ({ ...profile, id: profile.id.toString() }));
+						.map((profile) => {
+							// Ensure all profiles have at least one semester
+							const profileWithId = { ...profile, id: profile.id.toString() };
+							if (!profileWithId.semesters || profileWithId.semesters.length === 0) {
+								profileWithId.semesters = [
+									{
+										id: Date.now(),
+										name: "Semester 1",
+										subjects: [],
+									},
+								];
+								// Save the updated profile to the database
+								gpaService.saveProfile(profileWithId);
+							}
+							return profileWithId;
+						});
 
 					if (cleanProfiles.length !== result.profiles.length) {
 						console.log(
@@ -755,12 +784,24 @@ const GpaCalculator = () => {
 		}
 	}, [sharedWithMeProfiles]);
 
-	// Set initial active semester
+	// Set initial active semester - always select the last semester
 	useEffect(() => {
-		if (semesters.length > 0 && !activeSemester) {
-			setActiveSemester(semesters[0].id);
+		if (semesters.length > 0) {
+			const lastSemester = semesters[semesters.length - 1];
+			// If no active semester or current active semester doesn't exist in current semesters
+			if (!activeSemester || !semesters.find((s) => s.id === activeSemester)) {
+				setActiveSemester(lastSemester.id);
+			}
 		}
 	}, [semesters, activeSemester]);
+
+	// Always select the last semester when profile changes
+	useEffect(() => {
+		if (semesters.length > 0) {
+			const lastSemester = semesters[semesters.length - 1];
+			setActiveSemester(lastSemester.id);
+		}
+	}, [currentProfile?.id]);
 
 	// ===== RENDER =====
 	if (!currentUser) {
@@ -901,7 +942,7 @@ const GpaCalculator = () => {
 				</div>
 
 				{/* Subject Form */}
-				{activeSemester && (
+				{semesters.length > 0 && activeSemester && (
 					<div className="subject-form-container">
 						<h3>
 							{isReadOnlyProfile ? "View Subjects in " : "Add Subject to "}

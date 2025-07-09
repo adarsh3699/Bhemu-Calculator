@@ -109,7 +109,9 @@ const ProfileDrawer = ({
 									return (
 										<div
 											key={profile.id}
-											className={`profile-card ${currentProfile === profile.id ? "active" : ""}`}
+											className={`profile-drawer-card ${
+												currentProfile === profile.id ? "active" : ""
+											}`}
 											onClick={() => {
 												onProfileSelect(profile.id);
 												onClose();
@@ -155,7 +157,7 @@ const ProfileDrawer = ({
 										</div>
 									);
 								})}
-								<div className="profile-card add-profile" onClick={handleCreateProfile}>
+								<div className="profile-drawer-card add-profile" onClick={handleCreateProfile}>
 									<div className="add-profile-icon">+</div>
 									<p>Add Profile</p>
 								</div>
@@ -169,7 +171,7 @@ const ProfileDrawer = ({
 										{sharedWithMeProfiles.map((profile) => (
 											<div
 												key={`shared-${profile.id}`}
-												className={`profile-card shared-profile ${
+												className={`profile-drawer-card shared-profile ${
 													currentProfile === profile.id ? "active" : ""
 												}`}
 												onClick={() => {
