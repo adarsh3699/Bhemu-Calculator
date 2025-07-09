@@ -5,7 +5,10 @@ import "./navBar.css";
 
 // Menu configuration
 const menuItems = [
-	{ name: "GPA Calculator", path: "gpa-calculator" },
+	{
+		name: "GPA Calculator",
+		path: "gpa-calculator",
+	},
 	{
 		name: "Other Tools",
 		subItems: [
@@ -14,7 +17,10 @@ const menuItems = [
 			{ name: "Number Converter", path: "number-converter" },
 		],
 	},
-	{ name: "About", path: "about" },
+	{
+		name: "About",
+		path: "about",
+	},
 ];
 
 const flatMenuItems = [
@@ -135,7 +141,7 @@ const NavBar = () => {
 			<div className={`backdrop ${isMenuOpen ? "open" : ""}`} onClick={handleBackdropClick} />
 			<div className={`menuBar ${isMenuOpen ? "open" : ""}`}>
 				<div className="menuToggleBar">
-					<span onClick={() => setIsMenuOpen(false)}>☰</span> Menu
+					<span onClick={() => setIsMenuOpen(false)}>✕</span> Menu
 				</div>
 				{flatMenuItems.map(({ path, name }) => (
 					<div
@@ -153,7 +159,10 @@ const NavBar = () => {
 				<div className="menuToggle" onClick={() => setIsMenuOpen((prev) => !prev)}>
 					☰
 				</div>
-				<div className="navTitle">Bhemu Calculator</div>
+				<div className="navTitle" onClick={() => navigateToPath("gpa-calculator")}>
+					<span className="brandIcon"></span>
+					Bhemu Calculator
+				</div>
 
 				<div className="navMenu" ref={navMenuRef}>
 					{menuItems.map((item, index) => (
@@ -230,7 +239,7 @@ const NavBar = () => {
 											className="profileAction themeToggle"
 											onClick={() => handleProfileAction("toggle-theme")}
 										>
-											<span>Dark Mode</span>
+											{isDarkMode ? "Dark Mode" : "Light Mode"}
 											<div className={`toggleSwitch ${isDarkMode ? "on" : "off"}`}>
 												<div className="toggleSlider"></div>
 											</div>

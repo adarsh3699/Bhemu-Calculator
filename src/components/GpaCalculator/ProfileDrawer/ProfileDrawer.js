@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShareIcon, CopyIcon, EditIcon, UnshareIcon, EyeIcon } from "../../../assets/icons";
 import "./ProfileDrawer.css";
 import { InputModal, ConfirmModal } from "../../common";
@@ -21,6 +21,12 @@ const ProfileDrawer = ({
 	const [showInputModal, setShowInputModal] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [profileToDelete, setProfileToDelete] = useState(null);
+
+	// Prevent background scrolling when drawer is open
+	useEffect(() => {
+		document.body.style.overflow = isOpen ? "hidden" : "auto";
+		return () => (document.body.style.overflow = "auto");
+	}, [isOpen]);
 
 	const handleOverlayClick = (e) => {
 		if (e.target === e.currentTarget) {

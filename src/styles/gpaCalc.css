@@ -16,7 +16,7 @@
 /* Loading State */
 .gpa-loading {
 	width: 100%;
-	height: 100vh;
+	/* height: 100vh; */
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -37,7 +37,7 @@
 .gpa-loading p {
 	font-size: 1.2rem;
 	font-weight: 500;
-	margin: 0;
+	margin: 0px;
 	color: rgba(255, 255, 255, 0.9);
 }
 
