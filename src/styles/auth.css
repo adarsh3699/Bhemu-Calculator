@@ -17,6 +17,7 @@
 	max-width: 400px;
 	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
 	border: 1px solid rgba(0, 0, 0, 0.1);
+	box-sizing: border-box;
 }
 
 .light .auth-card {
@@ -196,6 +197,7 @@
 	right: 0;
 	height: 1px;
 	background: #4b5563;
+	z-index: -1;
 }
 
 .light .auth-divider::before {

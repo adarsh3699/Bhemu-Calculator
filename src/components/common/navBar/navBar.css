@@ -161,7 +161,7 @@
 	border: none;
 	color: var(--text-dark);
 	cursor: pointer;
-	padding: var(--spacing-md) var(--spacing-lg);
+	padding: 0 var(--spacing-lg);
 	border-radius: var(--border-radius);
 	font-size: 14px;
 	font-weight: 500;

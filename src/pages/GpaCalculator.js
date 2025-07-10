@@ -136,7 +136,7 @@ const GpaCalculator = () => {
 					name: name,
 					semesters: [
 						{
-							id: Date.now(),
+							id: Date.now().toString(),
 							name: "Semester 1",
 							subjects: [],
 						},
@@ -332,18 +332,21 @@ const GpaCalculator = () => {
 					profile.id === activeProfile ? updatedProfile : profile
 				);
 				localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
+
+				// Update the profiles state immediately to ensure new semester is available
+				setProfiles(updatedProfiles);
 			}
 		},
 		[profiles, activeProfile, saveProfile]
 	);
 
-	const addSemester = useCallback(() => {
+	const addSemester = useCallback(async () => {
 		const newSemester = {
-			id: Date.now(),
+			id: Date.now().toString(), // Convert to string for consistency
 			name: `Semester ${semesters.length + 1}`,
 			subjects: [],
 		};
-		updateSemesters([...semesters, newSemester]);
+		await updateSemesters([...semesters, newSemester]);
 		setActiveSemester(newSemester.id);
 	}, [semesters, updateSemesters]);
 
@@ -550,7 +553,7 @@ const GpaCalculator = () => {
 						name: generateProfileName(),
 						semesters: [
 							{
-								id: Date.now(),
+								id: Date.now().toString(),
 								name: "Semester 1",
 								subjects: [],
 							},
@@ -644,7 +647,7 @@ const GpaCalculator = () => {
 							if (!profileWithId.semesters || profileWithId.semesters.length === 0) {
 								profileWithId.semesters = [
 									{
-										id: Date.now(),
+										id: Date.now().toString(),
 										name: "Semester 1",
 										subjects: [],
 									},
