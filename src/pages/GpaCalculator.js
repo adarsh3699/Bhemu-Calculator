@@ -3,7 +3,7 @@ import "../styles/gpaCalc.css";
 import "react-responsive-modal/styles.css";
 
 import { RenderModal, ProfileDrawer } from "../components/GpaCalculator";
-import { LoginRecommendation, useMessage, ShareModal } from "../components/common";
+import { LoginRecommendation, useMessage, ShareModal, ConfirmModal } from "../components/common";
 import { useAuth } from "../firebase/AuthContext";
 import { createGPAService } from "../firebase/gpaService";
 import { InfoIcon, EditIcon, DeleteIcon, PlusIcon, CloseIcon, UserIcon } from "../assets/icons";
@@ -26,6 +26,9 @@ const GpaCalculator = () => {
 	const isInitializingRef = useRef(false);
 	const hasInitializedRef = useRef(false);
 
+	// Ref for Subject Name input to handle auto-focus
+	const subjectNameInputRef = useRef(null);
+
 	// Subject form state
 	const [newSubject, setNewSubject] = useState({
 		subjectName: "",
@@ -42,6 +45,10 @@ const GpaCalculator = () => {
 	// Share modal state
 	const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 	const [profileToShare, setProfileToShare] = useState(null);
+
+	// Semester delete confirmation state
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [semesterToDelete, setSemesterToDelete] = useState(null);
 
 	// ===== SERVICES & COMPUTED VALUES =====
 	const gpaService = useMemo(() => {
@@ -362,6 +369,25 @@ const GpaCalculator = () => {
 		},
 		[semesters, activeSemester, updateSemesters]
 	);
+
+	// Handle semester delete confirmation
+	const handleDeleteSemesterClick = useCallback((semesterId, semesterName) => {
+		setSemesterToDelete({ id: semesterId, name: semesterName });
+		setShowDeleteConfirm(true);
+	}, []);
+
+	const handleConfirmDeleteSemester = useCallback(() => {
+		if (semesterToDelete) {
+			deleteSemester(semesterToDelete.id);
+			setSemesterToDelete(null);
+		}
+		setShowDeleteConfirm(false);
+	}, [semesterToDelete, deleteSemester]);
+
+	const handleCancelDeleteSemester = useCallback(() => {
+		setSemesterToDelete(null);
+		setShowDeleteConfirm(false);
+	}, []);
 
 	// ===== SUBJECT MANAGEMENT =====
 	const handleInputChange = useCallback((e) => {
@@ -804,7 +830,18 @@ const GpaCalculator = () => {
 			const lastSemester = semesters[semesters.length - 1];
 			setActiveSemester(lastSemester.id);
 		}
-	}, [currentProfile?.id]);
+	}, [currentProfile?.id, semesters]);
+
+	// Auto-focus Subject Name input when editing a subject
+	useEffect(() => {
+		if (editIndex !== -1 && subjectNameInputRef.current) {
+			// Use setTimeout to ensure the DOM is updated and input is rendered
+			setTimeout(() => {
+				subjectNameInputRef.current?.focus();
+				subjectNameInputRef.current?.select(); // Also select the text for better UX
+			}, 100);
+		}
+	}, [editIndex]);
 
 	// ===== RENDER =====
 	if (!currentUser) {
@@ -931,7 +968,7 @@ const GpaCalculator = () => {
 										className="delete-semester-btn"
 										onClick={(e) => {
 											e.stopPropagation();
-											deleteSemester(semester.id);
+											handleDeleteSemesterClick(semester.id, semester.name);
 										}}
 										disabled={isReadOnlyProfile}
 										title={isReadOnlyProfile ? "Read-only profile" : "Delete semester"}
@@ -960,6 +997,7 @@ const GpaCalculator = () => {
 										id="subjectName"
 										type="text"
 										name="subjectName"
+										ref={subjectNameInputRef}
 										placeholder={isReadOnlyProfile ? "Read-only profile" : 'e.g. "Mathematics"'}
 										value={newSubject.subjectName}
 										onChange={handleInputChange}
@@ -1016,7 +1054,7 @@ const GpaCalculator = () => {
 
 								<div className="form-group">
 									<button type="submit" className="submit-btn" disabled={isReadOnlyProfile}>
-										{editIndex === -1 ? "Add Subject" : "Update Subject"}
+										{editIndex === -1 ? "Add Subject" : "Update"}
 									</button>
 								</div>
 							</div>
@@ -1119,6 +1157,21 @@ const GpaCalculator = () => {
 				)}
 
 				<RenderModal modalType={modalType} isModalOpen={isModalOpen} onClose={handleModalClose} />
+
+				<ConfirmModal
+					isOpen={showDeleteConfirm}
+					onClose={handleCancelDeleteSemester}
+					onConfirm={handleConfirmDeleteSemester}
+					title="Delete Semester"
+					message={
+						semesterToDelete
+							? `Are you sure you want to delete "${semesterToDelete.name}"? This action cannot be undone and will permanently remove all subjects in this semester.`
+							: "Are you sure you want to delete this semester?"
+					}
+					confirmText="Delete"
+					cancelText="Cancel"
+					type="danger"
+				/>
 			</div>
 		</div>
 	);
