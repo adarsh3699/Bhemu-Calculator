@@ -52,7 +52,6 @@ const InputModal = ({
 							onChange={(e) => setInputValue(e.target.value)}
 							placeholder={placeholder}
 							className="input-modal-input"
-							autoFocus
 						/>
 					</div>
 					<div className="input-modal-actions">

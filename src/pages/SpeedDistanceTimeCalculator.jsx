@@ -82,6 +82,8 @@ const InputField = memo(
 	)
 );
 
+InputField.displayName = "InputField";
+
 const SpeedDistanceTimeCalculator = () => {
 	const { showMessage } = useMessage();
 
@@ -131,7 +133,7 @@ const SpeedDistanceTimeCalculator = () => {
 		const baseDistance = convertToBase(values.distance, "distance", units.distance);
 		const baseTime = convertToBase(values.time, "time", units.time);
 
-		let newValues = { ...values };
+		const newValues = { ...values };
 		let calculated = false;
 
 		// Core concept: Calculate the field that's empty OR the field that wasn't last modified

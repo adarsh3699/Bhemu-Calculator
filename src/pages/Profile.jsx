@@ -386,8 +386,11 @@ const Profile = () => {
 									{/* Messages will be shown as popups using MessageProvider */}
 
 									<div className="profile-form-group">
-										<label className="profile-form-label">New Password:</label>
+										<label htmlFor="set-new-password" className="profile-form-label">
+											New Password:
+										</label>
 										<input
+											id="set-new-password"
 											type="password"
 											value={newPassword}
 											onChange={(e) => setNewPassword(e.target.value)}
@@ -399,8 +402,11 @@ const Profile = () => {
 										/>
 									</div>
 									<div className="profile-form-group">
-										<label className="profile-form-label">Confirm Password:</label>
+										<label htmlFor="set-confirm-password" className="profile-form-label">
+											Confirm Password:
+										</label>
 										<input
+											id="set-confirm-password"
 											type="password"
 											value={confirmPassword}
 											onChange={(e) => setConfirmPassword(e.target.value)}
@@ -466,8 +472,11 @@ const Profile = () => {
 									{/* Messages will be shown as popups using MessageProvider */}
 
 									<div className="profile-form-group">
-										<label className="profile-form-label">Current Password:</label>
+										<label htmlFor="current-password" className="profile-form-label">
+											Current Password:
+										</label>
 										<input
+											id="current-password"
 											type="password"
 											value={currentPassword}
 											onChange={(e) => setCurrentPassword(e.target.value)}
@@ -478,8 +487,11 @@ const Profile = () => {
 										/>
 									</div>
 									<div className="profile-form-group">
-										<label className="profile-form-label">New Password:</label>
+										<label htmlFor="change-new-password" className="profile-form-label">
+											New Password:
+										</label>
 										<input
+											id="change-new-password"
 											type="password"
 											value={newPassword}
 											onChange={(e) => setNewPassword(e.target.value)}
@@ -491,8 +503,11 @@ const Profile = () => {
 										/>
 									</div>
 									<div className="profile-form-group">
-										<label className="profile-form-label">Confirm New Password:</label>
+										<label htmlFor="change-confirm-password" className="profile-form-label">
+											Confirm New Password:
+										</label>
 										<input
+											id="change-confirm-password"
 											type="password"
 											value={confirmPassword}
 											onChange={(e) => setConfirmPassword(e.target.value)}
@@ -593,7 +608,6 @@ const Profile = () => {
 									onChange={(e) => setDeleteConfirmPassword(e.target.value)}
 									placeholder="Enter your password"
 									className="input-modal-input"
-									autoFocus
 									required
 								/>
 							</div>

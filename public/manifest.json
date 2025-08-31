@@ -1,27 +1,85 @@
 {
 	"short_name": "Bhemu Calculator",
-	"name": "Bhemu Calculator",
-	"description": "Bhemu Calculator: A comprehensive web app for mathematical calculations and explorations. Features include a simple calculator with history, matrix determinant calculator, standard deviation calculator, number patterns generator (Fibonacci series, prime numbers, etc.), prime number checker, prime number finder in a range, and binary-decimal converter. Simplify your math tasks with Bhemu Calculator!",
+	"name": "Bhemu Calculator - Advanced Mathematical Tools",
+	"description": "Free online mathematical calculator suite featuring GPA calculator, matrix determinant solver, speed-distance-time calculator, number converter, and pattern generators. Built by Adarsh Suman for students and professionals.",
 	"version": "1.0.0",
+	"scope": "/",
+	"start_url": "/",
+	"display": "standalone",
+	"orientation": "portrait-primary",
+	"theme_color": "#1a1a1a",
+	"background_color": "#1a1a1a",
+	"lang": "en-US",
+	"dir": "ltr",
+	"categories": ["education", "utilities", "productivity"],
 	"icons": [
 		{
 			"src": "newLogo64.webp",
 			"type": "image/webp",
-			"sizes": "64x64 32x32 24x24 16x16"
+			"sizes": "64x64",
+			"purpose": "any"
 		},
 		{
 			"src": "newLogo192.webp",
 			"type": "image/webp",
-			"sizes": "192x192"
+			"sizes": "192x192",
+			"purpose": "any maskable"
 		},
 		{
 			"src": "newLogo512.webp",
 			"type": "image/webp",
-			"sizes": "512x512"
+			"sizes": "512x512",
+			"purpose": "any maskable"
 		}
 	],
-	"start_url": ".",
-	"display": "standalone",
-	"theme_color": "#000000",
-	"background_color": "#ffffff"
+	"screenshots": [
+		{
+			"src": "newLogo512.webp",
+			"type": "image/webp",
+			"sizes": "512x512",
+			"form_factor": "wide"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "GPA Calculator",
+			"short_name": "GPA Calc",
+			"description": "Calculate and manage your GPA",
+			"url": "/gpa-calculator",
+			"icons": [
+				{
+					"src": "newLogo192.webp",
+					"sizes": "192x192"
+				}
+			]
+		},
+		{
+			"name": "Matrix Calculator",
+			"short_name": "Matrix",
+			"description": "Calculate matrix determinants",
+			"url": "/matrix-calculator",
+			"icons": [
+				{
+					"src": "newLogo192.webp",
+					"sizes": "192x192"
+				}
+			]
+		},
+		{
+			"name": "Number Converter",
+			"short_name": "Converter",
+			"description": "Convert between number systems",
+			"url": "/number-converter",
+			"icons": [
+				{
+					"src": "newLogo192.webp",
+					"sizes": "192x192"
+				}
+			]
+		}
+	],
+	"prefer_related_applications": false,
+	"edge_side_panel": {
+		"preferred_width": 400
+	}
 }
