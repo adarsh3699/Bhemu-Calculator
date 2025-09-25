@@ -100,6 +100,7 @@ const UMSFetchModal = ({ isOpen, onClose, onConfirm, existingData = null, profil
 								name: "Semester 1",
 								subjects: [],
 							},
+							// eslint-disable-next-line no-mixed-spaces-and-tabs
 					  ],
 			allTermIds: allTermIds || {},
 			summary: summary || {},

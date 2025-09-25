@@ -47,6 +47,7 @@ const InputModal = ({
 						onChange={(e) => setInputValue(e.target.value)}
 						placeholder={placeholder}
 						className="w-full p-4 border-2 border-indigo-500/30 rounded-xl bg-white/5 text-main transition-all duration-300 focus:outline-none focus:border-indigo-500 focus:bg-indigo-500/10 focus:ring-2 focus:ring-indigo-500/20 placeholder:text-lighter"
+						// eslint-disable-next-line jsx-a11y/no-autofocus
 						autoFocus
 						required
 					/>
