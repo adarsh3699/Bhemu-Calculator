@@ -161,30 +161,69 @@ const Profile = () => {
 
 	// Handle delete all data
 	const handleDeleteAllData = useCallback(
-		async (password = null) => {
+		async (password = null, useGoogleAuth = false) => {
 			setIsDeletingData(true);
 
 			try {
-				const result = await deleteAllUserData(password);
+				// Simple flow logic:
+				// 1. If user has both password and Google → Show password modal first (with Google option)
+				// 2. If user has password only → Show password modal (no Google option)
+				// 3. If user has Google only → Direct Google auth (no modal)
+
+				const userHasPassword = hasPassword();
+				const userHasGoogle = isGoogleUser();
+
+				// If no specific auth method chosen, determine what to show
+				if (!password && !useGoogleAuth) {
+					if (userHasPassword) {
+						// Has password → Show password modal first
+						setIsDeletingData(false);
+						setShowDeleteModal(false);
+						setShowPasswordConfirmModal(true);
+						return;
+					} else if (userHasGoogle) {
+						// Google only → Direct Google auth
+						useGoogleAuth = true;
+					}
+				}
+
+				const result = await deleteAllUserData(password, useGoogleAuth);
 				if (result.success) {
-					// User will be automatically logged out and redirected
-					navigate("/login");
+					// Show success message before redirect
+					showMessage("Account and all data deleted successfully. Redirecting...", "success");
+
+					// Small delay to show the success message
+					setTimeout(() => {
+						navigate("/login", { replace: true });
+					}, 2000);
 				} else if (result.requiresPassword) {
 					// Show password confirmation modal
 					setIsDeletingData(false);
 					setShowDeleteModal(false);
 					setShowPasswordConfirmModal(true);
+				} else if (result.requiresRelogin) {
+					// User selected wrong account and has been signed out for security
+					showMessage(result.error, "error");
+					setIsDeletingData(false);
+					setShowDeleteModal(false);
+
+					// Redirect to login page after a short delay
+					setTimeout(() => {
+						navigate("/login", { replace: true });
+					}, 3000);
 				} else {
 					showMessage(result.error || "Failed to delete account data", "error");
+					setIsDeletingData(false);
+					setShowDeleteModal(false);
 				}
 			} catch (error) {
-				showMessage("Failed to delete account data", "error");
-			} finally {
+				console.error("Deletion error:", error);
+				showMessage("Failed to delete account data. Please try again.", "error");
 				setIsDeletingData(false);
 				setShowDeleteModal(false);
 			}
 		},
-		[deleteAllUserData, navigate, showMessage]
+		[deleteAllUserData, navigate, showMessage, hasPassword, isGoogleUser]
 	);
 
 	// Handle password confirmation for deletion
@@ -864,6 +903,34 @@ const Profile = () => {
 									required
 								/>
 							</div>
+
+							{/* Google Authentication Option - Only show if user has both password and Google */}
+							{isGoogleUser() && hasPassword() && (
+								<div className="text-center">
+									<div className="relative my-4">
+										<div className="absolute inset-0 flex items-center">
+											<div className="w-full border-t border-gray-300 dark:border-gray-600" />
+										</div>
+										<div className="relative flex justify-center text-sm">
+											<span className="bg-white dark:bg-gray-800 px-3 text-gray-500 dark:text-gray-400">
+												or
+											</span>
+										</div>
+									</div>
+									<button
+										type="button"
+										onClick={() => {
+											setShowPasswordConfirmModal(false);
+											setDeleteConfirmPassword("");
+											handleDeleteAllData(null, true); // Call with useGoogleAuth = true
+										}}
+										className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors duration-200 underline"
+									>
+										Use Google Authentication instead
+									</button>
+								</div>
+							)}
+
 							<div className="flex gap-3">
 								<button
 									type="button"

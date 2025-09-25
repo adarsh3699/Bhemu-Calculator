@@ -251,26 +251,26 @@ const UMSFetchModal = ({ isOpen, onClose, onConfirm, existingData = null, profil
 					<div className="bg-white/5 rounded-lg p-4 border border-white/10">
 						<h4 className="text-lg font-semibold mb-3 text-main">Student Information</h4>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-							<div className="flex justify-between items-center">
-								<span className="text-lighter font-medium">Name:</span>
+							<div className="flex items-center">
+								<span className="text-light font-medium mr-2">Name:</span>
 								<span className="text-main font-semibold">
 									{fetchedData.studentInfo.name || "Not available"}
 								</span>
 							</div>
-							<div className="flex justify-between items-center">
-								<span className="text-lighter font-medium">VID:</span>
+							<div className="flex items-center">
+								<span className="text-light font-medium mr-2">VID:</span>
 								<span className="text-main font-semibold">
 									{fetchedData.studentInfo.vid || "Not available"}
 								</span>
 							</div>
-							<div className="flex justify-between items-center">
-								<span className="text-lighter font-medium">Program:</span>
+							<div className="flex items-center">
+								<span className="text-light font-medium mr-2">Program:</span>
 								<span className="text-main font-semibold">
 									{fetchedData.studentInfo.program || "Not available"}
 								</span>
 							</div>
-							<div className="flex justify-between items-center">
-								<span className="text-lighter font-medium">CGPA:</span>
+							<div className="flex items-center">
+								<span className="text-light font-medium mr-2">CGPA:</span>
 								<span className="text-emerald-400 font-bold text-lg">
 									{fetchedData.studentInfo.cgpa || "0.00"}
 								</span>
