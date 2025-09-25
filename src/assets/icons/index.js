@@ -1,55 +1,15 @@
-// Import all icons from categorized files
-import { CloseIcon, EditIcon, DeleteIcon, PlusIcon, UserIcon, InfoIcon, CheckIcon } from "./navigationIcons";
-
-import { ShareIcon, CopyIcon, UnshareIcon } from "./sharingIcons";
-
-import { SuccessIcon, ErrorIcon, WarningIcon, InfoMessageIcon, MessageCloseIcon } from "./messageIcons";
-
-import { ModalCloseIcon, ModalSuccessIcon, ModalWarningIcon, ModalInfoIcon } from "./modalIcons";
-
-import { GoogleIcon, EyeIcon, EyeOffIcon } from "./authIcons";
-
+// Only import icons that are still needed (not replaced by heroicons)
+import { GoogleIcon } from "./authIcons";
 import { GitHubIcon } from "./socialIcons";
 
-// Export all icons for backward compatibility
+// Export only the icons that are still being used
 export {
-	// Navigation Icons
-	CloseIcon,
-	EditIcon,
-	DeleteIcon,
-	PlusIcon,
-	UserIcon,
-	InfoIcon,
-	CheckIcon,
-
-	// Sharing Icons
-	ShareIcon,
-	CopyIcon,
-	UnshareIcon,
-
-	// Message Icons
-	SuccessIcon,
-	ErrorIcon,
-	WarningIcon,
-	InfoMessageIcon,
-	MessageCloseIcon,
-
-	// Modal Icons
-	ModalCloseIcon,
-	ModalSuccessIcon,
-	ModalWarningIcon,
-	ModalInfoIcon,
-
-	// Auth Icons
+	// Auth Icons - GoogleIcon is kept for its specific branding colors
 	GoogleIcon,
-	EyeIcon,
-	EyeOffIcon,
 
-	// Social Icons
+	// Social Icons - GitHubIcon is kept as heroicons doesn't have GitHub-specific branding
 	GitHubIcon,
 };
 
-// Backward compatibility aliases for renamed icons
-export const DangerIcon = ModalSuccessIcon; // This was actually a success icon based on the path
-export const WarningModalIcon = ModalWarningIcon;
-export const InfoModalIcon = ModalInfoIcon;
+// Note: Most icons have been replaced with Heroicons for consistency
+// Only brand-specific icons (Google, GitHub) are kept from the custom icon set

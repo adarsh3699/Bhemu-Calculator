@@ -441,5 +441,18 @@ export function AuthProvider({ children }) {
 		hasPassword,
 	};
 
-	return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+	// App-wide loading component
+	const AppLoading = () => (
+		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+			<div className="text-center">
+				<div className="w-16 h-16 mx-auto mb-4 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+				<h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+					Loading Bhemu Calculator
+				</h2>
+				<p className="text-gray-500 dark:text-gray-400">Initializing your experience...</p>
+			</div>
+		</div>
+	);
+
+	return <AuthContext.Provider value={value}>{loading ? <AppLoading /> : children}</AuthContext.Provider>;
 }

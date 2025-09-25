@@ -1,16 +1,17 @@
 import React, { useCallback, useState, useEffect, useMemo, useRef } from "react";
-import "../styles/gpaCalc.css";
-import "react-responsive-modal/styles.css";
 
-import { RenderModal, ProfileDrawer } from "../components/GpaCalculator";
+import RenderModal from "../components/modal/RenderModal";
+import ProfileDrawer from "../components/ProfileDrawer/ProfileDrawer";
 import { LoginRecommendation, useMessage, ShareModal, ConfirmModal } from "../components/common";
 import { useAuth } from "../firebase/AuthContext";
 import { createGPAService } from "../firebase/gpaService";
-import { InfoIcon, EditIcon, DeleteIcon, PlusIcon, CloseIcon, UserIcon } from "../assets/icons";
+import { PlusIcon, XMarkIcon, UserIcon } from "@heroicons/react/24/outline";
+import { InformationCircleIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 const GpaCalculator = () => {
 	const { currentUser } = useAuth();
 	const { showMessage } = useMessage();
+	// showMessage("Error saving data. Please try again.", "error");
 
 	// ===== STATE MANAGEMENT =====
 	const [profiles, setProfiles] = useState([]);
@@ -303,6 +304,66 @@ const GpaCalculator = () => {
 			}
 		},
 		[gpaService, showMessage, updateActiveProfile]
+	);
+
+	const handleVerifyUMS = useCallback(
+		async (profileId, umsData) => {
+			if (!gpaService || !umsData) return;
+
+			try {
+				setSaving(true);
+
+				// Find the current profile
+				const currentProfileData = profiles.find((profile) => profile.id === profileId);
+				if (!currentProfileData) {
+					showMessage("Profile not found", "error");
+					return;
+				}
+
+				// Create updated profile with UMS data
+				const updatedProfile = {
+					...currentProfileData,
+					name: currentProfileData.name, // Keep existing name
+					semesters: umsData.semesters,
+					studentInfo: umsData.studentInfo,
+					allTermIds: umsData.allTermIds,
+					umsVerified: true,
+					lastUMSSync: umsData.fetchedAt || new Date().toISOString(),
+				};
+
+				// Save the updated profile
+				await saveProfile(updatedProfile);
+
+				// Update localStorage with allTermIds for future use
+				if (umsData.allTermIds) {
+					const existingTermIds = JSON.parse(localStorage.getItem("umsTermIds") || "{}");
+					const updatedTermIds = {
+						...existingTermIds,
+						[currentUser.uid]: {
+							...umsData.allTermIds,
+							lastUpdated: new Date().toISOString(),
+							profileId: profileId,
+						},
+					};
+					localStorage.setItem("umsTermIds", JSON.stringify(updatedTermIds));
+				}
+
+				showMessage("Profile successfully updated with UMS data!", "success");
+
+				// Update the profiles state immediately to reflect changes
+				const updatedProfiles = profiles.map((profile) =>
+					profile.id === profileId ? updatedProfile : profile
+				);
+				localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
+				setProfiles(updatedProfiles);
+			} catch (error) {
+				console.error("Error updating profile with UMS data:", error);
+				showMessage("Error updating profile with UMS data. Please try again.", "error");
+			} finally {
+				setSaving(false);
+			}
+		},
+		[gpaService, profiles, saveProfile, showMessage, currentUser]
 	);
 
 	// Legacy sharing functions for backward compatibility
@@ -850,15 +911,15 @@ const GpaCalculator = () => {
 
 	if (loading) {
 		return (
-			<div className="gpa-loading">
-				<div className="loading-spinner"></div>
-				<p>Loading your GPA data...</p>
+			<div className="w-full flex flex-col items-center justify-center gap-5 py-20 text-light">
+				<div className="w-12 h-12 border-3 border-gray-300 dark:border-white/30 border-t-primary rounded-full animate-spin"></div>
+				<p className="text-xl font-medium text-light">Loading your GPA data...</p>
 			</div>
 		);
 	}
 
 	return (
-		<div>
+		<>
 			<ProfileDrawer
 				isOpen={drawerOpen}
 				onClose={() => setDrawerOpen(false)}
@@ -870,6 +931,7 @@ const GpaCalculator = () => {
 				onShareProfile={handleShareProfile}
 				onUnshareProfile={unshareProfile}
 				onCopySharedProfile={handleCopySharedProfile}
+				onVerifyUMS={handleVerifyUMS}
 				sharedProfiles={sharedProfiles}
 				mySharedProfiles={mySharedProfiles}
 				isLoading={saving}
@@ -888,84 +950,144 @@ const GpaCalculator = () => {
 				currentShares={mySharedProfiles.filter((share) => share.profileId === profileToShare?.id)}
 			/>
 
-			<div id="GpaCalculator">
+			<RenderModal modalType={modalType} isModalOpen={isModalOpen} onClose={handleModalClose} />
+
+			<ConfirmModal
+				isOpen={showDeleteConfirm}
+				onClose={handleCancelDeleteSemester}
+				onConfirm={handleConfirmDeleteSemester}
+				title="Delete Semester"
+				message={
+					semesterToDelete
+						? `Are you sure you want to delete "${semesterToDelete.name}"? This action cannot be undone and will permanently remove all subjects in this semester.`
+						: "Are you sure you want to delete this semester?"
+				}
+				confirmText="Delete"
+				cancelText="Cancel"
+				type="danger"
+			/>
+
+			<div className="w-full font-inter bg-transparent flex flex-col items-center justify-start text-center transition-all duration-300">
 				{/* Header */}
-				<div className="header">
-					<h1>GPA Calculator</h1>
-					<p className="subtitle">Calculate your semester GPA and cumulative GPA</p>
+				<div className="text-center mb-10 relative">
+					<h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-br from-blue-500 to-purple-500 bg-clip-text text-transparent mb-3 mt-10 tracking-tight">
+						GPA Calculator
+					</h1>
+					<p className="text-lg text-light font-normal">Calculate your semester GPA and cumulative GPA</p>
 				</div>
 
 				{/* Profile Selection */}
-				<div className="profile-selection">
-					<div className="profile-selector" onClick={toggleDrawer}>
-						<UserIcon />
-						<span className="profile-text">{currentProfile?.name}</span>
+				<div className="mb-8 flex items-center justify-center gap-4">
+					<div
+						className="flex items-center gap-3 px-6 py-4 bg-white/90 dark:bg-white/10 backdrop-blur-[20px] rounded-2xl text-gray-700 dark:text-white/95 font-semibold text-lg shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-white/20 cursor-pointer transition-all duration-300 relative overflow-hidden min-w-[180px] justify-center hover:bg-white dark:hover:bg-white/15 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] active:translate-y-0 active:scale-[1.01] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-gray-200/50 dark:before:via-white/20 before:to-transparent before:transition-all before:duration-500 hover:before:left-full"
+						onClick={toggleDrawer}
+					>
+						<UserIcon className="w-6 h-6 text-primary drop-shadow-[0_2px_4px_rgba(102,126,234,0.3)] transition-all duration-300 hover:text-primary-hover hover:scale-110 hover:drop-shadow-[0_4px_8px_rgba(102,126,234,0.4)]" />
+						<span className="bg-gradient-to-br from-gray-800 to-gray-600 dark:from-white/95 dark:to-white/80 bg-clip-text text-transparent drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+							{currentProfile?.name}
+						</span>
 					</div>
 				</div>
 
 				{/* CGPA Display */}
-				<div className="cgpa-display">
-					<div className="cgpa-circle">
-						<div className="cgpa-value">{calculateCGPA()}</div>
-						<div className="cgpa-label">Cumulative GPA</div>
+				<div className="flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-12 mb-10 p-8 w-full max-w-4xl bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent">
+					<div className="flex flex-col items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-[0_10px_30px_rgba(102,126,234,0.3)] relative">
+						<div className="text-3xl font-bold text-white leading-none">{calculateCGPA()}</div>
+						<div className="text-sm text-white/90 mt-1">Cumulative GPA</div>
 					</div>
-					<div className="cgpa-stats">
-						<div className="stat">
-							<span className="stat-value">{semesters.length}</span>
-							<span className="stat-label">Semesters</span>
+					<div className="flex flex-row lg:flex-row gap-4 lg:gap-8">
+						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+								{semesters.length}
+							</span>
+							<span className="text-sm text-gray-600 dark:text-white/70 mt-1 text-center">Semesters</span>
 						</div>
-						<div className="stat">
-							<span className="stat-value">
+						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
 								{semesters.reduce((acc, semester) => acc + semester.subjects.length, 0)}
 							</span>
-							<span className="stat-label">Total Subjects</span>
+							<span className="text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
+								Total Subjects
+							</span>
 						</div>
-						<div className="stat">
-							<span className="stat-value">
+						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
 								{semesters.reduce(
 									(acc, semester) =>
 										acc + semester.subjects.reduce((subAcc, subject) => subAcc + subject.credit, 0),
 									0
 								)}
 							</span>
-							<span className="stat-label">Total Credits</span>
+							<span className="text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
+								Total Credits
+							</span>
 						</div>
 					</div>
 				</div>
 
 				{/* Save Status */}
 				{saving && (
-					<div className="save-status">
-						<div className="save-indicator">
-							<div className="save-spinner"></div>
+					<div className="w-full max-w-4xl mb-5 flex justify-center">
+						<div className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary/10 border border-primary/30 text-primary/90">
+							<div className="w-4 h-4 border-2 border-primary/30 border-t-primary/90 rounded-full animate-spin"></div>
 							<span>Saving...</span>
 						</div>
 					</div>
 				)}
 
 				{/* Semester Management */}
-				<div className="semester-management">
-					<div className="semester-header">
-						<h2>{isReadOnlyProfile ? "View Semesters" : "Manage Semesters"}</h2>
-						<button className="add-semester-btn" onClick={addSemester} disabled={isReadOnlyProfile}>
-							<PlusIcon />
+				<div className="mb-10 w-full max-w-4xl">
+					<div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+						<h2 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
+							{isReadOnlyProfile ? "View Semesters" : "Manage Semesters"}
+						</h2>
+						<button
+							className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-green-500 to-green-600 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(16,185,129,0.3)] uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:transform-none disabled:shadow-none"
+							onClick={addSemester}
+							disabled={isReadOnlyProfile}
+						>
+							<PlusIcon className="w-5 h-5" />
 							{isReadOnlyProfile ? "Read-Only Profile" : "Add Semester"}
 						</button>
 					</div>
 
 					{/* Semester Tabs */}
 					{semesters.length > 0 && (
-						<div className="semester-tabs">
+						<div className="flex gap-4 mb-8 flex-wrap">
 							{semesters.map((semester) => (
 								<div
 									key={semester.id}
-									className={`semester-tab ${activeSemester === semester.id ? "active" : ""}`}
+									className={`flex flex-col items-center px-5 py-4 bg-gray-100 dark:bg-white/10 backdrop-blur-[10px] rounded-2xl cursor-pointer transition-all duration-300 border-2 relative ${
+										activeSemester === semester.id
+											? "bg-gradient-to-br from-blue-600 to-purple-600 border-blue-600 text-white"
+											: "border-gray-200 dark:border-white/20 hover:bg-gray-200 dark:hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)]"
+									}`}
 									onClick={() => setActiveSemester(semester.id)}
 								>
-									<span className="semester-name">{semester.name}</span>
-									<span className="semester-gpa">GPA: {calculateGPA(semester.subjects)}</span>
+									<span
+										className={`text-base font-semibold mb-1 ${
+											activeSemester === semester.id
+												? "text-white"
+												: "text-gray-800 dark:text-white/90"
+										}`}
+									>
+										{semester.name}
+									</span>
+									<span
+										className={`text-sm ${
+											activeSemester === semester.id
+												? "text-white/90"
+												: "text-gray-600 dark:text-white/70"
+										}`}
+									>
+										GPA: {calculateGPA(semester.subjects)}
+									</span>
 									<button
-										className="delete-semester-btn"
+										className={`absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white border-none rounded-full cursor-pointer flex items-center justify-center text-xs transition-all duration-300 shadow-[0_2px_8px_rgba(239,68,68,0.3)] hover:bg-red-600 hover:scale-110 ${
+											activeSemester === semester.id
+												? "opacity-100"
+												: "opacity-0 group-hover:opacity-100"
+										} hover:opacity-100`}
 										onClick={(e) => {
 											e.stopPropagation();
 											handleDeleteSemesterClick(semester.id, semester.name);
@@ -973,7 +1095,7 @@ const GpaCalculator = () => {
 										disabled={isReadOnlyProfile}
 										title={isReadOnlyProfile ? "Read-only profile" : "Delete semester"}
 									>
-										<CloseIcon />
+										<XMarkIcon className="w-3 h-3" />
 									</button>
 								</div>
 							))}
@@ -983,16 +1105,25 @@ const GpaCalculator = () => {
 
 				{/* Subject Form */}
 				{semesters.length > 0 && activeSemester && (
-					<div className="subject-form-container">
-						<h3>
+					<div className="bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl p-8 mb-10 shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative w-full max-w-4xl before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent">
+						<h3 className="text-2xl font-semibold text-gray-800 dark:text-white/90 mb-5 text-center flex items-center justify-center">
 							{isReadOnlyProfile ? "View Subjects in " : "Add Subject to "}
 							{semesters.find((s) => s.id === activeSemester)?.name}
-							{isReadOnlyProfile && <span className="read-only-badge">Read-Only</span>}
+							{isReadOnlyProfile && (
+								<span className="inline-flex items-center ml-3 px-3 py-1 bg-gradient-to-br from-red-500 to-red-600 text-white text-xs font-semibold rounded-full shadow-[0_2px_8px_rgba(239,68,68,0.3)] animate-fadeIn">
+									Read-Only
+								</span>
+							)}
 						</h3>
-						<form className="subject-form" onSubmit={addOrUpdateSubject}>
-							<div className="form-row">
-								<div className="form-group">
-									<label htmlFor="subjectName">Subject Name</label>
+						<form onSubmit={addOrUpdateSubject}>
+							<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+								<div className="flex flex-col">
+									<label
+										htmlFor="subjectName"
+										className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-2 flex items-center gap-1"
+									>
+										Subject Name
+									</label>
 									<input
 										id="subjectName"
 										type="text"
@@ -1003,13 +1134,23 @@ const GpaCalculator = () => {
 										onChange={handleInputChange}
 										disabled={isReadOnlyProfile}
 										required
+										className="px-3 py-3 border-2 border-gray-300 dark:border-white/20 rounded-lg bg-gray-100 dark:bg-white/10 text-sm transition-all duration-300 text-gray-900 dark:text-white/90 placeholder:text-gray-600 dark:placeholder:text-white/60 focus:outline-none focus:border-primary focus:bg-white dark:focus:bg-white/15 focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:border-gray-300 dark:disabled:border-white/20 disabled:text-gray-500 dark:disabled:text-white/50 disabled:placeholder:text-gray-400 dark:disabled:placeholder:text-white/40"
 									/>
 								</div>
 
-								<div className="form-group">
-									<label htmlFor="grade">
+								<div className="flex flex-col">
+									<label
+										htmlFor="grade"
+										className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-2 flex items-center gap-1"
+									>
 										Grade
-										<InfoIcon onClick={(e) => handleModalToggle("grade", e)} />
+										<button
+											type="button"
+											onClick={(e) => handleModalToggle("grade", e)}
+											className="bg-none border-none text-gray-600 dark:text-white/60 cursor-pointer text-xs p-1 rounded transition-all duration-300 inline-flex items-center justify-center hover:text-gray-800 dark:hover:text-white/90 hover:bg-gray-200 dark:hover:bg-white/10 hover:scale-110"
+										>
+											<InformationCircleIcon className="w-4 h-4" />
+										</button>
 									</label>
 									<select
 										id="grade"
@@ -1018,25 +1159,57 @@ const GpaCalculator = () => {
 										onChange={handleInputChange}
 										disabled={isReadOnlyProfile}
 										required
+										className="px-3 py-3 border-2 border-gray-300 dark:border-white/20 rounded-lg bg-gray-100 dark:bg-white/10 text-sm transition-all duration-300 text-gray-900 dark:text-white/90 focus:outline-none focus:border-primary focus:bg-white dark:focus:bg-white/15 focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:border-gray-300 dark:disabled:border-white/20 disabled:text-gray-500 dark:disabled:text-white/50"
 									>
-										<option value="">Select Grade</option>
-										<option value="10">O (10)</option>
-										<option value="9">A+ (9)</option>
-										<option value="8">A (8)</option>
-										<option value="7">B+ (7)</option>
-										<option value="6">B (6)</option>
-										<option value="5">C (5)</option>
-										<option value="4">D (4)</option>
-										<option value="0">E - Reappear (0)</option>
-										<option value="0">F - Fail (0)</option>
-										<option value="0">G - Backlog (0)</option>
+										<option value="" className="text-gray-900">
+											Select Grade
+										</option>
+										<option value="10" className="text-gray-900">
+											O (10)
+										</option>
+										<option value="9" className="text-gray-900">
+											A+ (9)
+										</option>
+										<option value="8" className="text-gray-900">
+											A (8)
+										</option>
+										<option value="7" className="text-gray-900">
+											B+ (7)
+										</option>
+										<option value="6" className="text-gray-900">
+											B (6)
+										</option>
+										<option value="5" className="text-gray-900">
+											C (5)
+										</option>
+										<option value="4" className="text-gray-900">
+											D (4)
+										</option>
+										<option value="0" className="text-gray-900">
+											E - Reappear (0)
+										</option>
+										<option value="0" className="text-gray-900">
+											F - Fail (0)
+										</option>
+										<option value="0" className="text-gray-900">
+											G - Backlog (0)
+										</option>
 									</select>
 								</div>
 
-								<div className="form-group">
-									<label htmlFor="credit">
+								<div className="flex flex-col">
+									<label
+										htmlFor="credit"
+										className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-2 flex items-center gap-1"
+									>
 										Credits
-										<InfoIcon onClick={(e) => handleModalToggle("ch", e)} />
+										<button
+											type="button"
+											onClick={(e) => handleModalToggle("ch", e)}
+											className="bg-none border-none text-gray-600 dark:text-white/60 cursor-pointer text-xs p-1 rounded transition-all duration-300 inline-flex items-center justify-center hover:text-gray-800 dark:hover:text-white/90 hover:bg-gray-200 dark:hover:bg-white/10 hover:scale-110"
+										>
+											<InformationCircleIcon className="w-4 h-4" />
+										</button>
 									</label>
 									<input
 										id="credit"
@@ -1049,11 +1222,16 @@ const GpaCalculator = () => {
 										onChange={handleInputChange}
 										disabled={isReadOnlyProfile}
 										required
+										className="px-3 py-3 border-2 border-gray-300 dark:border-white/20 rounded-lg bg-gray-100 dark:bg-white/10 text-sm transition-all duration-300 text-gray-900 dark:text-white/90 placeholder:text-gray-600 dark:placeholder:text-white/60 focus:outline-none focus:border-primary focus:bg-white dark:focus:bg-white/15 focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:border-gray-300 dark:disabled:border-white/20 disabled:text-gray-500 dark:disabled:text-white/50 disabled:placeholder:text-gray-400 dark:disabled:placeholder:text-white/40"
 									/>
 								</div>
 
-								<div className="form-group">
-									<button type="submit" className="submit-btn" disabled={isReadOnlyProfile}>
+								<div className="flex flex-col">
+									<button
+										type="submit"
+										disabled={isReadOnlyProfile}
+										className="px-6 py-3 bg-gradient-to-br from-blue-600 to-purple-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(59,130,246,0.4)] uppercase tracking-wide min-h-[42.5px] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(59,130,246,0.5)] hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 dark:disabled:bg-white/10 disabled:transform-none disabled:shadow-none"
+									>
 										{editIndex === -1 ? "Add Subject" : "Update"}
 									</button>
 								</div>
@@ -1064,49 +1242,63 @@ const GpaCalculator = () => {
 
 				{/* Semester Content */}
 				{semesters.length > 0 ? (
-					<div className="semesters-container">
+					<div className="w-full max-w-4xl">
 						{semesters.map((semester) => (
 							<div
 								key={semester.id}
-								className={`semester-card ${activeSemester === semester.id ? "active" : ""}`}
-								style={{ display: activeSemester === semester.id ? "block" : "none" }}
+								className={`bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl p-8 mb-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent animate-fadeIn ${
+									activeSemester === semester.id ? "block" : "hidden"
+								}`}
 							>
-								<div className="semester-card-header">
+								<div className="flex flex-col lg:flex-row justify-between items-center mb-5 gap-4">
 									<div className="semester-info">
-										<h3>{semester.name}</h3>
-										<div className="semester-meta">
-											<span className="subject-count">{semester.subjects.length} subjects</span>
-											<span className="total-credits">
+										<h3 className="text-2xl font-bold text-start text-gray-800 dark:text-white/90 mb-0">
+											{semester.name}
+										</h3>
+										<div className="flex gap-4 text-sm text-gray-600 dark:text-white/70">
+											<span className="flex items-center gap-1">
+												{semester.subjects.length} subjects
+											</span>
+											<span className="flex items-center gap-1">
 												{semester.subjects.reduce((acc, subject) => acc + subject.credit, 0)}{" "}
 												credits
 											</span>
 										</div>
 									</div>
-									<div className="semester-gpa-display">
-										<div className="gpa-number">{calculateGPA(semester.subjects)}</div>
-										<div className="gpa-label">Semester GPA</div>
+									<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+										<div className="text-3xl font-bold text-gray-800 dark:text-white/90 leading-none">
+											{calculateGPA(semester.subjects)}
+										</div>
+										<div className="text-sm text-gray-600 dark:text-white/70 mt-1">
+											Semester GPA
+										</div>
 									</div>
 								</div>
 
 								{semester.subjects.length > 0 ? (
-									<div className="subjects-grid">
+									<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
 										{semester.subjects.map((subject) => (
-											<div key={subject.id} className="subject-card">
-												<div className="subject-header">
-													<h4 className="subject-name">{subject.subjectName}</h4>
-													<div className="subject-actions">
+											<div
+												key={subject.id}
+												className="bg-gray-200 dark:bg-white/10 rounded-2xl p-6 backdrop-blur-[10px] border border-gray-300 dark:border-white/20 transition-all duration-300 hover:bg-gray-300 dark:hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] animate-fadeIn"
+											>
+												<div className="flex justify-between items-center mb-4">
+													<h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 text-left">
+														{subject.subjectName}
+													</h4>
+													<div className="flex gap-2">
 														<button
-															className="edit-btn"
+															className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 bg-blue-50/80 dark:bg-blue-500/10 border border-blue-200/60 dark:border-blue-400/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:border-blue-300 dark:hover:border-blue-400/40 hover:scale-105 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
 															onClick={() => editSubject(semester.id, subject)}
 															disabled={isReadOnlyProfile}
 															title={
 																isReadOnlyProfile ? "Read-only profile" : "Edit subject"
 															}
 														>
-															<EditIcon />
+															<PencilIcon className="w-4 h-4" />
 														</button>
 														<button
-															className="delete-btn"
+															className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 bg-red-50/80 dark:bg-red-500/10 border border-red-200/60 dark:border-red-400/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:border-red-300 dark:hover:border-red-400/40 hover:scale-105 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
 															onClick={() => deleteSubject(semester.id, subject.id)}
 															disabled={isReadOnlyProfile}
 															title={
@@ -1115,24 +1307,32 @@ const GpaCalculator = () => {
 																	: "Delete subject"
 															}
 														>
-															<DeleteIcon />
+															<TrashIcon className="w-4 h-4" />
 														</button>
 													</div>
 												</div>
-												<div className="subject-details">
-													<div className="detail-item">
-														<span className="detail-label">Grade:</span>
-														<span className="detail-value grade-value">
+												<div className="grid grid-cols-2 gap-4">
+													<div className="flex items-center gap-4">
+														<span className="text-sm text-gray-600 dark:text-white/70">
+															Grade:
+														</span>
+														<span className="text-sm font-semibold text-green-600 dark:text-green-400">
 															{subject.grade}
 														</span>
 													</div>
-													<div className="detail-item">
-														<span className="detail-label">Credits:</span>
-														<span className="detail-value">{subject.credit}</span>
+													<div className="flex items-center gap-4">
+														<span className="text-sm text-gray-600 dark:text-white/70">
+															Credits:
+														</span>
+														<span className="text-sm font-semibold text-gray-800 dark:text-white/90">
+															{subject.credit}
+														</span>
 													</div>
-													<div className="detail-item">
-														<span className="detail-label">Points:</span>
-														<span className="detail-value">
+													<div className="flex items-center gap-4 col-span-2">
+														<span className="text-sm text-gray-600 dark:text-white/70">
+															Points:
+														</span>
+														<span className="text-sm font-semibold text-gray-800 dark:text-white/90">
 															{(subject.grade * subject.credit).toFixed(2)}
 														</span>
 													</div>
@@ -1141,39 +1341,28 @@ const GpaCalculator = () => {
 										))}
 									</div>
 								) : (
-									<div className="no-subjects">
-										<h3>No subjects added yet</h3>
-										<p>Add your first subject above!</p>
+									<div className="text-center py-8 text-gray-600 dark:text-white/70">
+										<h3 className="text-2xl mb-2 text-gray-700 dark:text-white/80">
+											No subjects added yet
+										</h3>
+										<p className="text-base text-gray-500 dark:text-white/60">
+											Add your first subject above!
+										</p>
 									</div>
 								)}
 							</div>
 						))}
 					</div>
 				) : (
-					<div className="no-semesters">
-						<h3>No semesters added yet</h3>
-						<p>Click "Add Semester" to get started with your GPA calculation!</p>
+					<div className="text-center py-16 text-gray-600 dark:text-white/70">
+						<h3 className="text-3xl mb-3 text-gray-700 dark:text-white/80">No semesters added yet</h3>
+						<p className="text-lg text-gray-500 dark:text-white/60">
+							Click "Add Semester" to get started with your GPA calculation!
+						</p>
 					</div>
 				)}
-
-				<RenderModal modalType={modalType} isModalOpen={isModalOpen} onClose={handleModalClose} />
-
-				<ConfirmModal
-					isOpen={showDeleteConfirm}
-					onClose={handleCancelDeleteSemester}
-					onConfirm={handleConfirmDeleteSemester}
-					title="Delete Semester"
-					message={
-						semesterToDelete
-							? `Are you sure you want to delete "${semesterToDelete.name}"? This action cannot be undone and will permanently remove all subjects in this semester.`
-							: "Are you sure you want to delete this semester?"
-					}
-					confirmText="Delete"
-					cancelText="Cancel"
-					type="danger"
-				/>
 			</div>
-		</div>
+		</>
 	);
 };
 

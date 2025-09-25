@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { ShareIcon, CopyIcon, EditIcon, UnshareIcon, EyeIcon } from "../../../assets/icons";
+import {
+	ShareIcon,
+	DocumentDuplicateIcon,
+	PencilIcon,
+	NoSymbolIcon,
+	EyeIcon,
+	ArrowDownTrayIcon,
+	XMarkIcon,
+	PlusIcon,
+} from "@heroicons/react/24/outline";
 import "./ProfileDrawer.css";
-import { InputModal, ConfirmModal } from "../../common";
+import { InputModal, ConfirmModal } from "../common";
+import UMSFetchModal from "../modal/UMSFetchModal.jsx";
 
 const ProfileDrawer = ({
 	isOpen,
@@ -14,6 +24,7 @@ const ProfileDrawer = ({
 	onShareProfile,
 	onUnshareProfile,
 	onCopySharedProfile,
+	onVerifyUMS,
 	sharedProfiles,
 	mySharedProfiles = [],
 	isLoading,
@@ -21,6 +32,8 @@ const ProfileDrawer = ({
 	const [showInputModal, setShowInputModal] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [profileToDelete, setProfileToDelete] = useState(null);
+	const [showUMSModal, setShowUMSModal] = useState(false);
+	const [profileToVerify, setProfileToVerify] = useState(null);
 
 	// Prevent background scrolling when drawer is open
 	useEffect(() => {
@@ -78,6 +91,23 @@ const ProfileDrawer = ({
 		}
 	};
 
+	const handleVerifyUMS = (profileId, event) => {
+		event.stopPropagation();
+		const profile = profiles.find((p) => p.id === profileId);
+		if (profile) {
+			setProfileToVerify(profile);
+			setShowUMSModal(true);
+		}
+	};
+
+	const handleUMSConfirm = (umsData) => {
+		if (onVerifyUMS && profileToVerify) {
+			onVerifyUMS(profileToVerify.id, umsData);
+			setProfileToVerify(null);
+		}
+		setShowUMSModal(false);
+	};
+
 	// Check if profile is shared (legacy)
 	const getProfileSharedStatus = (profileId) => {
 		return sharedProfiles?.find((shared) => shared.profileId === profileId);
@@ -130,6 +160,16 @@ const ProfileDrawer = ({
 												)}
 											</div>
 											<div className="profile-actions">
+												{/* UMS Import Button */}
+												<button
+													className="ums-verify-btn"
+													onClick={(e) => handleVerifyUMS(profile.id, e)}
+													title="Import data from UMS"
+													disabled={isLoading}
+												>
+													<ArrowDownTrayIcon className="w-5 h-5" />
+												</button>
+
 												{/* Enhanced Share Button */}
 												<button
 													className="share-btn"
@@ -137,7 +177,7 @@ const ProfileDrawer = ({
 													title="Share with users"
 													disabled={isLoading}
 												>
-													<ShareIcon />
+													<ShareIcon className="w-5 h-5" />
 												</button>
 
 												{/* Delete Button */}
@@ -150,7 +190,7 @@ const ProfileDrawer = ({
 														}}
 														title="Delete profile"
 													>
-														×
+														<XMarkIcon className="w-5 h-5" />
 													</button>
 												)}
 											</div>
@@ -158,7 +198,9 @@ const ProfileDrawer = ({
 									);
 								})}
 								<div className="profile-drawer-card add-profile" onClick={handleCreateProfile}>
-									<div className="add-profile-icon">+</div>
+									<div className="add-profile-icon">
+										<PlusIcon className="w-8 h-8" />
+									</div>
 									<p>Add Profile</p>
 								</div>
 							</div>
@@ -189,12 +231,12 @@ const ProfileDrawer = ({
 														<span className={`permission-badge ${profile.permission}`}>
 															{profile.permission === "read" ? (
 																<>
-																	<EyeIcon width="12" height="12" />
+																	<EyeIcon className="w-3 h-3" />
 																	Read Only
 																</>
 															) : (
 																<>
-																	<EditIcon width="12" height="12" />
+																	<PencilIcon className="w-3 h-3" />
 																	Edit Access
 																</>
 															)}
@@ -215,7 +257,7 @@ const ProfileDrawer = ({
 															title="Copy to my account"
 															disabled={isLoading}
 														>
-															<CopyIcon />
+															<DocumentDuplicateIcon className="w-5 h-5" />
 														</button>
 													)}
 												</div>
@@ -246,7 +288,7 @@ const ProfileDrawer = ({
 														title="Unshare profile"
 														disabled={isLoading}
 													>
-														<UnshareIcon />
+														<NoSymbolIcon className="w-5 h-5" />
 													</button>
 												</div>
 											</div>
@@ -281,6 +323,18 @@ const ProfileDrawer = ({
 				message={`Are you sure you want to delete "${profileToDelete?.name}"? This action cannot be undone.`}
 				confirmText="Delete"
 				type="danger"
+			/>
+
+			{/* UMS Fetch Modal */}
+			<UMSFetchModal
+				isOpen={showUMSModal}
+				onClose={() => {
+					setShowUMSModal(false);
+					setProfileToVerify(null);
+				}}
+				onConfirm={handleUMSConfirm}
+				existingData={profileToVerify?.semesters?.length > 0 ? profileToVerify : null}
+				profileName={profileToVerify?.name || ""}
 			/>
 		</>
 	);

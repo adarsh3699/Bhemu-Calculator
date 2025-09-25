@@ -46,6 +46,11 @@ export class GPAService {
 				userId: this.userId,
 				updatedAt: serverTimestamp(),
 				createdAt: profile.createdAt || serverTimestamp(),
+				// Preserve UMS-related fields
+				...(profile.studentInfo && { studentInfo: profile.studentInfo }),
+				...(profile.allTermIds && { allTermIds: profile.allTermIds }),
+				...(profile.umsVerified && { umsVerified: profile.umsVerified }),
+				...(profile.lastUMSSync && { lastUMSSync: profile.lastUMSSync }),
 			};
 
 			await setDoc(doc(this.userProfilesRef, profile.id.toString()), profileData);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/AuthContext";
 import { GoogleIcon } from "../assets/icons";
-import "../styles/auth.css";
 
 function Signup() {
 	const [name, setName] = useState("");
@@ -60,18 +59,20 @@ function Signup() {
 	}
 
 	return (
-		<div className="auth-container">
-			<div className="auth-card">
-				<div className="auth-header">
-					<h2>Create Account</h2>
-					<p>Sign up to get started</p>
+		<div className="min-h-[calc(100vh-45px)] flex items-center justify-center p-4 bg-transparent">
+			<div className="auth-card rounded-3xl p-10 w-full max-w-md box-border">
+				<div className="text-center mb-8">
+					<h2 className="text-3xl font-bold mb-2 text-gradient">Create Account</h2>
+					<p className="text-subtle text-sm m-0">Sign up to get started</p>
 				</div>
 
-				{error && <div className="auth-error">{error}</div>}
+				{error && <div className="bg-error text-error px-4 py-2.5 rounded-xl mb-6 text-sm border">{error}</div>}
 
-				<form onSubmit={handleSubmit} className="auth-form">
-					<div className="form-group">
-						<label htmlFor="name">Full Name</label>
+				<form onSubmit={handleSubmit} className="mb-5">
+					<div className="mb-5">
+						<label htmlFor="name" className="block mb-2 font-medium text-light text-sm">
+							Full Name
+						</label>
 						<input
 							type="text"
 							id="name"
@@ -79,11 +80,14 @@ function Signup() {
 							onChange={(e) => setName(e.target.value)}
 							placeholder="Enter your full name"
 							required
+							className="w-full px-4 py-2.5 border-2 border-main rounded-xl text-base transition-all duration-200 bg-surface text-main box-border focus-primary placeholder:text-subtle"
 						/>
 					</div>
 
-					<div className="form-group">
-						<label htmlFor="email">Email</label>
+					<div className="mb-5">
+						<label htmlFor="email" className="block mb-2 font-medium text-light text-sm">
+							Email
+						</label>
 						<input
 							type="email"
 							id="email"
@@ -91,11 +95,14 @@ function Signup() {
 							onChange={(e) => setEmail(e.target.value)}
 							placeholder="Enter your email"
 							required
+							className="w-full px-4 py-2.5 border-2 border-main rounded-xl text-base transition-all duration-200 bg-surface text-main box-border focus-primary placeholder:text-subtle"
 						/>
 					</div>
 
-					<div className="form-group">
-						<label htmlFor="password">Password</label>
+					<div className="mb-5">
+						<label htmlFor="password" className="block mb-2 font-medium text-light text-sm">
+							Password
+						</label>
 						<input
 							type="password"
 							id="password"
@@ -103,11 +110,14 @@ function Signup() {
 							onChange={(e) => setPassword(e.target.value)}
 							placeholder="Create a password (min 6 characters)"
 							required
+							className="w-full px-4 py-2.5 border-2 border-main rounded-xl text-base transition-all duration-200 bg-surface text-main box-border focus-primary placeholder:text-subtle"
 						/>
 					</div>
 
-					<div className="form-group">
-						<label htmlFor="confirmPassword">Confirm Password</label>
+					<div className="mb-5">
+						<label htmlFor="confirmPassword" className="block mb-2 font-medium text-light text-sm">
+							Confirm Password
+						</label>
 						<input
 							type="password"
 							id="confirmPassword"
@@ -115,26 +125,42 @@ function Signup() {
 							onChange={(e) => setConfirmPassword(e.target.value)}
 							placeholder="Confirm your password"
 							required
+							className="w-full px-4 py-2.5 border-2 border-main rounded-xl text-base transition-all duration-200 bg-surface text-main box-border focus-primary placeholder:text-subtle"
 						/>
 					</div>
 
-					<button type="submit" className="auth-btn primary" disabled={loading}>
+					<button
+						type="submit"
+						className="btn-primary w-full px-4 py-2.5 rounded-xl text-base font-semibold border-none cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 mb-4 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+						disabled={loading}
+					>
 						{loading ? "Creating Account..." : "Create Account"}
 					</button>
 				</form>
 
-				<div className="auth-divider">
-					<span>or</span>
+				<div className="relative text-center my-6">
+					<div className="absolute top-1/2 left-0 right-0 h-px bg-border-subtle -z-10"></div>
+					<span className="bg-[var(--card-bg)] px-4 text-subtle text-sm">or</span>
 				</div>
 
-				<button onClick={handleGoogleSignUp} className="auth-btn google" disabled={loading}>
+				<button
+					onClick={handleGoogleSignUp}
+					className="btn-google w-full px-4 py-2.5 rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 mb-4 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+					disabled={loading}
+				>
 					<GoogleIcon />
 					Continue with Google
 				</button>
 
-				<div className="auth-links">
-					<p>
-						Already have an account? <Link to="/login">Sign in</Link>
+				<div className="text-center">
+					<p className="mt-2 mb-0 text-subtle text-sm">
+						Already have an account?{" "}
+						<Link
+							to="/login"
+							className="text-primary no-underline font-medium transition-colors duration-200 hover:text-primary-bright hover:underline"
+						>
+							Sign in
+						</Link>
 					</p>
 				</div>
 			</div>

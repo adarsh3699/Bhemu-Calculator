@@ -1,6 +1,4 @@
-import { Modal } from "react-responsive-modal";
-import { ModalCloseIcon } from "../../../assets/icons";
-import "./renderModal.css";
+import BaseModal from "./BaseModal";
 
 const modalData_1 = {
 	name: "Grade Point",
@@ -68,34 +66,45 @@ function RenderModal({ isModalOpen, onClose, modalType }) {
 	}
 
 	return (
-		<Modal open={isModalOpen} onClose={handleClose} classNames="modal" center showCloseIcon={false}>
-			<div className="modal-bar">
-				<a href={modalData?.url} className="modalTile" target="_blank" rel="noreferrer">
-					{modalData?.name?.toUpperCase()}
-				</a>
-
-				<span className="closeBtn" onClick={handleClose}>
-					<ModalCloseIcon />
-				</span>
-			</div>
-			<div className="modal-content">
-				<p className="modalInfo">{modalData?.info}</p>
+		<BaseModal
+			isOpen={isModalOpen}
+			onClose={handleClose}
+			title={modalData?.name?.toUpperCase()}
+			maxWidth="900px"
+			className="auth-card backdrop-blur-xl"
+		>
+			<div className="p-6 overflow-auto max-h-[calc(85vh-120px)]">
+				<p className="leading-relaxed mb-5 text-lg text-main font-normal animate-in fade-in duration-500">
+					{modalData?.info}
+				</p>
 
 				{modalData.tableData && (
-					<table className="subjects-table">
-						<thead>
+					<table className="w-full border-collapse my-6 bg-white/5 rounded-2xl overflow-hidden shadow-lg">
+						<thead className="btn-primary">
 							<tr>
-								<th>Grade</th>
-								<th>Grade Point</th>
-								<th>Performance</th>
+								<th className="px-5 py-4 text-left font-semibold text-white text-base tracking-wide uppercase">
+									Grade
+								</th>
+								<th className="px-5 py-4 text-left font-semibold text-white text-base tracking-wide uppercase">
+									Grade Point
+								</th>
+								<th className="px-5 py-4 text-left font-semibold text-white text-base tracking-wide uppercase">
+									Performance
+								</th>
 							</tr>
 						</thead>
 						<tbody>
 							{modalData?.tableData.map((data, index) => (
-								<tr key={index}>
-									<td>{data.grade}</td>
-									<td>{data.gradePoint}</td>
-									<td>{data.performance}</td>
+								<tr key={index} className="transition-all duration-300 hover:bg-white/10">
+									<td className="px-5 py-4 border-b border-white/10 text-emerald-400 font-bold text-base last:border-b-0">
+										{data.grade}
+									</td>
+									<td className="px-5 py-4 border-b border-white/10 text-indigo-400 font-semibold text-base last:border-b-0">
+										{data.gradePoint}
+									</td>
+									<td className="px-5 py-4 border-b border-white/10 text-main text-base last:border-b-0">
+										{data.performance}
+									</td>
 								</tr>
 							))}
 						</tbody>
@@ -103,16 +112,22 @@ function RenderModal({ isModalOpen, onClose, modalType }) {
 				)}
 
 				{modalData.list && (
-					<ul className="modalList">
+					<ul className="pl-5 leading-relaxed my-5 space-y-3">
 						{modalData?.list.map((data, index) => (
-							<li key={index}>{data}</li>
+							<li key={index} className="text-base text-main list-disc">
+								{data}
+							</li>
 						))}
 					</ul>
 				)}
 
-				{modalData?.para2 && <p className="modalInfo">{modalData?.para2}</p>}
+				{modalData?.para2 && (
+					<p className="leading-relaxed mb-5 text-lg text-main font-normal animate-in fade-in duration-500">
+						{modalData?.para2}
+					</p>
+				)}
 			</div>
-		</Modal>
+		</BaseModal>
 	);
 }
 
