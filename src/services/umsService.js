@@ -2,7 +2,7 @@
  * UMS Service - Handles communication with the UMS Scraper backend
  */
 
-const UMS_BASE_URL = "https://ums.bhemu.me";
+const UMS_BASE_URL = import.meta.env.VITE_UMS_BASE_URL || "https://ums.bhemu.in";
 
 export class UMSService {
 	constructor() {
