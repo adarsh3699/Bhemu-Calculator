@@ -37,7 +37,7 @@ function AboutDeveloper() {
 				</div>
 				<div className="text-lg leading-relaxed my-4 pl-8 relative text-light text-left before:content-['•'] before:text-primary before:text-xl before:font-bold before:absolute before:left-2 before:top-0 before:leading-relaxed md:text-xl">
 					<a
-						href="https://www.bhemu.me/about"
+						href="https://www.bhemu.in/about"
 						target="_blank"
 						rel="noreferrer"
 						aria-label="Visit my website to know more"
@@ -59,7 +59,7 @@ function AboutDeveloper() {
 						</div>
 						<div className="flex flex-col gap-3">
 							<a
-								href="https://www.bhemu.me/contact"
+								href="https://www.bhemu.in/contact"
 								target="_blank"
 								rel="noreferrer"
 								className="flex items-center px-7 py-5 bg-gray-100 dark:bg-white/8 border border-gray-300 dark:border-white/15 rounded-2xl transition-all duration-300 no-underline text-main backdrop-blur-sm relative overflow-hidden hover:bg-gray-200 dark:hover:bg-white/12 hover:border-primary hover:-translate-y-1 hover:shadow-lg"

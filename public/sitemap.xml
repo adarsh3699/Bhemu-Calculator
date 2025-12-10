@@ -6,7 +6,7 @@
 
   <!-- Homepage -->
   <url>
-    <loc>https://calculator.bhemu.me/</loc>
+    <loc>https://calc.bhemu.in/</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -14,7 +14,7 @@
 
   <!-- GPA Calculator -->
   <url>
-    <loc>https://calculator.bhemu.me/gpa-calculator</loc>
+    <loc>https://calc.bhemu.in/gpa-calculator</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -22,7 +22,7 @@
 
   <!-- Speed Distance Time Calculator -->
   <url>
-    <loc>https://calculator.bhemu.me/sdt-calculator</loc>
+    <loc>https://calc.bhemu.in/sdt-calculator</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -30,7 +30,7 @@
 
   <!-- Matrix Calculator -->
   <url>
-    <loc>https://calculator.bhemu.me/matrix-calculator</loc>
+    <loc>https://calc.bhemu.in/matrix-calculator</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -38,7 +38,7 @@
 
   <!-- Number Converter -->
   <url>
-    <loc>https://calculator.bhemu.me/number-converter</loc>
+    <loc>https://calc.bhemu.in/number-converter</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -46,7 +46,7 @@
 
   <!-- About Page -->
   <url>
-    <loc>https://calculator.bhemu.me/about</loc>
+    <loc>https://calc.bhemu.in/about</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
@@ -54,7 +54,7 @@
 
   <!-- Login Page -->
   <url>
-    <loc>https://calculator.bhemu.me/login</loc>
+    <loc>https://calc.bhemu.in/login</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
@@ -62,7 +62,7 @@
 
   <!-- Signup Page -->
   <url>
-    <loc>https://calculator.bhemu.me/signup</loc>
+    <loc>https://calc.bhemu.in/signup</loc>
     <lastmod>2024-08-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
