@@ -891,7 +891,8 @@ const GpaCalculator = () => {
 			const lastSemester = semesters[semesters.length - 1];
 			setActiveSemester(lastSemester.id);
 		}
-	}, [currentProfile?.id, semesters]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentProfile?.id]);
 
 	// Auto-focus Subject Name input when editing a subject
 	useEffect(() => {
