@@ -31,7 +31,7 @@ function AboutDeveloper() {
 				<div className="text-lg leading-relaxed my-4 pl-8 relative text-light text-left before:content-['•'] before:text-primary before:text-xl before:font-bold before:absolute before:left-2 before:top-0 before:leading-relaxed md:text-xl">
 					I have experience in{" "}
 					<b className="text-main font-semibold">
-						JavaScript, React, Node.js, MySQL, MongoDB, MERN stack, PHP, HTML, CSS
+						JavaScript, NEXT, React, Node.js, MySQL, MongoDB, MERN stack, CPP, DSA
 					</b>{" "}
 					and more.
 				</div>
