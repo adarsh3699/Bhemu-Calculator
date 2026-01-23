@@ -18,6 +18,7 @@ const GpaCalculator = () => {
 	const [activeProfile, setActiveProfile] = useState(null);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const activeListeners = useRef({}); // Track active subscriptions to prevention re-render loops
 	const [saving, setSaving] = useState(false);
 	const [sharedProfiles, setSharedProfiles] = useState([]);
 	const [sharedWithMeProfiles, setSharedWithMeProfiles] = useState([]);
@@ -389,23 +390,35 @@ const GpaCalculator = () => {
 	);
 
 	// ===== SEMESTER MANAGEMENT =====
+	// ===== SEMESTER MANAGEMENT =====
 	const updateSemesters = useCallback(
 		async (newSemesters) => {
-			const currentProfileData = profiles.find((profile) => profile.id === activeProfile);
+			// Find profile in ALL profiles (both owned and shared)
+			const currentProfileData = allProfiles.find((profile) => profile.id === activeProfile);
+
 			if (currentProfileData) {
 				const updatedProfile = { ...currentProfileData, semesters: newSemesters };
 				await saveProfile(updatedProfile);
 
-				const updatedProfiles = profiles.map((profile) =>
-					profile.id === activeProfile ? updatedProfile : profile
-				);
-				localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
-
-				// Update the profiles state immediately to ensure new semester is available
-				setProfiles(updatedProfiles);
+				// Update local state immediately for UI responsiveness
+				if (profiles.some((p) => p.id === activeProfile)) {
+					// It's an owned profile
+					const updatedProfiles = profiles.map((profile) =>
+						profile.id === activeProfile ? updatedProfile : profile
+					);
+					localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
+					setProfiles(updatedProfiles);
+				} else if (sharedWithMeProfiles.some((p) => p.id === activeProfile)) {
+					// It's a shared profile
+					setSharedWithMeProfiles((prev) =>
+						prev.map((profile) =>
+							profile.id === activeProfile ? { ...profile, semesters: newSemesters } : profile
+						)
+					);
+				}
 			}
 		},
-		[profiles, activeProfile, saveProfile]
+		[allProfiles, profiles, sharedWithMeProfiles, activeProfile, saveProfile]
 	);
 
 	const addSemester = useCallback(async () => {
@@ -800,28 +813,9 @@ const GpaCalculator = () => {
 				}
 			});
 
-			// Add collaborative profile listeners for active shared profiles
-			const collaborativeListeners = [];
-			sharedWithMeProfiles.forEach((profile) => {
-				if (profile.permission === "edit") {
-					const unsubscribe = gpaService.onCollaborativeProfileChange(profile.id, (result) => {
-						if (result.success) {
-							// Update the specific profile in the shared profiles list
-							setSharedWithMeProfiles((prev) =>
-								prev.map((p) =>
-									p.id === profile.id ? { ...result.profile, isShared: true, permission: "edit" } : p
-								)
-							);
-						}
-					});
-					collaborativeListeners.push(unsubscribe);
-				}
-			});
-
 			// Return cleanup function
 			return () => {
 				incomingSharesUnsubscribe?.();
-				collaborativeListeners.forEach((unsubscribe) => unsubscribe?.());
 			};
 		};
 
@@ -864,7 +858,79 @@ const GpaCalculator = () => {
 			sharedProfilesUnsubscribe?.();
 			cleanupCollaborativeListeners?.();
 		};
-	}, [currentUser, gpaService, showMessage, generateProfileName, sharedWithMeProfiles]);
+	}, [currentUser, gpaService, showMessage, generateProfileName]); // Removed sharedWithMeProfiles from dependency
+
+	// Manage listeners for shared profiles efficiently using a Ref to prevent re-subscriptions logic
+	useEffect(() => {
+		if (!currentUser || !gpaService) return;
+
+		// 1. Subscribe to new profiles
+		sharedWithMeProfiles.forEach((profile) => {
+			// specific listener for real-time updates on content (semesters, etc.)
+			// Only subscribe if we don't have one yet
+			if (profile.permission === "edit" && !activeListeners.current[profile.id]) {
+				const ownerId = profile.ownerUserId || profile.userId;
+
+				const unsubscribe = gpaService.onCollaborativeProfileChange(profile.id, ownerId, (result) => {
+					if (result.success) {
+						setSharedWithMeProfiles((prev) => {
+							const index = prev.findIndex((p) => p.id === profile.id);
+							if (index === -1) return prev; // Profile removed from list
+
+							const oldProfile = prev[index];
+
+							// Loop Prevention: key step.
+							// If the data is effectively the same (checked via timestamp), do not update state.
+							// This breaks the "Update -> Render -> Effect -> Update" cycle.
+							const newTime = result.profile.lastModified?.toMillis
+								? result.profile.lastModified.toMillis()
+								: result.profile.lastModified;
+							const oldTime = oldProfile.lastModified?.toMillis
+								? oldProfile.lastModified.toMillis()
+								: oldProfile.lastModified;
+
+							if (newTime && oldTime && newTime === oldTime) {
+								return prev;
+							}
+
+							const newProfiles = [...prev];
+							newProfiles[index] = {
+								...result.profile,
+								isShared: true,
+								permission: "edit",
+								ownerUserId: ownerId,
+							};
+							return newProfiles;
+						});
+					}
+				});
+				// Store unsubscribe
+				activeListeners.current[profile.id] = unsubscribe;
+			}
+		});
+
+		// 2. Unsubscribe from removed profiles
+		const currentIds = new Set(sharedWithMeProfiles.map((p) => p.id));
+		Object.keys(activeListeners.current).forEach((id) => {
+			if (!currentIds.has(id)) {
+				// Profile is no longer shared with us or was removed
+				if (typeof activeListeners.current[id] === "function") {
+					activeListeners.current[id]();
+				}
+				delete activeListeners.current[id];
+			}
+		});
+	}, [sharedWithMeProfiles, currentUser, gpaService]);
+
+	// Cleanup all listeners on unmount
+	useEffect(() => {
+		return () => {
+			Object.values(activeListeners.current).forEach((unsub) => {
+				if (typeof unsub === "function") unsub();
+			});
+			activeListeners.current = {};
+		};
+	}, []);
 
 	// Restore active profile when shared profiles are loaded
 	useEffect(() => {

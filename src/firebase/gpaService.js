@@ -13,6 +13,7 @@ import {
 	onSnapshot,
 	arrayUnion,
 	arrayRemove,
+	deleteField,
 } from "firebase/firestore";
 import { db } from "./config";
 
@@ -20,7 +21,6 @@ import { db } from "./config";
 // users/{userId}/profiles/{profileId} - user's private profiles
 // userShares/{userId}/outgoing/{shareId} - profiles shared by user
 // userShares/{userId}/incoming/{shareId} - profiles shared with user
-// collaborativeProfiles/{profileId} - profiles with edit permissions for real-time sync
 // sharedProfiles/{shareId} - publicly shared profiles (legacy)
 
 export class GPAService {
@@ -34,7 +34,6 @@ export class GPAService {
 		// Note: userShares/{userId} is a document reference (2 segments), not a collection reference
 		this.outgoingSharesRef = collection(db, "userShares", userId, "outgoing");
 		this.incomingSharesRef = collection(db, "userShares", userId, "incoming");
-		this.collaborativeProfilesRef = collection(db, "collaborativeProfiles");
 	}
 
 	// ===== PROFILE MANAGEMENT =====
@@ -53,7 +52,10 @@ export class GPAService {
 				...(profile.lastUMSSync && { lastUMSSync: profile.lastUMSSync }),
 			};
 
-			await setDoc(doc(this.userProfilesRef, profile.id.toString()), profileData);
+			// Single Source of Truth: Just save to my private profile
+			// Use merge to preserve ACLs (collaborators, permissions) if they exist and aren't in payload
+			await setDoc(doc(this.userProfilesRef, profile.id.toString()), profileData, { merge: true });
+
 			return { success: true, profile: profileData };
 		} catch (error) {
 			console.error("Error saving profile:", error);
@@ -108,11 +110,7 @@ export class GPAService {
 			batch.delete(doc(this.userProfilesRef, id));
 
 			// Clean up all related data
-			await Promise.all([
-				this._cleanupOutgoingShares(batch, id),
-				this._cleanupCollaborativeProfile(batch, id),
-				this._cleanupLegacyShares(batch, id),
-			]);
+			await Promise.all([this._cleanupOutgoingShares(batch, id), this._cleanupLegacyShares(batch, id)]);
 
 			await batch.commit();
 			return { success: true };
@@ -135,16 +133,6 @@ export class GPAService {
 			batch.delete(doc(this.outgoingSharesRef, shareId));
 			batch.delete(doc(db, "userShares", targetUserId, "incoming", shareId));
 		});
-	}
-
-	// Helper: Clean up collaborative profile
-	async _cleanupCollaborativeProfile(batch, profileId) {
-		const collaborativeRef = doc(this.collaborativeProfilesRef, profileId);
-		const collaborativeSnap = await getDoc(collaborativeRef);
-
-		if (collaborativeSnap.exists()) {
-			batch.delete(collaborativeRef);
-		}
 	}
 
 	// Helper: Clean up legacy shared profiles
@@ -467,22 +455,28 @@ export class GPAService {
 		const batch = writeBatch(db);
 		const { shareId, profileId, targetUserId } = shareData;
 
-		// Add to both outgoing and incoming shares
+		// 1. Add to both outgoing and incoming shares (Pointers)
 		batch.set(doc(this.outgoingSharesRef, shareId), shareData);
 		batch.set(doc(db, "userShares", targetUserId, "incoming", shareId), shareData);
 
-		// Create collaborative profile for edit permission
-		if (permission === "edit") {
-			batch.set(doc(this.collaborativeProfilesRef, profileId), {
-				...profile,
+		// 2. Update the ORIGINAL profile with collaborators metadata
+		// This enables the "Single Source of Truth" via Security Rules
+		const profileRef = doc(this.userProfilesRef, profileId.toString());
+
+		// We use set with merge to ensure we don't overwrite if it exists,
+		// but typically we are just adding fields.
+		batch.set(
+			profileRef,
+			{
 				collaborators: arrayUnion(targetUserId),
 				permissions: {
 					[this.userId]: "owner",
-					[targetUserId]: "edit",
+					[targetUserId]: permission, // 'read' or 'edit'
 				},
 				lastModified: serverTimestamp(),
-			});
-		}
+			},
+			{ merge: true }
+		);
 
 		await batch.commit();
 	}
@@ -553,20 +547,19 @@ export class GPAService {
 	// Helper: Execute unshare operation with batch
 	async _executeUnshareOperation(shareId, shareData) {
 		const batch = writeBatch(db);
-		const { targetUserId, profileId, permission } = shareData;
+		const { targetUserId, profileId } = shareData;
 
 		// Remove from both outgoing and incoming shares
 		batch.delete(doc(this.outgoingSharesRef, shareId));
 		batch.delete(doc(db, "userShares", targetUserId, "incoming", shareId));
 
-		// Update collaborative profile for edit permission
-		if (permission === "edit") {
-			batch.update(doc(this.collaborativeProfilesRef, profileId), {
-				collaborators: arrayRemove(targetUserId),
-				[`permissions.${targetUserId}`]: null,
-				lastModified: serverTimestamp(),
-			});
-		}
+		// Remove from ORIGINAL profile permissions
+		const profileRef = doc(this.userProfilesRef, profileId.toString());
+		batch.update(profileRef, {
+			collaborators: arrayRemove(targetUserId),
+			[`permissions.${targetUserId}`]: deleteField(), // Use deleteField() to remove the key
+			lastModified: serverTimestamp(),
+		});
 
 		await batch.commit();
 	}
@@ -604,60 +597,44 @@ export class GPAService {
 		batch.update(doc(this.outgoingSharesRef, shareId), updatedShareData);
 		batch.update(doc(db, "userShares", targetUserId, "incoming", shareId), updatedShareData);
 
-		// Handle collaborative profile changes
-		await this._updateCollaborativeProfile(batch, profileId, targetUserId, oldPermission, newPermission);
+		// Handle profile permission changes
+		await this._updateProfilePermissions(batch, profileId, targetUserId, oldPermission, newPermission);
 
 		await batch.commit();
 		return updatedShareData;
 	}
 
-	// Helper: Update collaborative profile based on permission change
-	async _updateCollaborativeProfile(batch, profileId, targetUserId, oldPermission, newPermission) {
-		const collaborativeRef = doc(this.collaborativeProfilesRef, profileId);
+	// Helper: Update profile permissions based on share change
+	async _updateProfilePermissions(batch, profileId, targetUserId, oldPermission, newPermission) {
+		const profileRef = doc(this.userProfilesRef, profileId.toString());
 
-		if (oldPermission === "edit" && newPermission === "read") {
-			// Remove edit access
-			batch.update(collaborativeRef, {
-				collaborators: arrayRemove(targetUserId),
-				[`permissions.${targetUserId}`]: null,
+		// In Single Source of Truth, we just update the permissions map
+		// Note: collaborators array should contain the user regardless of 'read' or 'edit' permission
+		// to allow access via security rules.
+
+		// If we are changing permissions, we just update the map map.
+		// The user should already be in 'collaborators' array from the initial share.
+		batch.set(
+			profileRef,
+			{
+				permissions: {
+					[targetUserId]: newPermission,
+				},
 				lastModified: serverTimestamp(),
-			});
-		} else if (oldPermission === "read" && newPermission === "edit") {
-			// Grant edit access
-			const originalProfileSnap = await getDoc(doc(this.userProfilesRef, profileId));
-			if (!originalProfileSnap.exists()) return;
-
-			const profileData = originalProfileSnap.data();
-			const collaborativeSnap = await getDoc(collaborativeRef);
-
-			if (collaborativeSnap.exists()) {
-				// Update existing collaborative profile
-				batch.update(collaborativeRef, {
-					collaborators: arrayUnion(targetUserId),
-					[`permissions.${targetUserId}`]: "edit",
-					lastModified: serverTimestamp(),
-				});
-			} else {
-				// Create new collaborative profile
-				batch.set(collaborativeRef, {
-					...profileData,
-					collaborators: [targetUserId],
-					permissions: {
-						[this.userId]: "owner",
-						[targetUserId]: "edit",
-					},
-					lastModified: serverTimestamp(),
-				});
-			}
-		}
+			},
+			{ merge: true }
+		);
 	}
 
-	// Save profile with collaboration support
 	async saveProfileWithCollaboration(profile) {
 		try {
+			// Determine the correct userId for the profile data
+			// If I am editing a shared profile, the userId should remain the owner's ID
+			const correctUserId = profile.isShared && profile.ownerUserId ? profile.ownerUserId : this.userId;
+
 			const profileData = {
 				...profile,
-				userId: this.userId,
+				userId: correctUserId,
 				updatedAt: serverTimestamp(),
 				createdAt: profile.createdAt || serverTimestamp(),
 			};
@@ -675,24 +652,26 @@ export class GPAService {
 		const batch = writeBatch(db);
 		const profileId = profile.id.toString();
 
-		// Always save to user's profiles
-		batch.set(doc(this.userProfilesRef, profileId), profileData);
-
-		// Update collaborative profile if shared with edit permission
-		if (profile.isShared && profile.permission === "edit") {
-			batch.set(doc(this.collaborativeProfilesRef, profileId), {
-				...profileData,
-				lastModified: serverTimestamp(),
-			});
+		// Single Source of Truth Save Logic
+		if (profile.isShared && profile.ownerUserId && profile.ownerUserId !== this.userId) {
+			// I am an Editor: Save directly to Owner's private profile
+			// Requirement: Firestore Rules must allow this write
+			const ownerProfileRef = doc(db, "users", profile.ownerUserId, "profiles", profileId);
+			batch.set(ownerProfileRef, profileData, { merge: true });
+		} else {
+			// I am the Owner (or it's my own profile): Save to my profiles
+			batch.set(doc(this.userProfilesRef, profileId), profileData, { merge: true });
 		}
 
 		await batch.commit();
 	}
 
 	// Listen to collaborative profile changes
-	onCollaborativeProfileChange(profileId, callback) {
+	onCollaborativeProfileChange(profileId, ownerUserId, callback) {
 		try {
-			const docRef = doc(this.collaborativeProfilesRef, profileId.toString());
+			// Single Source of Truth: Listen directly to the owner's profile
+			// Requirement: Firestore Rules must allow this read
+			const docRef = doc(db, "users", ownerUserId, "profiles", profileId.toString());
 			const unsubscribe = onSnapshot(
 				docRef,
 				(docSnap) => {
@@ -700,7 +679,7 @@ export class GPAService {
 						const profile = { id: docSnap.id, ...docSnap.data() };
 						callback({ success: true, profile });
 					} else {
-						callback({ success: false, error: "Collaborative profile not found" });
+						callback({ success: false, error: "Profile not found" });
 					}
 				},
 				(error) => {
@@ -771,12 +750,11 @@ export class GPAService {
 
 	// Helper: Get profile data based on permission
 	async _getProfileDataByPermission(shareData) {
-		const { profileId, permission, ownerUserId } = shareData;
+		const { profileId, ownerUserId } = shareData;
 
-		const profileRef =
-			permission === "edit"
-				? doc(this.collaborativeProfilesRef, profileId)
-				: doc(db, "users", ownerUserId, "profiles", profileId);
+		// Single Source of Truth: ALWAYS read from the Owner's private profile
+		// Requirement: Firestore Rules must allow this read based on 'collaborators' field
+		const profileRef = doc(db, "users", ownerUserId, "profiles", profileId.toString());
 
 		const profileSnap = await getDoc(profileRef);
 		return profileSnap.exists() ? profileSnap.data() : null;
