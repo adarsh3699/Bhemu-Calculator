@@ -5,9 +5,9 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 	return (
 		<div className="w-full min-h-screen flex items-center justify-center p-5 relative">
-			<div className="auth-card backdrop-blur-xl rounded-3xl p-10 max-w-2xl w-full shadow-2xl border border-white/20 relative text-center overflow-hidden">
+			<div className="auth-card backdrop-blur-xl rounded-3xl p-10 max-w-2xl w-full shadow-2xl border border-gray-200 dark:border-white/20 relative text-center overflow-hidden">
 				{/* Top gradient line */}
-				<div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent z-10"></div>
+				<div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-white/40 to-transparent z-10"></div>
 
 				{/* Icon */}
 				<div className="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse duration-[3000ms] shadow-lg shadow-indigo-500/30">
@@ -35,11 +35,13 @@ const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 						].map((feature, index) => (
 							<div
 								key={index}
-								className={`flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20 transition-all duration-300 hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-lg animate-in fade-in slide-in-from-bottom-4`}
+								className={`flex items-center gap-3 p-4 bg-gray-50 dark:bg-white/10 rounded-2xl border border-gray-100 dark:border-white/20 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-lg animate-in fade-in slide-in-from-bottom-4`}
 								style={{ animationDelay: `${(index + 1) * 100}ms` }}
 							>
 								<span className="text-2xl min-w-[24px]">{feature.icon}</span>
-								<span className="text-white/90 font-medium text-sm">{feature.text}</span>
+								<span className="text-gray-700 dark:text-white/90 font-medium text-sm">
+									{feature.text}
+								</span>
 							</div>
 						))}
 					</div>
@@ -56,7 +58,7 @@ const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 						</Link>
 						<Link
 							to="/signup"
-							className="relative inline-flex items-center gap-2 px-8 py-4 bg-white/10 text-white/90 border border-white/30 rounded-2xl font-semibold text-lg tracking-wide uppercase min-w-[180px] justify-center transition-all duration-300 hover:bg-white/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-white/20 overflow-hidden group"
+							className="relative inline-flex items-center gap-2 px-8 py-4 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/90 border border-gray-300 dark:border-white/30 rounded-2xl font-semibold text-lg tracking-wide uppercase min-w-[180px] justify-center transition-all duration-300 hover:bg-gray-200 dark:hover:bg-white/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-white/20 overflow-hidden group"
 						>
 							<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
 							<span className="text-xl">✨</span>
@@ -65,9 +67,9 @@ const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 					</div>
 
 					{/* Note Section */}
-					<div className="mt-8 pt-8 border-t border-white/10">
+					<div className="mt-8 pt-8 border-t border-gray-200 dark:border-white/10">
 						<p className="text-lighter mb-3 text-sm">
-							<strong className="text-white/90">Already have an account?</strong>
+							<strong className="text-gray-700 dark:text-white/90">Already have an account?</strong>
 							<Link
 								to="/login"
 								className="text-indigo-400 font-semibold ml-1 hover:text-indigo-300 transition-colors"
