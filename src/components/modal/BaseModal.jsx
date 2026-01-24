@@ -101,7 +101,7 @@ const BaseModal = ({
 					)}
 
 					{/* Content */}
-					<div className="flex-1 overflow-auto bg-[#2a2b2df2]">{children}</div>
+					<div className="flex-1 overflow-auto">{children}</div>
 				</div>
 			</div>
 		</Modal>

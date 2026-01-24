@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect, useMemo, useRef } from "react"
 
 import RenderModal from "../components/modal/RenderModal";
 import ProfileDrawer from "../components/ProfileDrawer/ProfileDrawer";
+import UpdateSubjectModal from "../components/GpaCalculator/UpdateSubjectModal";
 import { LoginRecommendation, useMessage, ShareModal, ConfirmModal } from "../components/common";
 import { useAuth } from "../firebase/AuthContext";
 import { createGPAService } from "../firebase/gpaService";
@@ -28,9 +29,6 @@ const GpaCalculator = () => {
 	const isInitializingRef = useRef(false);
 	const hasInitializedRef = useRef(false);
 
-	// Ref for Subject Name input to handle auto-focus
-	const subjectNameInputRef = useRef(null);
-
 	// Subject form state
 	const [newSubject, setNewSubject] = useState({
 		subjectName: "",
@@ -42,6 +40,7 @@ const GpaCalculator = () => {
 
 	// Modal state
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 	const [modalType, setModalType] = useState("");
 
 	// Share modal state
@@ -503,6 +502,7 @@ const GpaCalculator = () => {
 			updateSemesters(updatedSemesters);
 			setNewSubject({ subjectName: "", grade: "", credit: "" });
 			setEditIndex(-1);
+			setIsUpdateModalOpen(false); // Close edit modal
 		},
 		[newSubject, semesters, activeSemester, editIndex, updateSemesters]
 	);
@@ -515,6 +515,7 @@ const GpaCalculator = () => {
 			grade: subject.grade.toString(),
 			credit: subject.credit.toString(),
 		});
+		setIsUpdateModalOpen(true); // Open edit modal
 	}, []);
 
 	const deleteSubject = useCallback(
@@ -960,17 +961,6 @@ const GpaCalculator = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentProfile?.id]);
 
-	// Auto-focus Subject Name input when editing a subject
-	useEffect(() => {
-		if (editIndex !== -1 && subjectNameInputRef.current) {
-			// Use setTimeout to ensure the DOM is updated and input is rendered
-			setTimeout(() => {
-				subjectNameInputRef.current?.focus();
-				subjectNameInputRef.current?.select(); // Also select the text for better UX
-			}, 100);
-		}
-	}, [editIndex]);
-
 	// ===== RENDER =====
 	if (!currentUser) {
 		return <LoginRecommendation feature="GPA Calculator" />;
@@ -1019,6 +1009,20 @@ const GpaCalculator = () => {
 			/>
 
 			<RenderModal modalType={modalType} isModalOpen={isModalOpen} onClose={handleModalClose} />
+
+			<UpdateSubjectModal
+				isOpen={isUpdateModalOpen}
+				onClose={() => {
+					setIsUpdateModalOpen(false);
+					setEditIndex(-1);
+					setNewSubject({ subjectName: "", grade: "", credit: "" });
+				}}
+				onUpdate={addOrUpdateSubject}
+				subject={newSubject}
+				setSubject={setNewSubject}
+				isReadOnly={isReadOnlyProfile}
+				onInfoClick={handleModalToggle}
+			/>
 
 			<ConfirmModal
 				isOpen={showDeleteConfirm}
@@ -1196,7 +1200,6 @@ const GpaCalculator = () => {
 										id="subjectName"
 										type="text"
 										name="subjectName"
-										ref={subjectNameInputRef}
 										placeholder={isReadOnlyProfile ? "Read-only profile" : 'e.g. "Mathematics"'}
 										value={newSubject.subjectName}
 										onChange={handleInputChange}

@@ -71,7 +71,7 @@ function RenderModal({ isModalOpen, onClose, modalType }) {
 			onClose={handleClose}
 			title={modalData?.name?.toUpperCase()}
 			maxWidth="900px"
-			className="auth-card backdrop-blur-xl"
+			className="auth-card backdrop-blur-xl bg-[#2a2b2df2]"
 		>
 			<div className="p-6 overflow-auto max-h-[calc(85vh-120px)]">
 				<p className="leading-relaxed mb-5 text-lg text-main font-normal animate-in fade-in duration-500">
