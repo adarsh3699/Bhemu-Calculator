@@ -28,6 +28,7 @@ const ProfileDrawer = ({
 	sharedProfiles,
 	mySharedProfiles = [],
 	isLoading,
+	currentUser,
 }) => {
 	const [showInputModal, setShowInputModal] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -119,8 +120,19 @@ const ProfileDrawer = ({
 	};
 
 	// Group profiles into categories
-	const ownProfiles = profiles.filter((p) => !p.isShared);
-	const sharedWithMeProfiles = profiles.filter((p) => p.isShared);
+	const ownProfiles = profiles.filter((p) => {
+		// Profile is mine if:
+		// 1. It is NOT shared (legacy/simple check)
+		// 2. OR I am explicitly listed as the ownerUserId
+		return !p.isShared || (currentUser && p.ownerUserId === currentUser.uid);
+	});
+
+	const sharedWithMeProfiles = profiles.filter((p) => {
+		// Profile is shared with me if:
+		// 1. It IS shared
+		// 2. AND I am NOT the owner
+		return p.isShared && (!p.ownerUserId || (currentUser && p.ownerUserId !== currentUser.uid));
+	});
 
 	return (
 		<>

@@ -1002,6 +1002,7 @@ const GpaCalculator = () => {
 				sharedProfiles={sharedProfiles}
 				mySharedProfiles={mySharedProfiles}
 				isLoading={saving}
+				currentUser={currentUser}
 			/>
 
 			<ShareModal
