@@ -20,11 +20,7 @@ const menuItems = [
 	},
 	{
 		name: "Other Tools",
-		subItems: [
-			{ name: "Speed Distance Time Calculator", path: "sdt-calculator" },
-			{ name: "Matrix Determinant Calculator", path: "matrix-calculator" },
-			{ name: "Number Converter", path: "number-converter" },
-		],
+		subItems: [{ name: "Reappear Calculator", path: "reappear-calculator" }],
 	},
 	{
 		name: "About",
@@ -34,9 +30,7 @@ const menuItems = [
 
 const flatMenuItems = [
 	{ name: "GPA Calculator", path: "gpa-calculator" },
-	{ name: "Speed Distance Time Calculator", path: "sdt-calculator" },
-	{ name: "Matrix Determinant Calculator", path: "matrix-calculator" },
-	{ name: "Number Converter", path: "number-converter" },
+	{ name: "Reappear Calculator", path: "reappear-calculator" },
 	{ name: "About", path: "about" },
 ];
 

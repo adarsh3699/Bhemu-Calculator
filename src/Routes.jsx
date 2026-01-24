@@ -9,9 +9,7 @@ const Signup = React.lazy(() => import("./pages/Signup"));
 const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const Profile = React.lazy(() => import("./pages/Profile"));
 const GpaCalculator = React.lazy(() => import("./pages/GpaCalculator"));
-const SpeedDistanceTimeCalculator = React.lazy(() => import("./pages/SpeedDistanceTimeCalculator"));
-const MatrixDeterminantCalculator = React.lazy(() => import("./pages/MatrixDeterminantCalculator"));
-const NumberConverter = React.lazy(() => import("./pages/NumberConverter"));
+const ReappearCalculator = React.lazy(() => import("./pages/ReappearCalculator"));
 const About = React.lazy(() => import("./pages/About"));
 
 // Loading component for better UX
@@ -46,9 +44,7 @@ function AppRoutes() {
 
 						{/* Calculator Routes */}
 						<Route path="/gpa-calculator" element={<GpaCalculator />} />
-						<Route path="/sdt-calculator" element={<SpeedDistanceTimeCalculator />} />
-						<Route path="/matrix-calculator" element={<MatrixDeterminantCalculator />} />
-						<Route path="/number-converter" element={<NumberConverter />} />
+						<Route path="/reappear-calculator" element={<ReappearCalculator />} />
 						<Route path="/about" element={<About />} />
 
 						{/* Default Routes */}
