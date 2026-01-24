@@ -10,6 +10,7 @@ import {
 	ArrowRightOnRectangleIcon,
 	MoonIcon,
 	SunIcon,
+	InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 
 // Menu configuration
@@ -19,19 +20,19 @@ const menuItems = [
 		path: "gpa-calculator",
 	},
 	{
-		name: "Other Tools",
-		subItems: [{ name: "Reappear Calculator", path: "reappear-calculator" }],
+		name: "Reappear Calculator",
+		path: "reappear-calculator",
 	},
 	{
-		name: "About",
-		path: "about",
+		name: "GPA Goal Planner",
+		path: "gpa-goal-planner",
 	},
 ];
 
 const flatMenuItems = [
 	{ name: "GPA Calculator", path: "gpa-calculator" },
 	{ name: "Reappear Calculator", path: "reappear-calculator" },
-	{ name: "About", path: "about" },
+	{ name: "GPA Goal Planner", path: "gpa-goal-planner" },
 ];
 
 const NavBar = () => {
@@ -108,6 +109,9 @@ const NavBar = () => {
 			switch (action) {
 				case "profile":
 					navigate("/profile");
+					break;
+				case "about":
+					navigate("/about");
 					break;
 				case "logout":
 					handleAuth();
@@ -273,6 +277,15 @@ const NavBar = () => {
 											<span className="flex items-center gap-2">
 												<UserIcon className="w-4 h-4" />
 												Profile
+											</span>
+										</button>
+										<button
+											className="flex items-center justify-between w-full px-4 py-3 text-left transition-all duration-200 text-sm text-main hover:bg-surface hover:text-indigo-500"
+											onClick={() => handleProfileAction("about")}
+										>
+											<span className="flex items-center gap-2">
+												<InformationCircleIcon className="w-4 h-4" />
+												About
 											</span>
 										</button>
 										<button

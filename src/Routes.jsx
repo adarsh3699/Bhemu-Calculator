@@ -10,6 +10,7 @@ const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
 const Profile = React.lazy(() => import("./pages/Profile"));
 const GpaCalculator = React.lazy(() => import("./pages/GpaCalculator"));
 const ReappearCalculator = React.lazy(() => import("./pages/ReappearCalculator"));
+const GpaGoalPlanner = React.lazy(() => import("./pages/GpaGoalPlanner"));
 const About = React.lazy(() => import("./pages/About"));
 
 // Loading component for better UX
@@ -45,6 +46,7 @@ function AppRoutes() {
 						{/* Calculator Routes */}
 						<Route path="/gpa-calculator" element={<GpaCalculator />} />
 						<Route path="/reappear-calculator" element={<ReappearCalculator />} />
+						<Route path="/gpa-goal-planner" element={<GpaGoalPlanner />} />
 						<Route path="/about" element={<About />} />
 
 						{/* Default Routes */}
