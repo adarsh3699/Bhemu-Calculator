@@ -94,7 +94,7 @@ const ReappearCalculator = () => {
 				<p className="text-lg text-gray-500 mt-2">Check if you pass or fail based on your marks</p>
 			</div>
 
-			<div className="w-full max-w-2xl bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-white/20">
+			<div className="w-full max-w-2xl bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-white/20">
 				{/* Tabs */}
 				<div className="flex flex-wrap gap-2 mb-8 justify-center bg-gray-100 dark:bg-white/5 p-1 rounded-2xl">
 					<TabButton
@@ -189,7 +189,7 @@ const TheoryCalculator = ({ marks, setMarks, result, setResult, onReset }) => {
 
 	return (
 		<div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<MarkInput label="CA Marks" value={marks.ca} onChange={(v) => setMarks({ ...marks, ca: v })} />
 				<MarkInput label="MTE Marks" value={marks.mte} onChange={(v) => setMarks({ ...marks, mte: v })} />
 				<MarkInput
@@ -264,7 +264,7 @@ const HybridCalculator = ({ marks, setMarks, result, setResult, onReset }) => {
 
 	return (
 		<div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<MarkInput label="Total CA" value={marks.ca} onChange={(v) => setMarks({ ...marks, ca: v })} />
 				<MarkInput
 					label="Theory MTE"
@@ -333,7 +333,7 @@ const PracticalCalculator = ({ marks, setMarks, result, setResult, onReset }) =>
 
 	return (
 		<div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<MarkInput label="CA Marks" value={marks.ca} onChange={(v) => setMarks({ ...marks, ca: v })} />
 				<MarkInput
 					label="End Term Practical"
@@ -364,7 +364,7 @@ const PracticalCalculator = ({ marks, setMarks, result, setResult, onReset }) =>
 };
 
 const MarkInput = ({ label, value, onChange, fullWidth }) => (
-	<div className={`flex flex-col gap-2 ${fullWidth ? "col-span-2" : ""}`}>
+	<div className={`flex flex-col gap-2 ${fullWidth ? "col-span-1 sm:col-span-2" : ""}`}>
 		<label className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-1">{label}</label>
 		<div className="flex gap-2">
 			<input

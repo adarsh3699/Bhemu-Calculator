@@ -141,7 +141,7 @@ const NavBar = () => {
 				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[900]" onClick={handleBackdropClick} />
 			)}
 			<nav
-				className={`fixed top-0 left-0 h-full w-80 max-w-[85%] transform transition-transform duration-300 ease-out auth-card backdrop-blur-lg z-[1000] border-r overflow-hidden shadow-2xl ${
+				className={`fixed top-0 left-0 h-full w-70 max-w-[75%] transform transition-transform duration-300 ease-out auth-card backdrop-blur-lg z-[1000] border-r overflow-hidden shadow-2xl ${
 					isMenuOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 			>
@@ -174,7 +174,7 @@ const NavBar = () => {
 
 			{/* Main NavBar */}
 			<nav
-				className="flex items-center justify-between backdrop-blur-lg border-b border-main shadow-sm h-[60px] w-full px-6 sticky top-0 z-[1000] transition-all duration-300"
+				className="flex items-center justify-between backdrop-blur-lg border-b border-main shadow-sm h-[60px] w-full px-4 md:px-6 sticky top-0 z-[1000] transition-all duration-300"
 				style={{ background: "var(--card-bg)" }}
 			>
 				<button
@@ -186,9 +186,9 @@ const NavBar = () => {
 
 				<NavLink
 					to="/gpa-calculator"
-					className="text-2xl font-bold text-gradient select-none cursor-pointer flex items-center transition-all duration-300 hover:scale-105 hover:brightness-125"
+					className="text-lg md:text-xl lg:text-2xl font-bold text-gradient select-none cursor-pointer flex items-center transition-all duration-300 hover:scale-105 hover:brightness-125"
 				>
-					<span className="text-xl mr-2 animate-pulse">🧮</span>
+					<span className="text-lg md:text-xl mr-2 animate-pulse">🧮</span>
 					Bhemu Calculator
 				</NavLink>
 

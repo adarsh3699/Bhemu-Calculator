@@ -1067,7 +1067,7 @@ const GpaCalculator = () => {
 						<div className="text-3xl font-bold text-white leading-none">{calculateCGPA()}</div>
 						<div className="text-sm text-white/90 mt-1">Cumulative GPA</div>
 					</div>
-					<div className="flex flex-row lg:flex-row gap-4 lg:gap-8">
+					<div className="flex flex-row lg:flex-row gap-4 sm:gap-8 flex-wrap justify-center">
 						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
 							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
 								{semesters.length}

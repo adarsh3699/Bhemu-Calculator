@@ -28,7 +28,7 @@ const ResultCard = ({ requiredGpa, isPossible, remainingSemesters }) => {
 
 	return (
 		<div
-			className={`mt-8 p-6 rounded-2xl border animate-in fade-in slide-in-from-bottom-4 duration-500 ${
+			className={`mt-8 p-4 sm:p-6 rounded-2xl border animate-in fade-in slide-in-from-bottom-4 duration-500 ${
 				isPossible
 					? requiredGpa <= 9
 						? "bg-green-500/10 border-green-500/20"
@@ -146,9 +146,9 @@ const GpaGoalPlanner = () => {
 				<p className="text-lg text-gray-500 mt-2">Strategize your semesters to hit your dream CGPA</p>
 			</div>
 
-			<div className="w-full max-w-xl bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-white/20">
+			<div className="w-full max-w-xl bg-white/80 dark:bg-black/20 backdrop-blur-xl rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border border-white/20">
 				<div className="space-y-5">
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 						<InputGroup
 							label="Current CGPA"
 							value={currentCgpa}

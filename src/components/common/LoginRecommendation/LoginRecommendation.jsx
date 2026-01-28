@@ -4,8 +4,8 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 
 const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 	return (
-		<div className="w-full min-h-screen flex items-center justify-center p-5 relative">
-			<div className="auth-card backdrop-blur-xl rounded-3xl p-10 max-w-2xl w-full shadow-2xl border border-gray-200 dark:border-white/20 relative text-center overflow-hidden">
+		<div className="w-full min-h-screen flex items-center justify-center p-4 md:p-5 relative">
+			<div className="auth-card backdrop-blur-xl rounded-3xl p-6 md:p-10 max-w-2xl w-full shadow-2xl border border-gray-200 dark:border-white/20 relative text-center overflow-hidden">
 				{/* Top gradient line */}
 				<div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-white/40 to-transparent z-10"></div>
 
@@ -16,10 +16,10 @@ const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 
 				{/* Content */}
 				<div>
-					<h2 className="text-4xl font-bold text-gradient mb-4 tracking-tight">
+					<h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gradient mb-4 tracking-tight">
 						🚀 Unlock Full {feature} Features
 					</h2>
-					<p className="text-xl text-lighter mb-10 font-normal leading-relaxed">
+					<p className="text-base md:text-lg lg:text-xl text-lighter mb-8 md:mb-10 font-normal leading-relaxed">
 						Get access to advanced features and never lose your data!
 					</p>
 
@@ -47,21 +47,21 @@ const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 					</div>
 
 					{/* Action Buttons */}
-					<div className="flex gap-5 justify-center mb-8 flex-wrap">
+					<div className="flex gap-4 md:gap-5 justify-center mb-8 flex-wrap">
 						<Link
 							to="/login"
-							className="relative inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold text-lg tracking-wide uppercase min-w-[180px] justify-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/40 overflow-hidden group"
+							className="relative inline-flex items-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold text-base md:text-lg tracking-wide uppercase min-w-[160px] md:min-w-[180px] justify-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/40 overflow-hidden group"
 						>
 							<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
-							<span className="text-xl">🔐</span>
+							<span className="text-lg md:text-xl">🔐</span>
 							<span className="relative">Login to Continue</span>
 						</Link>
 						<Link
 							to="/signup"
-							className="relative inline-flex items-center gap-2 px-8 py-4 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/90 border border-gray-300 dark:border-white/30 rounded-2xl font-semibold text-lg tracking-wide uppercase min-w-[180px] justify-center transition-all duration-300 hover:bg-gray-200 dark:hover:bg-white/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-white/20 overflow-hidden group"
+							className="relative inline-flex items-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/90 border border-gray-300 dark:border-white/30 rounded-2xl font-semibold text-base md:text-lg tracking-wide uppercase min-w-[160px] md:min-w-[180px] justify-center transition-all duration-300 hover:bg-gray-200 dark:hover:bg-white/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-white/20 overflow-hidden group"
 						>
 							<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
-							<span className="text-xl">✨</span>
+							<span className="text-lg md:text-xl">✨</span>
 							<span className="relative">Create Free Account</span>
 						</Link>
 					</div>
@@ -77,9 +77,8 @@ const LoginRecommendation = ({ feature = "GPA Calculator" }) => {
 								Sign in here
 							</Link>
 						</p>
-						<p className="flex items-center justify-center gap-2 text-lighter text-sm">
-							<span className="text-base">🔒</span>
-							Your data is encrypted and secure with us
+						<p className="flex justify-center gap-2 text-lighter text-sm">
+							🔒 Your data is encrypted and secure with us
 						</p>
 					</div>
 				</div>
