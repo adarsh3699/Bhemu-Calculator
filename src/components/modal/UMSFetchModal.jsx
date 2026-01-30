@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { umsService } from "../../services/umsService";
-import { ConfirmModal } from "../common";
+import ConfirmModal from "../modal/ConfirmModal";
+import { useMessage } from "../common/message/MessageProvider";
 import BaseModal from "./BaseModal";
 
 const UMSFetchModal = ({ isOpen, onClose, onConfirm, existingData = null, profileName = "" }) => {
@@ -101,7 +102,7 @@ const UMSFetchModal = ({ isOpen, onClose, onConfirm, existingData = null, profil
 								subjects: [],
 							},
 							// eslint-disable-next-line no-mixed-spaces-and-tabs
-					  ],
+						],
 			allTermIds: allTermIds || {},
 			summary: summary || {},
 			fetchedAt: new Date().toISOString(),

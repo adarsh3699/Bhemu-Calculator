@@ -10,7 +10,8 @@ import {
 	PlusIcon,
 } from "@heroicons/react/24/outline";
 import "./ProfileDrawer.css";
-import { InputModal, ConfirmModal } from "../common";
+import ConfirmModal from "../modal/ConfirmModal";
+import InputModal from "../modal/InputModal";
 import UMSFetchModal from "../modal/UMSFetchModal.jsx";
 
 const ProfileDrawer = ({

@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { NavBar, MessageProvider } from "./components/common";
+import NavBar from "./components/common/navBar/NavBar";
+import { MessageProvider } from "./components/common/message/MessageProvider";
 import PrivateRoute from "./components/PrivateRoute";
 
 // Lazy load pages for better performance

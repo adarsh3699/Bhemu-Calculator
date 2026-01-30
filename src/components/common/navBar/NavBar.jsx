@@ -141,7 +141,7 @@ const NavBar = () => {
 				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[900]" onClick={handleBackdropClick} />
 			)}
 			<nav
-				className={`fixed top-0 left-0 h-full w-70 max-w-[75%] transform transition-transform duration-300 ease-out auth-card backdrop-blur-lg z-[1000] border-r overflow-hidden shadow-2xl ${
+				className={`fixed top-0 left-0 h-full w-70 max-w-[70%] transform transition-transform duration-300 ease-out auth-card backdrop-blur-lg z-[1000] border-r overflow-hidden shadow-2xl ${
 					isMenuOpen ? "translate-x-0" : "-translate-x-full"
 				}`}
 			>

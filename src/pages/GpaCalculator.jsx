@@ -1,33 +1,45 @@
-import React, { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 
 import RenderModal from "../components/modal/RenderModal";
 import ProfileDrawer from "../components/ProfileDrawer/ProfileDrawer";
 import UpdateSubjectModal from "../components/GpaCalculator/UpdateSubjectModal";
-import { LoginRecommendation, useMessage, ShareModal, ConfirmModal } from "../components/common";
+import LoginRecommendation from "../components/common/LoginRecommendation/LoginRecommendation";
+import ShareModal from "../components/modal/ShareModal";
+import ConfirmModal from "../components/modal/ConfirmModal";
 import { useAuth } from "../firebase/AuthContext";
-import { createGPAService } from "../firebase/gpaService";
 import { PlusIcon, XMarkIcon, UserIcon } from "@heroicons/react/24/outline";
-import { InformationCircleIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { useGpaData } from "../hooks/useGpaData";
+import { calculateCGPA, calculateGPA } from "../utils/gpaUtils";
+import SubjectForm from "../components/GpaCalculator/SubjectForm";
+import SemesterList from "../components/GpaCalculator/SemesterList";
 
 const GpaCalculator = () => {
 	const { currentUser } = useAuth();
-	const { showMessage } = useMessage();
-	// showMessage("Error saving data. Please try again.", "error");
 
-	// ===== STATE MANAGEMENT =====
-	const [profiles, setProfiles] = useState([]);
-	const [activeProfile, setActiveProfile] = useState(null);
+	// Custom Hook for Data Management
+	const {
+		profiles,
+		activeProfile,
+		loading,
+		saving,
+		sharedProfiles,
+		mySharedProfiles,
+		allProfiles,
+		currentProfile,
+		semesters,
+		isReadOnlyProfile,
+		updateActiveProfile,
+		createProfile,
+		deleteProfile,
+		updateSemesters,
+		shareProfileWithUser,
+		unshareProfile,
+		copySharedProfile,
+		verifyUMS,
+	} = useGpaData();
+
+	// ===== UI STATE MANAGEMENT =====
 	const [drawerOpen, setDrawerOpen] = useState(false);
-	const [loading, setLoading] = useState(true);
-	const activeListeners = useRef({}); // Track active subscriptions to prevention re-render loops
-	const [saving, setSaving] = useState(false);
-	const [sharedProfiles, setSharedProfiles] = useState([]);
-	const [sharedWithMeProfiles, setSharedWithMeProfiles] = useState([]);
-	const [mySharedProfiles, setMySharedProfiles] = useState([]);
-
-	// Use ref to prevent race conditions - refs don't trigger re-renders
-	const isInitializingRef = useRef(false);
-	const hasInitializedRef = useRef(false);
 
 	// Subject form state
 	const [newSubject, setNewSubject] = useState({
@@ -51,164 +63,7 @@ const GpaCalculator = () => {
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [semesterToDelete, setSemesterToDelete] = useState(null);
 
-	// ===== SERVICES & COMPUTED VALUES =====
-	const gpaService = useMemo(() => {
-		return currentUser ? createGPAService(currentUser.uid) : null;
-	}, [currentUser]);
-
-	const sortedProfiles = useMemo(() => {
-		return [...profiles].sort((a, b) => {
-			if (a.isDefault && !b.isDefault) return -1;
-			if (!a.isDefault && b.isDefault) return 1;
-			return a.name.localeCompare(b.name);
-		});
-	}, [profiles]);
-
-	// Combined profiles including shared profiles
-	const allProfiles = useMemo(() => {
-		const combined = [...sortedProfiles, ...sharedWithMeProfiles];
-		return combined.sort((a, b) => {
-			// Own profiles first, then shared profiles
-			if (!a.isShared && b.isShared) return -1;
-			if (a.isShared && !b.isShared) return 1;
-
-			// Within same category, sort by default then name
-			if (a.isDefault && !b.isDefault) return -1;
-			if (!a.isDefault && b.isDefault) return 1;
-			return a.name.localeCompare(b.name);
-		});
-	}, [sortedProfiles, sharedWithMeProfiles]);
-
-	const currentProfile = allProfiles.find((p) => p.id === activeProfile) || allProfiles[0];
-	const semesters = useMemo(() => currentProfile?.semesters || [], [currentProfile]);
-
-	// Check if current profile is read-only
-	const isReadOnlyProfile = currentProfile?.isShared && currentProfile?.permission === "read";
-
-	// ===== UTILITY FUNCTIONS =====
-	const generateProfileName = useCallback(() => {
-		const userName = currentUser?.displayName || currentUser?.email?.split("@")[0] || "User";
-		return `${userName} (Default)`;
-	}, [currentUser]);
-
-	const saveProfile = useCallback(
-		async (profileData) => {
-			if (!gpaService || !profileData) return;
-
-			try {
-				setSaving(true);
-
-				// Use collaborative save if the profile is shared with edit permissions
-				if (profileData.isShared && profileData.permission === "edit") {
-					await gpaService.saveProfileWithCollaboration(profileData);
-				} else {
-					await gpaService.saveProfile(profileData);
-				}
-			} catch (error) {
-				console.error("Error saving profile:", error);
-				showMessage("Error saving data. Please try again.", "error");
-			} finally {
-				setSaving(false);
-			}
-		},
-		[gpaService, showMessage]
-	);
-
-	const calculateGPA = useCallback((subjects) => {
-		if (!subjects || subjects.length === 0) return "0.00";
-
-		const totalPoints = subjects.reduce((acc, subject) => acc + subject.grade * subject.credit, 0);
-		const totalCredits = subjects.reduce((acc, subject) => acc + subject.credit, 0);
-
-		return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-	}, []);
-
-	const calculateCGPA = useCallback(() => {
-		if (!semesters || semesters.length === 0) return "0.00";
-		const allSubjects = semesters.flatMap((semester) => semester.subjects);
-		return calculateGPA(allSubjects);
-	}, [semesters, calculateGPA]);
-
-	// ===== PROFILE MANAGEMENT =====
-	const updateActiveProfile = useCallback((profileId) => {
-		setActiveProfile(profileId);
-		setDrawerOpen(false);
-		localStorage.setItem("activeGpaProfile", profileId.toString());
-	}, []);
-
-	const createProfile = useCallback(
-		async (name) => {
-			try {
-				const newProfile = {
-					id: Date.now(),
-					name: name,
-					semesters: [
-						{
-							id: Date.now().toString(),
-							name: "Semester 1",
-							subjects: [],
-						},
-					],
-					isDefault: false,
-				};
-
-				if (gpaService) {
-					await gpaService.saveProfile(newProfile);
-
-					// Immediately switch to the new profile
-					updateActiveProfile(newProfile.id);
-
-					// Also update localStorage to ensure persistence
-					localStorage.setItem("activeGpaProfile", newProfile.id.toString());
-
-					showMessage("Profile created successfully!", "success");
-				}
-			} catch (error) {
-				console.error("Error creating profile:", error);
-				showMessage("Error creating profile. Please try again.", "error");
-			}
-		},
-		[gpaService, updateActiveProfile, showMessage]
-	);
-
-	const deleteProfile = useCallback(
-		async (profileId) => {
-			if (profiles.length <= 1) {
-				showMessage("Cannot delete the last profile", "warning");
-				return;
-			}
-
-			const profileToDelete = profiles.find((p) => p.id === profileId);
-			if (!profileToDelete) {
-				showMessage("Profile not found", "error");
-				return;
-			}
-
-			if (profileToDelete.isDefault) {
-				showMessage("Cannot delete the default profile", "warning");
-				return;
-			}
-
-			try {
-				if (gpaService) {
-					await gpaService.deleteProfile(profileId);
-
-					if (activeProfile === profileId) {
-						const remainingProfiles = sortedProfiles.filter((profile) => profile.id !== profileId);
-						updateActiveProfile(remainingProfiles[0].id);
-					}
-
-					showMessage("Profile deleted successfully", "success");
-				}
-			} catch (error) {
-				console.error("Error deleting profile:", error);
-				showMessage("Error deleting profile. Please try again.", "error");
-			}
-		},
-		[profiles, sortedProfiles, activeProfile, updateActiveProfile, gpaService, showMessage]
-	);
-
-	// ===== ENHANCED SHARING FUNCTIONS =====
+	// ===== UTILITY FUNCTIONS (UI ONLY) =====
 	const handleShareProfile = useCallback(
 		(profileId) => {
 			const profile = profiles.find((p) => p.id === profileId);
@@ -222,204 +77,12 @@ const GpaCalculator = () => {
 
 	const handleShareWithUser = useCallback(
 		async (emailOrAction, permission, action = "share") => {
-			if (!gpaService || !profileToShare) return;
-
-			try {
-				// Handle unshare action
-				if (permission === "unshare") {
-					const result = await gpaService.unshareProfileWithUser(emailOrAction);
-					if (result.success) {
-						showMessage("Profile unshared successfully", "success");
-						// Refresh shared profiles list
-						const mySharedResult = await gpaService.getMySharedProfiles();
-						if (mySharedResult.success) {
-							setMySharedProfiles(mySharedResult.sharedProfiles);
-						}
-					} else {
-						showMessage(result.error || "Error unsharing profile", "error");
-					}
-					return;
-				}
-
-				// Handle permission update action
-				if (action === "updatePermission") {
-					const result = await gpaService.updateSharePermission(emailOrAction, permission);
-					if (result.success) {
-						showMessage(
-							`Permission updated to ${permission === "read" ? "Read Only" : "Edit Access"}`,
-							"success"
-						);
-						// Refresh shared profiles list
-						const mySharedResult = await gpaService.getMySharedProfiles();
-						if (mySharedResult.success) {
-							setMySharedProfiles(mySharedResult.sharedProfiles);
-						}
-					} else {
-						showMessage(result.error || "Error updating permission", "error");
-						throw new Error(result.error);
-					}
-					return;
-				}
-
-				// Handle share action
-				const result = await gpaService.shareProfileWithUser(profileToShare.id, emailOrAction, permission);
-
-				if (result.success) {
-					showMessage(`Profile shared with ${emailOrAction} (${permission} access)`, "success");
-
-					// Refresh shared profiles list
-					const mySharedResult = await gpaService.getMySharedProfiles();
-					if (mySharedResult.success) {
-						setMySharedProfiles(mySharedResult.sharedProfiles);
-					}
-				} else {
-					showMessage(result.error || "Error sharing profile", "error");
-					throw new Error(result.error);
-				}
-			} catch (error) {
-				console.error("Error in share operation:", error);
-				showMessage("Error sharing profile. Please try again.", "error");
-				throw error;
-			}
+			await shareProfileWithUser(profileToShare, emailOrAction, permission, action);
 		},
-		[gpaService, profileToShare, showMessage]
-	);
-
-	const handleCopySharedProfile = useCallback(
-		async (shareId, profileName) => {
-			if (!gpaService) return;
-
-			try {
-				const result = await gpaService.copySharedProfileToMyAccount(shareId, `Copy of ${profileName}`);
-
-				if (result.success) {
-					showMessage("Profile copied to your account successfully!", "success");
-					updateActiveProfile(result.profile.id);
-				} else {
-					showMessage(result.error || "Error copying profile", "error");
-				}
-			} catch (error) {
-				console.error("Error copying shared profile:", error);
-				showMessage("Error copying profile. Please try again.", "error");
-			}
-		},
-		[gpaService, showMessage, updateActiveProfile]
-	);
-
-	const handleVerifyUMS = useCallback(
-		async (profileId, umsData) => {
-			if (!gpaService || !umsData) return;
-
-			try {
-				setSaving(true);
-
-				// Find the current profile
-				const currentProfileData = profiles.find((profile) => profile.id === profileId);
-				if (!currentProfileData) {
-					showMessage("Profile not found", "error");
-					return;
-				}
-
-				// Create updated profile with UMS data
-				const updatedProfile = {
-					...currentProfileData,
-					name: currentProfileData.name, // Keep existing name
-					semesters: umsData.semesters,
-					studentInfo: umsData.studentInfo,
-					allTermIds: umsData.allTermIds,
-					umsVerified: true,
-					lastUMSSync: umsData.fetchedAt || new Date().toISOString(),
-				};
-
-				// Save the updated profile
-				await saveProfile(updatedProfile);
-
-				// Update localStorage with allTermIds for future use
-				if (umsData.allTermIds) {
-					const existingTermIds = JSON.parse(localStorage.getItem("umsTermIds") || "{}");
-					const updatedTermIds = {
-						...existingTermIds,
-						[currentUser.uid]: {
-							...umsData.allTermIds,
-							lastUpdated: new Date().toISOString(),
-							profileId: profileId,
-						},
-					};
-					localStorage.setItem("umsTermIds", JSON.stringify(updatedTermIds));
-				}
-
-				showMessage("Profile successfully updated with UMS data!", "success");
-
-				// Update the profiles state immediately to reflect changes
-				const updatedProfiles = profiles.map((profile) =>
-					profile.id === profileId ? updatedProfile : profile
-				);
-				localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
-				setProfiles(updatedProfiles);
-			} catch (error) {
-				console.error("Error updating profile with UMS data:", error);
-				showMessage("Error updating profile with UMS data. Please try again.", "error");
-			} finally {
-				setSaving(false);
-			}
-		},
-		[gpaService, profiles, saveProfile, showMessage, currentUser]
-	);
-
-	// Legacy sharing functions for backward compatibility
-	// shareProfile function removed as it was unused
-
-	const unshareProfile = useCallback(
-		async (shareId) => {
-			if (!gpaService) return;
-
-			try {
-				const result = await gpaService.unshareProfile(shareId);
-				if (result.success) {
-					showMessage("Profile unshared successfully", "success");
-				} else {
-					showMessage(result.error || "Error unsharing profile", "error");
-				}
-			} catch (error) {
-				console.error("Error unsharing profile:", error);
-				showMessage("Error unsharing profile. Please try again.", "error");
-			}
-		},
-		[gpaService, showMessage]
+		[shareProfileWithUser, profileToShare]
 	);
 
 	// ===== SEMESTER MANAGEMENT =====
-	// ===== SEMESTER MANAGEMENT =====
-	const updateSemesters = useCallback(
-		async (newSemesters) => {
-			// Find profile in ALL profiles (both owned and shared)
-			const currentProfileData = allProfiles.find((profile) => profile.id === activeProfile);
-
-			if (currentProfileData) {
-				const updatedProfile = { ...currentProfileData, semesters: newSemesters };
-				await saveProfile(updatedProfile);
-
-				// Update local state immediately for UI responsiveness
-				if (profiles.some((p) => p.id === activeProfile)) {
-					// It's an owned profile
-					const updatedProfiles = profiles.map((profile) =>
-						profile.id === activeProfile ? updatedProfile : profile
-					);
-					localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
-					setProfiles(updatedProfiles);
-				} else if (sharedWithMeProfiles.some((p) => p.id === activeProfile)) {
-					// It's a shared profile
-					setSharedWithMeProfiles((prev) =>
-						prev.map((profile) =>
-							profile.id === activeProfile ? { ...profile, semesters: newSemesters } : profile
-						)
-					);
-				}
-			}
-		},
-		[allProfiles, profiles, sharedWithMeProfiles, activeProfile, saveProfile]
-	);
-
 	const addSemester = useCallback(async () => {
 		const newSemester = {
 			id: Date.now().toString(), // Convert to string for consistency
@@ -550,396 +213,13 @@ const GpaCalculator = () => {
 		setDrawerOpen(!drawerOpen);
 	}, [drawerOpen]);
 
-	// ===== INITIALIZATION =====
-	useEffect(() => {
-		if (!gpaService || !currentUser || hasInitializedRef.current) return;
-
-		// Check if we're already initializing
-		if (isInitializingRef.current) {
-			console.log("Initialization already in progress, skipping...");
-			return;
-		}
-
-		setLoading(true);
-		isInitializingRef.current = true; // Set flag immediately to prevent re-runs
-
-		let profilesUnsubscribe = null;
-		let sharedProfilesUnsubscribe = null;
-		let cleanupCollaborativeListeners = null;
-
-		const cleanupDuplicateProfiles = async () => {
-			try {
-				console.log("Checking for duplicate profiles to clean up...");
-				const profilesResult = await gpaService.getProfiles();
-
-				if (!profilesResult.success || profilesResult.profiles.length <= 1) {
-					console.log("No duplicates found or cleanup not needed");
-					return;
-				}
-
-				// Find profiles with same name pattern (Default profiles)
-				const defaultProfiles = profilesResult.profiles.filter(
-					(p) => p.name.includes("(Default)") || p.isDefault
-				);
-
-				if (defaultProfiles.length > 1) {
-					console.log(`Found ${defaultProfiles.length} default profiles, cleaning up...`);
-
-					// Keep the first one, delete the rest
-					for (let i = 1; i < defaultProfiles.length; i++) {
-						const profileToDelete = defaultProfiles[i];
-						console.log(
-							`Deleting duplicate default profile: ${profileToDelete.name} (${profileToDelete.id})`
-						);
-						await gpaService.deleteProfile(profileToDelete.id);
-					}
-
-					// Wait a moment for deletion to complete
-					await new Promise((resolve) => setTimeout(resolve, 500));
-
-					showMessage("Cleaned up duplicate profiles", "info");
-				}
-			} catch (error) {
-				console.error("Error cleaning up duplicates:", error);
-				// Don't throw error - allow initialization to continue
-			}
-		};
-
-		const initializeData = async () => {
-			try {
-				// Step 1: Clean up any existing duplicate profiles first
-				await cleanupDuplicateProfiles();
-
-				// Step 2: Migrate from localStorage if needed
-				const migrationResult = await gpaService.migrateFromLocalStorage();
-				console.log("Migration completed:", migrationResult.success);
-
-				// Step 3: Wait for migration to complete
-				await new Promise((resolve) => setTimeout(resolve, 300));
-
-				// Step 4: Get current profiles with retry logic
-				let profilesResult;
-				let retryCount = 0;
-				const maxRetries = 3;
-
-				do {
-					profilesResult = await gpaService.getProfiles();
-					if (profilesResult.success) break;
-
-					retryCount++;
-					console.log(`Retry ${retryCount}/${maxRetries} for getting profiles`);
-					await new Promise((resolve) => setTimeout(resolve, 200));
-				} while (retryCount < maxRetries);
-
-				if (!profilesResult.success) {
-					throw new Error("Failed to get profiles after multiple retries");
-				}
-
-				console.log("Current profiles in database:", profilesResult.profiles?.length || 0);
-
-				// Step 5: Check if profiles exist and create default if needed
-				if (profilesResult.profiles.length === 0) {
-					console.log("No profiles found, creating SINGLE default profile");
-
-					// Additional check: query database one more time to be absolutely sure
-					const doubleCheckResult = await gpaService.getProfiles();
-					if (doubleCheckResult.success && doubleCheckResult.profiles.length > 0) {
-						console.log("Profiles found on double-check, skipping creation");
-						return;
-					}
-
-					// Create default profile with unique timestamp
-					const defaultProfile = {
-						id: `default_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Unique ID
-						name: generateProfileName(),
-						semesters: [
-							{
-								id: Date.now().toString(),
-								name: "Semester 1",
-								subjects: [],
-							},
-						],
-						isDefault: true,
-						createdAt: new Date(),
-					};
-
-					const saveResult = await gpaService.saveProfile(defaultProfile);
-					if (saveResult.success) {
-						console.log("Default profile created successfully:", defaultProfile.id);
-						showMessage("Welcome! Created your first profile.", "success");
-					} else {
-						console.error("Failed to create default profile:", saveResult.error);
-						throw new Error("Failed to create default profile");
-					}
-				} else {
-					console.log(`Found ${profilesResult.profiles.length} existing profiles`);
-
-					// Check for duplicates and clean them up
-					const duplicateNames = profilesResult.profiles
-						.map((p) => p.name)
-						.filter((name, index, arr) => arr.indexOf(name) !== index);
-
-					if (duplicateNames.length > 0) {
-						console.log("Found duplicate profile names, cleaning up:", duplicateNames);
-
-						for (const duplicateName of [...new Set(duplicateNames)]) {
-							const profilesWithSameName = profilesResult.profiles.filter(
-								(p) => p.name === duplicateName
-							);
-							// Keep the first one, delete the rest
-							for (let i = 1; i < profilesWithSameName.length; i++) {
-								console.log(
-									`Deleting duplicate profile: ${profilesWithSameName[i].name} (${profilesWithSameName[i].id})`
-								);
-								await gpaService.deleteProfile(profilesWithSameName[i].id);
-							}
-						}
-					}
-
-					// Ensure at least one profile is marked as default
-					const remainingProfiles = await gpaService.getProfiles();
-					if (remainingProfiles.success && remainingProfiles.profiles.length > 0) {
-						const hasDefault = remainingProfiles.profiles.some((p) => p.isDefault);
-						if (!hasDefault) {
-							console.log("No default profile found, marking first as default");
-							const firstProfile = remainingProfiles.profiles[0];
-							await gpaService.saveProfile({ ...firstProfile, isDefault: true });
-						}
-					}
-				}
-
-				// Step 6: Load shared profiles
-				await loadSharedWithMeProfiles();
-				await loadMySharedProfiles();
-
-				// Step 7: Set up real-time listeners
-				const cleanupCollaborativeListeners = setupRealtimeListeners();
-
-				console.log("Initialization completed successfully");
-
-				// Store cleanup function for collaborative listeners
-				return cleanupCollaborativeListeners;
-			} catch (error) {
-				console.error("Initialization error:", error);
-				showMessage("Error loading your data. Please try again.", "error");
-				setLoading(false);
-			} finally {
-				// Reset initialization flag and mark as complete
-				isInitializingRef.current = false;
-				hasInitializedRef.current = true;
-			}
-		};
-
-		const setupRealtimeListeners = () => {
-			// Profiles listener
-			profilesUnsubscribe = gpaService.onProfilesChange((result) => {
-				if (result.success && result.profiles.length > 0) {
-					console.log("Profiles updated:", result.profiles.length);
-
-					// Clean profiles (remove any remaining duplicates)
-					const cleanProfiles = result.profiles
-						.filter((profile, index, arr) => {
-							// Remove duplicates by name - keep first occurrence
-							return arr.findIndex((p) => p.name === profile.name) === index;
-						})
-						.map((profile) => {
-							// Ensure all profiles have at least one semester
-							const profileWithId = { ...profile, id: profile.id.toString() };
-							if (!profileWithId.semesters || profileWithId.semesters.length === 0) {
-								profileWithId.semesters = [
-									{
-										id: Date.now().toString(),
-										name: "Semester 1",
-										subjects: [],
-									},
-								];
-								// Save the updated profile to the database
-								gpaService.saveProfile(profileWithId);
-							}
-							return profileWithId;
-						});
-
-					if (cleanProfiles.length !== result.profiles.length) {
-						console.log(
-							`Filtered ${result.profiles.length - cleanProfiles.length} duplicate profiles from UI`
-						);
-					}
-
-					setProfiles(cleanProfiles);
-
-					// Smart profile restoration - check localStorage and current state
-					setActiveProfile((prev) => {
-						const savedActiveProfile = localStorage.getItem("activeGpaProfile");
-
-						// If there's a saved profile that exists in user's profiles, use it
-						if (savedActiveProfile && cleanProfiles.find((p) => p.id === savedActiveProfile)) {
-							return savedActiveProfile;
-						}
-
-						// If current active profile exists in user's profiles, keep it
-						if (prev && cleanProfiles.find((p) => p.id === prev)) {
-							return prev;
-						}
-
-						// Only set to first profile if no active profile exists
-						if (!prev && cleanProfiles.length > 0) {
-							const firstProfile = cleanProfiles[0];
-							localStorage.setItem("activeGpaProfile", firstProfile.id);
-							return firstProfile.id;
-						}
-
-						return prev;
-					});
-
-					localStorage.setItem("gpaProfiles", JSON.stringify(cleanProfiles));
-				} else if (result.error) {
-					console.error("Error loading profiles:", result.error);
-					showMessage("Error loading profiles. Please refresh.", "error");
-				}
-				setLoading(false);
-			});
-
-			// Legacy shared profiles listener (for backward compatibility)
-			sharedProfilesUnsubscribe = gpaService.onSharedProfilesChange((result) => {
-				if (result.success) {
-					setSharedProfiles(result.sharedProfiles);
-				}
-			});
-
-			// Enhanced sharing listeners
-			const incomingSharesUnsubscribe = gpaService.onIncomingSharesChange((result) => {
-				if (result.success) {
-					console.log("Incoming shares updated:", result.shares.length);
-					loadSharedWithMeProfiles();
-				}
-			});
-
-			// Return cleanup function
-			return () => {
-				incomingSharesUnsubscribe?.();
-			};
-		};
-
-		const loadSharedWithMeProfiles = async () => {
-			try {
-				const result = await gpaService.getSharedWithMeProfiles();
-				if (result.success) {
-					console.log("Shared with me profiles loaded:", result.sharedProfiles.length);
-					setSharedWithMeProfiles(result.sharedProfiles);
-				}
-			} catch (error) {
-				console.error("Error loading shared profiles:", error);
-			}
-		};
-
-		const loadMySharedProfiles = async () => {
-			try {
-				const result = await gpaService.getMySharedProfiles();
-				if (result.success) {
-					console.log("My shared profiles loaded:", result.sharedProfiles.length);
-					setMySharedProfiles(result.sharedProfiles);
-				}
-			} catch (error) {
-				console.error("Error loading my shared profiles:", error);
-			}
-		};
-
-		// Load active profile from localStorage
-		const savedActiveProfile = localStorage.getItem("activeGpaProfile");
-		if (savedActiveProfile) {
-			setActiveProfile(savedActiveProfile);
-		}
-
-		initializeData().then((cleanup) => {
-			cleanupCollaborativeListeners = cleanup;
-		});
-
-		return () => {
-			profilesUnsubscribe?.();
-			sharedProfilesUnsubscribe?.();
-			cleanupCollaborativeListeners?.();
-		};
-	}, [currentUser, gpaService, showMessage, generateProfileName]); // Removed sharedWithMeProfiles from dependency
-
-	// Manage listeners for shared profiles efficiently using a Ref to prevent re-subscriptions logic
-	useEffect(() => {
-		if (!currentUser || !gpaService) return;
-
-		// 1. Subscribe to new profiles
-		sharedWithMeProfiles.forEach((profile) => {
-			// specific listener for real-time updates on content (semesters, etc.)
-			// Only subscribe if we don't have one yet
-			if (profile.permission === "edit" && !activeListeners.current[profile.id]) {
-				const ownerId = profile.ownerUserId || profile.userId;
-
-				const unsubscribe = gpaService.onCollaborativeProfileChange(profile.id, ownerId, (result) => {
-					if (result.success) {
-						setSharedWithMeProfiles((prev) => {
-							const index = prev.findIndex((p) => p.id === profile.id);
-							if (index === -1) return prev; // Profile removed from list
-
-							const oldProfile = prev[index];
-
-							// Loop Prevention: key step.
-							// If the data is effectively the same (checked via timestamp), do not update state.
-							// This breaks the "Update -> Render -> Effect -> Update" cycle.
-							const newTime = result.profile.lastModified?.toMillis
-								? result.profile.lastModified.toMillis()
-								: result.profile.lastModified;
-							const oldTime = oldProfile.lastModified?.toMillis
-								? oldProfile.lastModified.toMillis()
-								: oldProfile.lastModified;
-
-							if (newTime && oldTime && newTime === oldTime) {
-								return prev;
-							}
-
-							const newProfiles = [...prev];
-							newProfiles[index] = {
-								...result.profile,
-								isShared: true,
-								permission: "edit",
-								ownerUserId: ownerId,
-							};
-							return newProfiles;
-						});
-					}
-				});
-				// Store unsubscribe
-				activeListeners.current[profile.id] = unsubscribe;
-			}
-		});
-
-		// 2. Unsubscribe from removed profiles
-		const currentIds = new Set(sharedWithMeProfiles.map((p) => p.id));
-		Object.keys(activeListeners.current).forEach((id) => {
-			if (!currentIds.has(id)) {
-				// Profile is no longer shared with us or was removed
-				if (typeof activeListeners.current[id] === "function") {
-					activeListeners.current[id]();
-				}
-				delete activeListeners.current[id];
-			}
-		});
-	}, [sharedWithMeProfiles, currentUser, gpaService]);
-
-	// Cleanup all listeners on unmount
-	useEffect(() => {
-		return () => {
-			Object.values(activeListeners.current).forEach((unsub) => {
-				if (typeof unsub === "function") unsub();
-			});
-			activeListeners.current = {};
-		};
-	}, []);
-
-	// Restore active profile when shared profiles are loaded
-	useEffect(() => {
-		const savedActiveProfile = localStorage.getItem("activeGpaProfile");
-		if (savedActiveProfile && sharedWithMeProfiles.find((p) => p.id === savedActiveProfile)) {
-			setActiveProfile(savedActiveProfile);
-		}
-	}, [sharedWithMeProfiles]);
+	const handleUpdateActiveProfile = useCallback(
+		(id) => {
+			updateActiveProfile(id);
+			setDrawerOpen(false);
+		},
+		[updateActiveProfile]
+	);
 
 	// Set initial active semester - always select the last semester
 	useEffect(() => {
@@ -982,13 +262,13 @@ const GpaCalculator = () => {
 				onClose={() => setDrawerOpen(false)}
 				profiles={allProfiles}
 				currentProfile={activeProfile}
-				onProfileSelect={updateActiveProfile}
+				onProfileSelect={handleUpdateActiveProfile}
 				onCreateProfile={createProfile}
 				onDeleteProfile={deleteProfile}
 				onShareProfile={handleShareProfile}
 				onUnshareProfile={unshareProfile}
-				onCopySharedProfile={handleCopySharedProfile}
-				onVerifyUMS={handleVerifyUMS}
+				onCopySharedProfile={copySharedProfile}
+				onVerifyUMS={verifyUMS}
 				sharedProfiles={sharedProfiles}
 				mySharedProfiles={mySharedProfiles}
 				isLoading={saving}
@@ -1039,59 +319,65 @@ const GpaCalculator = () => {
 				type="danger"
 			/>
 
-			<div className="w-full font-inter bg-transparent flex flex-col items-center justify-start text-center transition-all duration-300">
+			<div className="w-full font-inter bg-transparent flex flex-col items-center justify-start text-center transition-all duration-300 px-4 sm:px-6">
 				{/* Header */}
-				<div className="text-center mb-10 relative">
-					<h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-br from-blue-500 to-purple-500 bg-clip-text text-transparent mb-3 mt-10 tracking-tight">
+				<div className="text-center mb-6 md:mb-10 relative">
+					<h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-br from-blue-500 to-purple-500 bg-clip-text text-transparent mb-2 md:mb-3 mt-6 md:mt-10 tracking-tight">
 						GPA Calculator
 					</h1>
-					<p className="text-lg text-light font-normal">Calculate your semester GPA and cumulative GPA</p>
+					<p className="text-base md:text-lg text-light font-normal">
+						Calculate your semester GPA and cumulative GPA
+					</p>
 				</div>
 
 				{/* Profile Selection */}
-				<div className="mb-8 flex items-center justify-center gap-4">
+				<div className="mb-6 md:mb-8 flex items-center justify-center gap-4">
 					<div
-						className="flex items-center gap-3 px-6 py-4 bg-white/90 dark:bg-white/10 backdrop-blur-[20px] rounded-2xl text-gray-700 dark:text-white/95 font-semibold text-lg shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-white/20 cursor-pointer transition-all duration-300 relative overflow-hidden min-w-[180px] justify-center hover:bg-white dark:hover:bg-white/15 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] active:translate-y-0 active:scale-[1.01] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-gray-200/50 dark:before:via-white/20 before:to-transparent before:transition-all before:duration-500 hover:before:left-full"
+						className="flex items-center gap-3 px-4 md:px-6 py-3 md:py-4 bg-white/90 dark:bg-white/10 backdrop-blur-[20px] rounded-2xl text-gray-700 dark:text-white/95 font-semibold text-base md:text-lg shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-white/20 cursor-pointer transition-all duration-300 relative overflow-hidden min-w-[160px] md:min-w-[180px] justify-center hover:bg-white dark:hover:bg-white/15 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] active:translate-y-0 active:scale-[1.01] before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-gray-200/50 dark:before:via-white/20 before:to-transparent before:transition-all before:duration-500 hover:before:left-full"
 						onClick={toggleDrawer}
 					>
-						<UserIcon className="w-6 h-6 text-primary drop-shadow-[0_2px_4px_rgba(102,126,234,0.3)] transition-all duration-300 hover:text-primary-hover hover:scale-110 hover:drop-shadow-[0_4px_8px_rgba(102,126,234,0.4)]" />
-						<span className="bg-gradient-to-br from-gray-800 to-gray-600 dark:from-white/95 dark:to-white/80 bg-clip-text text-transparent drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+						<UserIcon className="w-5 h-5 md:w-6 md:h-6 text-primary drop-shadow-[0_2px_4px_rgba(102,126,234,0.3)] transition-all duration-300 hover:text-primary-hover hover:scale-110 hover:drop-shadow-[0_4px_8px_rgba(102,126,234,0.4)]" />
+						<span className="bg-gradient-to-br from-gray-800 to-gray-600 dark:from-white/95 dark:to-white/80 bg-clip-text text-transparent drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)] truncate max-w-[200px]">
 							{currentProfile?.name}
 						</span>
 					</div>
 				</div>
 
 				{/* CGPA Display */}
-				<div className="flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-12 mb-10 p-8 w-full max-w-4xl bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent">
-					<div className="flex flex-col items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-[0_10px_30px_rgba(102,126,234,0.3)] relative">
-						<div className="text-3xl font-bold text-white leading-none">{calculateCGPA()}</div>
-						<div className="text-sm text-white/90 mt-1">Cumulative GPA</div>
+				<div className="flex flex-col lg:flex-row justify-center items-center gap-6 lg:gap-12 mb-8 md:mb-10 p-5 md:p-8 w-full max-w-4xl bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent">
+					<div className="flex flex-col items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-[0_10px_30px_rgba(102,126,234,0.3)] relative group cursor-pointer transition-transform hover:scale-105">
+						<div className="text-2xl md:text-3xl font-bold text-white leading-none">
+							{calculateCGPA(semesters)}
+						</div>
+						<div className="text-xs md:text-sm text-white/90 mt-1">Cumulative GPA</div>
 					</div>
-					<div className="flex flex-row lg:flex-row gap-4 sm:gap-8 flex-wrap justify-center">
-						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
-							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+					<div className="flex flex-row gap-3 sm:gap-8 flex-wrap justify-center">
+						<div className="flex flex-col items-center p-3 md:p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[70px] md:min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+							<span className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
 								{semesters.length}
 							</span>
-							<span className="text-sm text-gray-600 dark:text-white/70 mt-1 text-center">Semesters</span>
+							<span className="text-xs md:text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
+								Semesters
+							</span>
 						</div>
-						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
-							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+						<div className="flex flex-col items-center p-3 md:p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[70px] md:min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+							<span className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
 								{semesters.reduce((acc, semester) => acc + semester.subjects.length, 0)}
 							</span>
-							<span className="text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
-								Total Subjects
+							<span className="text-xs md:text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
+								Subjects
 							</span>
 						</div>
-						<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
-							<span className="text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
+						<div className="flex flex-col items-center p-3 md:p-4 bg-gray-200 dark:bg-white/10 rounded-2xl min-w-[70px] md:min-w-[80px] backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
+							<span className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white/90 leading-none">
 								{semesters.reduce(
 									(acc, semester) =>
 										acc + semester.subjects.reduce((subAcc, subject) => subAcc + subject.credit, 0),
 									0
 								)}
 							</span>
-							<span className="text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
-								Total Credits
+							<span className="text-xs md:text-sm text-gray-600 dark:text-white/70 mt-1 text-center">
+								Credits
 							</span>
 						</div>
 					</div>
@@ -1108,13 +394,13 @@ const GpaCalculator = () => {
 				)}
 
 				{/* Semester Management */}
-				<div className="mb-10 w-full max-w-4xl">
-					<div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-						<h2 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
+				<div className="mb-8 md:mb-10 w-full max-w-4xl">
+					<div className="flex flex-col sm:flex-row justify-between items-center mb-6 md:mb-8 gap-4">
+						<h2 className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-white/90">
 							{isReadOnlyProfile ? "View Semesters" : "Manage Semesters"}
 						</h2>
 						<button
-							className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-green-500 to-green-600 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(16,185,129,0.3)] uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:transform-none disabled:shadow-none"
+							className="flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-gradient-to-br from-green-500 to-green-600 text-white border-none rounded-xl text-sm md:text-base font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(16,185,129,0.3)] uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:transform-none disabled:shadow-none w-full sm:w-auto justify-center"
 							onClick={addSemester}
 							disabled={isReadOnlyProfile}
 						>
@@ -1125,19 +411,19 @@ const GpaCalculator = () => {
 
 					{/* Semester Tabs */}
 					{semesters.length > 0 && (
-						<div className="flex gap-4 mb-8 flex-wrap">
+						<div className="flex gap-3 md:gap-4 mb-4 md:mb-8 overflow-x-auto py-4 w-full justify-start md:flex-wrap no-scrollbar">
 							{semesters.map((semester) => (
 								<div
 									key={semester.id}
-									className={`flex flex-col items-center px-5 py-4 bg-gray-100 dark:bg-white/10 backdrop-blur-[10px] rounded-2xl cursor-pointer transition-all duration-300 border-2 relative ${
+									className={`flex flex-col items-center px-4 md:px-5 py-3 md:py-4 bg-gray-100 dark:bg-white/10 backdrop-blur-[10px] rounded-2xl cursor-pointer transition-all duration-300 border-2 relative min-w-[120px] flex-shrink-0 ${
 										activeSemester === semester.id
-											? "bg-gradient-to-br from-blue-600 to-purple-600 border-blue-600 text-white"
-											: "border-gray-200 dark:border-white/20 hover:bg-gray-200 dark:hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)]"
+											? "bg-gradient-to-br from-blue-600 to-purple-600 border-blue-600 text-white shadow-lg scale-105"
+											: "border-gray-200 dark:border-white/20 hover:bg-gray-200 dark:hover:bg-white/15 hover:-translate-y-0.5"
 									}`}
 									onClick={() => setActiveSemester(semester.id)}
 								>
 									<span
-										className={`text-base font-semibold mb-1 ${
+										className={`text-sm md:text-base font-semibold mb-1 ${
 											activeSemester === semester.id
 												? "text-white"
 												: "text-gray-800 dark:text-white/90"
@@ -1146,7 +432,7 @@ const GpaCalculator = () => {
 										{semester.name}
 									</span>
 									<span
-										className={`text-sm ${
+										className={`text-xs md:text-sm ${
 											activeSemester === semester.id
 												? "text-white/90"
 												: "text-gray-600 dark:text-white/70"
@@ -1155,11 +441,11 @@ const GpaCalculator = () => {
 										GPA: {calculateGPA(semester.subjects)}
 									</span>
 									<button
-										className={`absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white border-none rounded-full cursor-pointer flex items-center justify-center text-xs transition-all duration-300 shadow-[0_2px_8px_rgba(239,68,68,0.3)] hover:bg-red-600 hover:scale-110 ${
+										className={`absolute -top-1 -right-1 md:-top-2 md:-right-2 w-5 h-5 md:w-6 md:h-6 bg-red-500 text-white border-none rounded-full cursor-pointer flex items-center justify-center text-xs transition-all duration-300 shadow-[0_2px_8px_rgba(239,68,68,0.3)] hover:bg-red-600 hover:scale-110 ${
 											activeSemester === semester.id
 												? "opacity-100"
-												: "opacity-0 group-hover:opacity-100"
-										} hover:opacity-100`}
+												: "opacity-0 md:group-hover:opacity-100"
+										}`}
 										onClick={(e) => {
 											e.stopPropagation();
 											handleDeleteSemesterClick(semester.id, semester.name);
@@ -1176,262 +462,26 @@ const GpaCalculator = () => {
 				</div>
 
 				{/* Subject Form */}
-				{semesters.length > 0 && activeSemester && (
-					<div className="bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl p-8 mb-10 shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative w-full max-w-4xl before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent">
-						<h3 className="text-2xl font-semibold text-gray-800 dark:text-white/90 mb-5 text-center flex items-center justify-center">
-							{isReadOnlyProfile ? "View Subjects in " : "Add Subject to "}
-							{semesters.find((s) => s.id === activeSemester)?.name}
-							{isReadOnlyProfile && (
-								<span className="inline-flex items-center ml-3 px-3 py-1 bg-gradient-to-br from-red-500 to-red-600 text-white text-xs font-semibold rounded-full shadow-[0_2px_8px_rgba(239,68,68,0.3)] animate-fadeIn">
-									Read-Only
-								</span>
-							)}
-						</h3>
-						<form onSubmit={addOrUpdateSubject}>
-							<div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-								<div className="flex flex-col">
-									<label
-										htmlFor="subjectName"
-										className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-2 flex items-center gap-1"
-									>
-										Subject Name
-									</label>
-									<input
-										id="subjectName"
-										type="text"
-										name="subjectName"
-										placeholder={isReadOnlyProfile ? "Read-only profile" : 'e.g. "Mathematics"'}
-										value={newSubject.subjectName}
-										onChange={handleInputChange}
-										disabled={isReadOnlyProfile}
-										required
-										className="px-3 py-3 border-2 border-gray-300 dark:border-white/20 rounded-lg bg-gray-100 dark:bg-white/10 text-sm transition-all duration-300 text-gray-900 dark:text-white/90 placeholder:text-gray-600 dark:placeholder:text-white/60 focus:outline-none focus:border-primary focus:bg-white dark:focus:bg-white/15 focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:border-gray-300 dark:disabled:border-white/20 disabled:text-gray-500 dark:disabled:text-white/50 disabled:placeholder:text-gray-400 dark:disabled:placeholder:text-white/40"
-									/>
-								</div>
-
-								<div className="flex flex-col">
-									<label
-										htmlFor="grade"
-										className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-2 flex items-center gap-1"
-									>
-										Grade
-										<button
-											type="button"
-											onClick={(e) => handleModalToggle("grade", e)}
-											className="bg-none border-none text-gray-600 dark:text-white/60 cursor-pointer text-xs p-1 rounded transition-all duration-300 inline-flex items-center justify-center hover:text-gray-800 dark:hover:text-white/90 hover:bg-gray-200 dark:hover:bg-white/10 hover:scale-110"
-										>
-											<InformationCircleIcon className="w-4 h-4" />
-										</button>
-									</label>
-									<select
-										id="grade"
-										name="grade"
-										value={newSubject.grade}
-										onChange={handleInputChange}
-										disabled={isReadOnlyProfile}
-										required
-										className="px-3 py-3 border-2 border-gray-300 dark:border-white/20 rounded-lg bg-gray-100 dark:bg-white/10 text-sm transition-all duration-300 text-gray-900 dark:text-white/90 focus:outline-none focus:border-primary focus:bg-white dark:focus:bg-white/15 focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:border-gray-300 dark:disabled:border-white/20 disabled:text-gray-500 dark:disabled:text-white/50"
-									>
-										<option value="" className="text-gray-900">
-											Select Grade
-										</option>
-										<option value="10" className="text-gray-900">
-											O (10)
-										</option>
-										<option value="9" className="text-gray-900">
-											A+ (9)
-										</option>
-										<option value="8" className="text-gray-900">
-											A (8)
-										</option>
-										<option value="7" className="text-gray-900">
-											B+ (7)
-										</option>
-										<option value="6" className="text-gray-900">
-											B (6)
-										</option>
-										<option value="5" className="text-gray-900">
-											C (5)
-										</option>
-										<option value="4" className="text-gray-900">
-											D (4)
-										</option>
-										<option value="0" className="text-gray-900">
-											E - Reappear (0)
-										</option>
-										<option value="0" className="text-gray-900">
-											F - Fail (0)
-										</option>
-										<option value="0" className="text-gray-900">
-											G - Backlog (0)
-										</option>
-									</select>
-								</div>
-
-								<div className="flex flex-col">
-									<label
-										htmlFor="credit"
-										className="text-sm font-semibold text-gray-700 dark:text-white/80 mb-2 flex items-center gap-1"
-									>
-										Credits
-										<button
-											type="button"
-											onClick={(e) => handleModalToggle("ch", e)}
-											className="bg-none border-none text-gray-600 dark:text-white/60 cursor-pointer text-xs p-1 rounded transition-all duration-300 inline-flex items-center justify-center hover:text-gray-800 dark:hover:text-white/90 hover:bg-gray-200 dark:hover:bg-white/10 hover:scale-110"
-										>
-											<InformationCircleIcon className="w-4 h-4" />
-										</button>
-									</label>
-									<input
-										id="credit"
-										type="number"
-										name="credit"
-										placeholder={isReadOnlyProfile ? "Read-only profile" : "Credits"}
-										min="0"
-										step="0.5"
-										value={newSubject.credit}
-										onChange={handleInputChange}
-										disabled={isReadOnlyProfile}
-										required
-										className="px-3 py-3 border-2 border-gray-300 dark:border-white/20 rounded-lg bg-gray-100 dark:bg-white/10 text-sm transition-all duration-300 text-gray-900 dark:text-white/90 placeholder:text-gray-600 dark:placeholder:text-white/60 focus:outline-none focus:border-primary focus:bg-white dark:focus:bg-white/15 focus:shadow-[0_0_0_3px_rgba(102,126,234,0.2)] disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-200 dark:disabled:bg-white/10 disabled:border-gray-300 dark:disabled:border-white/20 disabled:text-gray-500 dark:disabled:text-white/50 disabled:placeholder:text-gray-400 dark:disabled:placeholder:text-white/40"
-									/>
-								</div>
-
-								<div className="flex flex-col">
-									<button
-										type="submit"
-										disabled={isReadOnlyProfile}
-										className="px-6 py-3 bg-gradient-to-br from-blue-600 to-purple-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(59,130,246,0.4)] uppercase tracking-wide min-h-[42.5px] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(59,130,246,0.5)] hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:from-gray-400 disabled:to-gray-500 dark:disabled:bg-white/10 disabled:transform-none disabled:shadow-none"
-									>
-										{editIndex === -1 ? "Add Subject" : "Update"}
-									</button>
-								</div>
-							</div>
-						</form>
-					</div>
-				)}
+				<SubjectForm
+					activeSemester={activeSemester}
+					activeSemesterName={semesters.find((s) => s.id === activeSemester)?.name}
+					isReadOnlyProfile={isReadOnlyProfile}
+					onSubmit={addOrUpdateSubject}
+					formState={newSubject}
+					onChange={handleInputChange}
+					editIndex={editIndex}
+					onInfoClick={handleModalToggle}
+				/>
 
 				{/* Semester Content */}
-				{semesters.length > 0 ? (
-					<div className="w-full max-w-4xl">
-						{semesters.map((semester) => (
-							<div
-								key={semester.id}
-								className={`bg-white dark:bg-white/10 backdrop-blur-[20px] rounded-3xl p-8 mb-8 shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-gray-300 dark:border-white/20 relative before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-400 dark:before:via-white/40 before:to-transparent animate-fadeIn ${
-									activeSemester === semester.id ? "block" : "hidden"
-								}`}
-							>
-								<div className="flex flex-col lg:flex-row justify-between items-center mb-5 gap-4">
-									<div className="semester-info">
-										<h3 className="text-2xl font-bold text-start text-gray-800 dark:text-white/90 mb-0">
-											{semester.name}
-										</h3>
-										<div className="flex gap-4 text-sm text-gray-600 dark:text-white/70">
-											<span className="flex items-center gap-1">
-												{semester.subjects.length} subjects
-											</span>
-											<span className="flex items-center gap-1">
-												{semester.subjects.reduce((acc, subject) => acc + subject.credit, 0)}{" "}
-												credits
-											</span>
-										</div>
-									</div>
-									<div className="flex flex-col items-center p-4 bg-gray-200 dark:bg-white/10 rounded-2xl backdrop-blur-[10px] border border-gray-300 dark:border-white/10">
-										<div className="text-3xl font-bold text-gray-800 dark:text-white/90 leading-none">
-											{calculateGPA(semester.subjects)}
-										</div>
-										<div className="text-sm text-gray-600 dark:text-white/70 mt-1">
-											Semester GPA
-										</div>
-									</div>
-								</div>
-
-								{semester.subjects.length > 0 ? (
-									<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
-										{semester.subjects.map((subject) => (
-											<div
-												key={subject.id}
-												className="bg-gray-200 dark:bg-white/10 rounded-2xl p-6 backdrop-blur-[10px] border border-gray-300 dark:border-white/20 transition-all duration-300 hover:bg-gray-300 dark:hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] dark:hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] animate-fadeIn"
-											>
-												<div className="flex justify-between items-center mb-4">
-													<h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 text-left">
-														{subject.subjectName}
-													</h4>
-													<div className="flex gap-2">
-														<button
-															className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 bg-blue-50/80 dark:bg-blue-500/10 border border-blue-200/60 dark:border-blue-400/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:border-blue-300 dark:hover:border-blue-400/40 hover:scale-105 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-															onClick={() => editSubject(semester.id, subject)}
-															disabled={isReadOnlyProfile}
-															title={
-																isReadOnlyProfile ? "Read-only profile" : "Edit subject"
-															}
-														>
-															<PencilIcon className="w-4 h-4" />
-														</button>
-														<button
-															className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 bg-red-50/80 dark:bg-red-500/10 border border-red-200/60 dark:border-red-400/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:border-red-300 dark:hover:border-red-400/40 hover:scale-105 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-															onClick={() => deleteSubject(semester.id, subject.id)}
-															disabled={isReadOnlyProfile}
-															title={
-																isReadOnlyProfile
-																	? "Read-only profile"
-																	: "Delete subject"
-															}
-														>
-															<TrashIcon className="w-4 h-4" />
-														</button>
-													</div>
-												</div>
-												<div className="grid grid-cols-2 gap-4">
-													<div className="flex items-center gap-4">
-														<span className="text-sm text-gray-600 dark:text-white/70">
-															Grade:
-														</span>
-														<span className="text-sm font-semibold text-green-600 dark:text-green-400">
-															{subject.grade}
-														</span>
-													</div>
-													<div className="flex items-center gap-4">
-														<span className="text-sm text-gray-600 dark:text-white/70">
-															Credits:
-														</span>
-														<span className="text-sm font-semibold text-gray-800 dark:text-white/90">
-															{subject.credit}
-														</span>
-													</div>
-													<div className="flex items-center gap-4 col-span-2">
-														<span className="text-sm text-gray-600 dark:text-white/70">
-															Points:
-														</span>
-														<span className="text-sm font-semibold text-gray-800 dark:text-white/90">
-															{(subject.grade * subject.credit).toFixed(2)}
-														</span>
-													</div>
-												</div>
-											</div>
-										))}
-									</div>
-								) : (
-									<div className="text-center py-8 text-gray-600 dark:text-white/70">
-										<h3 className="text-2xl mb-2 text-gray-700 dark:text-white/80">
-											No subjects added yet
-										</h3>
-										<p className="text-base text-gray-500 dark:text-white/60">
-											Add your first subject above!
-										</p>
-									</div>
-								)}
-							</div>
-						))}
-					</div>
-				) : (
-					<div className="text-center py-16 text-gray-600 dark:text-white/70">
-						<h3 className="text-3xl mb-3 text-gray-700 dark:text-white/80">No semesters added yet</h3>
-						<p className="text-lg text-gray-500 dark:text-white/60">
-							Click "Add Semester" to get started with your GPA calculation!
-						</p>
-					</div>
-				)}
+				<SemesterList
+					semesters={semesters}
+					activeSemester={activeSemester}
+					isReadOnlyProfile={isReadOnlyProfile}
+					onEditSubject={editSubject}
+					onDeleteSubject={deleteSubject}
+					onAddSemesterClick={addSemester}
+				/>
 			</div>
 		</>
 	);
