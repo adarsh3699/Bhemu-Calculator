@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock, ShieldCheck, ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 import { confirmPasswordReset } from "firebase/auth";
@@ -246,8 +247,8 @@ export default function ResetPasswordPage() {
 
 			{/* Navbar */}
 			<header className="flex items-center justify-between border-b border-border px-6 md:px-10 py-4">
-				<div className="flex items-center gap-4 text-secondary">
-					<Lock className="size-6 text-primary" />
+				<div className="flex items-center gap-4">
+					<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={28} height={28} className="rounded-md object-cover" />
 					<h2 className="text-white text-xl font-bold tracking-tight">Bhemu Calculator</h2>
 				</div>
 				<div className="flex items-center gap-6">

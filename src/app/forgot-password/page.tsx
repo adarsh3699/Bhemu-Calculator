@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, Send, ArrowLeft, GraduationCap, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { Mail, Send, ArrowLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/firebase/AuthContext";
 import { useMessage } from "@/components/common/MessageProvider";
@@ -55,10 +56,10 @@ export default function ForgotPasswordPage() {
 					{/* Logo Header */}
 					<div className="flex flex-col items-center justify-center mb-8">
 						<div
-							className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center mb-4 ring-1 ring-white/20"
+							className="w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center mb-4 ring-1 ring-white/20 bg-white/5"
 							style={{ boxShadow: "0 0 25px rgba(3,152,172,0.5)" }}
 						>
-							<GraduationCap className="w-8 h-8 text-white" />
+							<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={56} height={56} className="object-cover" />
 						</div>
 						<h2 className="text-3xl font-bold tracking-tight text-center text-white drop-shadow-lg">
 							Bhemu Calculator

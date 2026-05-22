@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Sparkles, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AuthShowcase } from "@/components/auth-showcase";
 import { useAuth } from "@/firebase/AuthContext";
@@ -91,8 +92,8 @@ export default function LoginPage() {
 					>
 						<div className="mb-10 text-center">
 							<div className="lg:hidden mb-6 flex justify-center items-center gap-2">
-								<div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-									<Sparkles className="w-5 h-5 text-white" />
+								<div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white/5">
+									<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={32} height={32} className="rounded-lg object-cover" />
 								</div>
 								<span className="text-xl font-bold text-white">Bhemu Calculator</span>
 							</div>

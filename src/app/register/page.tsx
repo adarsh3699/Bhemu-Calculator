@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, User, Mail, ArrowRight, GraduationCap, Loader2 } from "lucide-react";
+import { Eye, EyeOff, User, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AuthShowcase } from "@/components/auth-showcase";
 import { useAuth } from "@/firebase/AuthContext";
@@ -95,7 +96,7 @@ export default function RegisterPage() {
 			<div className="flex flex-1 flex-col justify-center items-center p-6 lg:p-12 relative bg-background w-full lg:w-1/2 overflow-y-auto">
 				{/* Mobile Header Logo (Visible only on mobile) */}
 				<div className="lg:hidden absolute top-6 left-6 flex items-center gap-2">
-					<GraduationCap className="w-8 h-8 text-secondary" />
+					<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={32} height={32} className="rounded-lg object-cover" />
 					<span className="text-white text-xl font-bold">Bhemu Calculator</span>
 				</div>
 

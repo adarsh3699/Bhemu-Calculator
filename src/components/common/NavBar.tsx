@@ -2,6 +2,7 @@
 
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/firebase/AuthContext";
 import { useMessage } from "@/components/common/MessageProvider";
@@ -246,7 +247,7 @@ export default function NavBar() {
 					href="/gpa-calculator"
 					className="text-lg md:text-xl lg:text-2xl font-bold select-none cursor-pointer flex items-center transition-all duration-300 hover:scale-102 hover:brightness-105"
 				>
-					<Calculator className="w-5 h-5 mr-2 text-primary" />
+					<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={24} height={24} className="mr-2 rounded-md object-cover" />
 					<span className="text-gradient-brand font-extrabold tracking-tight">Bhemu Calculator</span>
 				</Link>
 

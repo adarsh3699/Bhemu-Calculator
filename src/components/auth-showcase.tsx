@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-import { Sparkles, GraduationCap, Star } from "lucide-react";
+import Image from "next/image";
+import { GraduationCap, Star } from "lucide-react";
 
 interface AuthShowcaseProps {
 	title: ReactNode;
@@ -26,8 +27,8 @@ export function AuthShowcase({ title, subtitle, testimonial = false }: AuthShowc
 
 			{/* Top Bar: Brand Logo */}
 			<div className="flex items-center gap-3 z-10">
-				<div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-					<Sparkles className="w-6 h-6 text-white" />
+				<div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-primary/30 bg-white/5">
+				<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={40} height={40} className="object-cover" />
 				</div>
 				<span className="text-2xl font-bold tracking-tight text-white">Bhemu Calculator</span>
 			</div>

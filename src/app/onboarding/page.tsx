@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Sparkles, Briefcase, GraduationCap, BookOpen, Check, ArrowRight } from "lucide-react";
+import { Briefcase, GraduationCap, BookOpen, Check, ArrowRight } from "lucide-react";
 
 type GoalType = "placement" | "internship" | "skill-mastery";
 
@@ -54,9 +55,7 @@ export default function OnboardingPage() {
 					{/* Navigation Bar */}
 					<header className="flex items-center justify-between whitespace-nowrap border-b border-border px-10 py-4 border-neutral-800">
 						<Link href="/" className="flex items-center gap-3">
-							<div className="flex items-center justify-center size-10 rounded-lg bg-primary text-white">
-								<Sparkles className="size-5" />
-							</div>
+							<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={40} height={40} className="size-10 object-cover rounded-lg" />
 							<h2 className="text-white text-xl font-bold tracking-tight">Bhemu Calculator</h2>
 						</Link>
 						<div className="flex items-center gap-4">

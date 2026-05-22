@@ -25,6 +25,11 @@ export const metadata: Metadata = {
 		"Grade Goal Planner",
 		"Reappear Backlog Calculator"
 	],
+	icons: {
+		icon: "/myLogo.webp",
+		shortcut: "/myLogo.webp",
+		apple: "/myLogo.webp",
+	},
 };
 
 export default function RootLayout({

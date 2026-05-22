@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/firebase/AuthContext";
 import { useMessage } from "@/components/common/MessageProvider";
@@ -109,8 +110,8 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 				{/* Brand */}
 				<div className="flex items-center justify-between px-5 py-6 border-b border-white/5">
 					<div className="flex items-center gap-3">
-						<div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-							<span className="text-primary font-bold text-sm">B</span>
+						<div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 bg-white/5">
+							<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={32} height={32} className="object-cover" />
 						</div>
 						<div>
 							<h1 className="text-white font-bold text-sm leading-tight">Bhemu Calculator</h1>
