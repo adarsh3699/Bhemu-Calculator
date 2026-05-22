@@ -14,7 +14,7 @@ export default function LoginPage() {
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
-	
+
 	const { login, signInWithGoogle, currentUser } = useAuth();
 	const { showMessage } = useMessage();
 	const router = useRouter();
@@ -22,7 +22,7 @@ export default function LoginPage() {
 	// Redirect if user is already logged in
 	useEffect(() => {
 		if (currentUser) {
-			router.replace("/gpa-calculator");
+			router.replace("/dashboard");
 		}
 	}, [currentUser, router]);
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
 			setLoading(true);
 			await login(email, password);
 			showMessage("Welcome back! Loading your workspace...", "success");
-			router.push("/gpa-calculator");
+			router.push("/dashboard");
 		} catch (err: unknown) {
 			console.error("Login error:", err);
 			const message = err instanceof Error ? err.message : String(err);
@@ -53,7 +53,7 @@ export default function LoginPage() {
 			setLoading(true);
 			await signInWithGoogle();
 			showMessage("Successfully authenticated with Google. Welcome back!", "success");
-			router.push("/gpa-calculator");
+			router.push("/dashboard");
 		} catch (err: unknown) {
 			console.error("Google auth error:", err);
 			const message = err instanceof Error ? err.message : String(err);
@@ -93,7 +93,13 @@ export default function LoginPage() {
 						<div className="mb-10 text-center">
 							<div className="lg:hidden mb-6 flex justify-center items-center gap-2">
 								<div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white/5">
-									<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={32} height={32} className="rounded-lg object-cover" />
+									<Image
+										src="/myLogo.webp"
+										alt="Bhemu Calculator Logo"
+										width={32}
+										height={32}
+										className="rounded-lg object-cover"
+									/>
 								</div>
 								<span className="text-xl font-bold text-white">Bhemu Calculator</span>
 							</div>

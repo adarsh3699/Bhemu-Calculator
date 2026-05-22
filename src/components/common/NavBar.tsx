@@ -43,7 +43,7 @@ const flatMenuItems = [
 	{ name: "GPA Goal Planner", path: "gpa-goal-planner" },
 ];
 
-const NO_NAVBAR_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/onboarding"];
+const NO_NAVBAR_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
 
 export default function NavBar() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);

@@ -52,7 +52,7 @@ export default function RegisterPage() {
 			setLoading(true);
 			await signup(email, password, fullname);
 			showMessage("Account created successfully! Welcome to your workspace.", "success");
-			router.push("/onboarding");
+			router.push("/gpa-calculator");
 		} catch (err: unknown) {
 			console.error("Signup error:", err);
 			const message = err instanceof Error ? err.message : String(err);
@@ -67,7 +67,7 @@ export default function RegisterPage() {
 			setLoading(true);
 			await signInWithGoogle();
 			showMessage("Successfully authenticated with Google. Welcome!", "success");
-			router.push("/onboarding");
+			router.push("/gpa-calculator");
 		} catch (err: unknown) {
 			console.error("Google auth error:", err);
 			const message = err instanceof Error ? err.message : String(err);

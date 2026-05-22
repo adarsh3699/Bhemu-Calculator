@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import SideBar from "./SideBar";
 import TopBar from "./TopBar";
 
-const NO_LAYOUT_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/onboarding", "/"];
+const NO_LAYOUT_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
