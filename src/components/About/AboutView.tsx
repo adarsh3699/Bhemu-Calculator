@@ -38,18 +38,18 @@ const TelegramIcon = () => (
 );
 
 const STATS = [
-	{ value: "50k+", label: "Lines of Code", highlight: false },
-	{ value: "3+", label: "Years Experience", highlight: true },
-	{ value: "99.9%", label: "Calculation Accuracy", highlight: false },
+	{ value: "10+", label: "Projects Built", highlight: false },
+	{ value: "3+", label: "Years Coding", highlight: true },
+	{ value: "15+", label: "Technologies", highlight: false },
 ];
 
 const TECH_SKILLS = [
-	{ icon: <Zap className="w-5 h-5 text-amber-400" />, label: "TypeScript" },
 	{ icon: <Atom className="w-5 h-5 text-cyan-400 animate-[spin_8s_linear_infinite]" />, label: "React / Next.js" },
+	{ icon: <Zap className="w-5 h-5 text-amber-400" />, label: "TypeScript" },
 	{ icon: <Code className="w-5 h-5 text-emerald-400" />, label: "Node.js" },
 	{ icon: <Flame className="w-5 h-5 text-orange-500" />, label: "Firebase" },
-	{ icon: <Database className="w-5 h-5 text-indigo-400" />, label: "MongoDB / MySQL" },
-	{ icon: <Shield className="w-5 h-5 text-teal-400" />, label: "C++ / DSA" },
+	{ icon: <Database className="w-5 h-5 text-indigo-400" />, label: "MongoDB / PostgreSQL" },
+	{ icon: <Shield className="w-5 h-5 text-teal-400" />, label: "C / C++" },
 ];
 
 export default function AboutView() {
@@ -74,7 +74,7 @@ export default function AboutView() {
 						<div className="absolute -inset-1 bg-gradient-to-tr from-primary to-secondary rounded-full blur opacity-25 group-hover:opacity-50 transition duration-700" />
 						<div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border-2 border-white/10 bg-surface-elevated">
 							<Image
-								src="https://avatars.githubusercontent.com/u/72506587"
+								src="/myPhoto.png"
 								alt="Adarsh Suman"
 								fill
 								className="object-cover"
@@ -90,12 +90,12 @@ export default function AboutView() {
 							<h2 className="text-3xl md:text-4xl font-bold text-white mt-1">Adarsh Suman</h2>
 						</div>
 						<p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
-							Software Engineer and system architect dedicated to building high-precision academic
-							tools. With over three years in the industry, I focus on creating seamless experiences for
-							students, balancing complex analytical engines with clean, intuitive interfaces.
+							Full-Stack Developer currently pursuing B.Tech in Computer Science at Lovely Professional University.
+							Passionate about creating innovative solutions and building amazing user experiences.
+							I specialize in modern web technologies including React, Next.js, Node.js, and Firebase.
 						</p>
 						<div className="flex flex-wrap justify-center md:justify-start gap-2 pt-1">
-							{["System Architect", "UI Designer", "Open Source"].map((tag) => (
+							{["Full-Stack Developer", "B.Tech CSE @ LPU", "Open Source"].map((tag) => (
 								<span
 									key={tag}
 									className="px-3 py-1 rounded-full bg-surface-elevated border border-white/8 text-primary text-xs font-medium"
@@ -161,10 +161,10 @@ export default function AboutView() {
 								value: "adarsh3699@gmail.com",
 							},
 							{
-								href: "https://www.bhemu.in/about",
+								href: "https://www.adarshsuman.in",
 								icon: <Globe className="w-5 h-5" />,
 								label: "Personal Portfolio",
-								value: "bhemu.in/about",
+								value: "adarshsuman.in",
 								external: true,
 							},
 							{
@@ -241,7 +241,7 @@ export default function AboutView() {
 			<footer className="mt-16 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground gap-3">
 				<p>© {new Date().getFullYear()} Bhemu Calculator. Designed with precision.</p>
 				<div className="flex gap-6">
-					<a href="https://www.bhemu.in/about" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Portfolio</a>
+					<a href="https://www.adarshsuman.in" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Portfolio</a>
 					<a href="https://www.linkedin.com/in/adarsh3699/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">LinkedIn</a>
 					<a href="https://github.com/adarsh3699" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">GitHub</a>
 				</div>

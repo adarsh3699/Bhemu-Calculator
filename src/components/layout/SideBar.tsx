@@ -95,7 +95,7 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 					${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
 			>
 				{/* Brand */}
-				<div className="flex items-center justify-between px-5 py-6 border-b border-white/5">
+				<div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
 					<div className="flex items-center gap-3">
 						<div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 bg-white/5">
 							<Image
@@ -108,9 +108,6 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 						</div>
 						<div>
 							<h1 className="text-white font-bold text-sm leading-tight">Bhemu Calculator</h1>
-							<p className="text-muted-foreground text-[10px] uppercase tracking-[0.15em] mt-0.5">
-								Analytical Engine
-							</p>
 						</div>
 					</div>
 					{/* Mobile close button */}

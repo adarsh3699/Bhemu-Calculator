@@ -173,6 +173,10 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
 
 	const ownProfiles = profiles.filter((p) => {
 		return !p.isShared || (currentUser && p.ownerUserId === currentUser.uid);
+	}).sort((a, b) => {
+		if (a.isDefault && !b.isDefault) return -1;
+		if (!a.isDefault && b.isDefault) return 1;
+		return (a.name || "").localeCompare(b.name || "");
 	});
 
 	const sharedWithMeProfiles = profiles.filter((p) => {
@@ -244,6 +248,11 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
 													{profile.semesters?.length || 0} semester
 													{(profile.semesters?.length || 0) !== 1 ? "s" : ""}
 												</p>
+												{profile.isDefault && (
+													<span className="inline-flex mt-2.5 mr-2 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 tracking-wider">
+														Default
+													</span>
+												)}
 												{(sharedStatus || hasUserShares) && (
 													<span className="inline-flex mt-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 tracking-wider">
 														Shared {hasUserShares && `(${userShares.length} users)`}
@@ -269,7 +278,7 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
 												>
 													<Share2 className="w-4 h-4" />
 												</button>
-												{ownProfiles.length > 1 && !profile.isDefault && !profile.isShared && (
+												{ownProfiles.length > 1 && !profile.isShared && (
 													<button
 														className="w-8 h-8 rounded-lg flex items-center justify-center bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all duration-200"
 														onClick={(e) => {

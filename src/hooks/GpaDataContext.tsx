@@ -102,8 +102,7 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 
 	// ===== UTILITY FUNCTIONS =====
 	const generateProfileName = useCallback(() => {
-		const userName = currentUser?.displayName || currentUser?.email?.split("@")[0] || "User";
-		return `${userName} (Default)`;
+		return currentUser?.displayName || currentUser?.email?.split("@")[0] || "User";
 	}, [currentUser]);
 
 	// ===== CORE ACTIONS =====
@@ -177,11 +176,6 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 			const profileToDelete = profiles.find((p) => p.id === profileId);
 			if (!profileToDelete) {
 				showMessage("Profile not found", "error");
-				return;
-			}
-
-			if (profileToDelete.isDefault) {
-				showMessage("Cannot delete the default profile", "warning");
 				return;
 			}
 
@@ -470,23 +464,19 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 						return;
 					}
 
-					const cleanProfiles = currentProfiles
-						.filter((profile, index, arr) => {
-							return arr.findIndex((p) => p.name === profile.name) === index;
-						})
-						.map((profile) => {
-							const profileWithId = { ...profile, id: profile.id.toString() };
-							if (!profileWithId.semesters || profileWithId.semesters.length === 0) {
-								profileWithId.semesters = [
-									{
-										id: Date.now().toString(),
-										name: "Semester 1",
-										subjects: [],
-									},
-								];
-							}
-							return profileWithId;
-						});
+					const cleanProfiles = currentProfiles.map((profile) => {
+						const profileWithId = { ...profile, id: profile.id.toString() };
+						if (!profileWithId.semesters || profileWithId.semesters.length === 0) {
+							profileWithId.semesters = [
+								{
+									id: Date.now().toString(),
+									name: "Semester 1",
+									subjects: [],
+								},
+							];
+						}
+						return profileWithId;
+					});
 
 					setProfiles(cleanProfiles);
 

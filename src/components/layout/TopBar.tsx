@@ -2,6 +2,7 @@
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/firebase/AuthContext";
 import { useMessage } from "@/components/common/MessageProvider";
 import {
@@ -81,8 +82,14 @@ export default function TopBar({ onMenuOpen }: TopBarProps) {
 
 				{/* Breadcrumb */}
 				<div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-					<span className="hidden sm:inline">Dashboard</span>
-					<ChevronRight className="w-3.5 h-3.5 hidden sm:inline" />
+					{currentSegment !== "dashboard" && (
+						<>
+							<Link href="/dashboard" className="hidden sm:inline hover:text-white transition-colors">
+								Home
+							</Link>
+							<ChevronRight className="w-3.5 h-3.5 hidden sm:inline" />
+						</>
+					)}
 					<span className="font-semibold text-primary">{pageLabel}</span>
 				</div>
 			</div>
