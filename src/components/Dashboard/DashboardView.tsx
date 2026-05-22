@@ -12,7 +12,7 @@
 import Link from "next/link";
 import { Calculator, GraduationCap, Flag, BookOpen, ArrowRight } from "lucide-react";
 import { useAuth } from "@/firebase/AuthContext";
-import { useGpaData } from "@/hooks/useGpaData";
+import { useGpaData } from "@/hooks/GpaDataContext";
 import { calculateCGPA } from "@/utils/gpaUtils";
 import LoginRecommendation from "@/components/common/LoginRecommendation";
 import DashboardStats from "@/components/Dashboard/DashboardStats";
@@ -21,21 +21,42 @@ import SemesterRoadmap from "@/components/Dashboard/SemesterRoadmap";
 
 // ─── Grade display helper (local — only used here) ───────────────────────────
 const GRADE_MAP: Record<number, { label: string; colorClass: string }> = {
-	10: { label: "O",  colorClass: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
-	9:  { label: "A+", colorClass: "text-primary bg-primary/10 border-primary/20" },
-	8:  { label: "A",  colorClass: "text-primary bg-primary/10 border-primary/20" },
-	7:  { label: "B+", colorClass: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" },
-	6:  { label: "B",  colorClass: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" },
-	5:  { label: "C",  colorClass: "text-orange-400 bg-orange-400/10 border-orange-400/20" },
-	0:  { label: "F",  colorClass: "text-red-400 bg-red-400/10 border-red-400/20" },
+	10: { label: "O", colorClass: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
+	9: { label: "A+", colorClass: "text-primary bg-primary/10 border-primary/20" },
+	8: { label: "A", colorClass: "text-primary bg-primary/10 border-primary/20" },
+	7: { label: "B+", colorClass: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" },
+	6: { label: "B", colorClass: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20" },
+	5: { label: "C", colorClass: "text-orange-400 bg-orange-400/10 border-orange-400/20" },
+	0: { label: "F", colorClass: "text-red-400 bg-red-400/10 border-red-400/20" },
 };
 const getGradeInfo = (grade: number) => GRADE_MAP[Math.round(grade)] ?? GRADE_MAP[0];
 
 // ─── Quick Actions config (static — no reason to extract) ────────────────────
 const QUICK_ACTIONS = [
-	{ href: "/gpa-calculator",     icon: <Calculator className="w-5 h-5" />,   title: "GPA Calculator",     desc: "Manage semesters and subjects",       color: "text-primary",    bg: "bg-primary/10 border-primary/20" },
-	{ href: "/reappear-calculator",icon: <GraduationCap className="w-5 h-5" />, title: "Reappear Calculator",desc: "Check marks needed to clear backlogs", color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
-	{ href: "/gpa-goal-planner",   icon: <Flag className="w-5 h-5" />,          title: "Goal Planner",       desc: "Plan your target CGPA trajectory",    color: "text-accent",     bg: "bg-accent/10 border-accent/20" },
+	{
+		href: "/gpa-calculator",
+		icon: <Calculator className="w-5 h-5" />,
+		title: "GPA Calculator",
+		desc: "Manage semesters and subjects",
+		color: "text-primary",
+		bg: "bg-primary/10 border-primary/20",
+	},
+	{
+		href: "/reappear-calculator",
+		icon: <GraduationCap className="w-5 h-5" />,
+		title: "Reappear Calculator",
+		desc: "Check marks needed to clear backlogs",
+		color: "text-violet-400",
+		bg: "bg-violet-500/10 border-violet-500/20",
+	},
+	{
+		href: "/gpa-goal-planner",
+		icon: <Flag className="w-5 h-5" />,
+		title: "Goal Planner",
+		desc: "Plan your target CGPA trajectory",
+		color: "text-accent",
+		bg: "bg-accent/10 border-accent/20",
+	},
 ];
 
 // ─── View ────────────────────────────────────────────────────────────────────
@@ -55,9 +76,12 @@ export default function DashboardView() {
 	}
 
 	// ── Derived data (pure, no side-effects) ──────────────────────────────────
-	const cgpa          = parseFloat(calculateCGPA(semesters));
+	const cgpa = parseFloat(calculateCGPA(semesters));
 	const totalSubjects = semesters.reduce((acc, s) => acc + (s.subjects?.length || 0), 0);
-	const totalCredits  = semesters.reduce((acc, s) => acc + s.subjects.reduce((sa, sub) => sa + (sub.credit || 0), 0), 0);
+	const totalCredits = semesters.reduce(
+		(acc, s) => acc + s.subjects.reduce((sa, sub) => sa + (sub.credit || 0), 0),
+		0
+	);
 	const chartSemesters = semesters.slice(-6);
 	const recentSubjects = [...semesters]
 		.reverse()
@@ -66,7 +90,6 @@ export default function DashboardView() {
 
 	return (
 		<div className="px-4 py-8 md:px-8 md:py-10 max-w-6xl mx-auto space-y-8">
-
 			{/* Welcome header */}
 			<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
 				<div>
@@ -102,15 +125,19 @@ export default function DashboardView() {
 
 			{/* Chart + Roadmap */}
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
 				{/* Left: chart + recent subjects */}
 				<div className="lg:col-span-7 flex flex-col gap-6">
-
 					{/* Semester Performance */}
-					<div className="bg-surface-dark border border-border rounded-xl p-6" style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)" }}>
+					<div
+						className="bg-surface-dark border border-border rounded-xl p-6"
+						style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)" }}
+					>
 						<div className="flex justify-between items-center mb-6">
 							<h2 className="text-base font-bold text-white">Semester Performance</h2>
-							<Link href="/gpa-calculator" className="text-xs text-primary hover:underline font-medium flex items-center gap-1">
+							<Link
+								href="/gpa-calculator"
+								className="text-xs text-primary hover:underline font-medium flex items-center gap-1"
+							>
 								View all <ArrowRight className="w-3 h-3" />
 							</Link>
 						</div>
@@ -125,10 +152,15 @@ export default function DashboardView() {
 					</div>
 
 					{/* Recent Subjects */}
-					<div className="bg-surface-dark border border-border rounded-xl overflow-hidden" style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)" }}>
+					<div
+						className="bg-surface-dark border border-border rounded-xl overflow-hidden"
+						style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)" }}
+					>
 						<div className="p-5 border-b border-border flex justify-between items-center bg-black/20">
 							<h2 className="text-base font-bold text-white">Recent Subjects</h2>
-							<Link href="/gpa-calculator" className="text-xs text-primary hover:underline font-medium">View All</Link>
+							<Link href="/gpa-calculator" className="text-xs text-primary hover:underline font-medium">
+								View All
+							</Link>
 						</div>
 						{recentSubjects.length === 0 ? (
 							<div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
@@ -151,11 +183,19 @@ export default function DashboardView() {
 											const { label, colorClass } = getGradeInfo(sub.grade);
 											return (
 												<tr key={i} className="hover:bg-white/3 transition-colors">
-													<td className="px-5 py-3 text-muted-foreground text-xs font-medium">{sub.semesterName}</td>
-													<td className="px-5 py-3 text-white font-medium truncate max-w-[180px]">{sub.subjectName}</td>
-													<td className="px-5 py-3 text-center text-muted-foreground">{sub.credit}</td>
+													<td className="px-5 py-3 text-muted-foreground text-xs font-medium">
+														{sub.semesterName}
+													</td>
+													<td className="px-5 py-3 text-white font-medium truncate max-w-[180px]">
+														{sub.subjectName}
+													</td>
+													<td className="px-5 py-3 text-center text-muted-foreground">
+														{sub.credit}
+													</td>
 													<td className="px-5 py-3 text-right">
-														<span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border ${colorClass}`}>
+														<span
+															className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold border ${colorClass}`}
+														>
 															{label}
 														</span>
 													</td>
@@ -171,7 +211,10 @@ export default function DashboardView() {
 
 				{/* Right: Semester Roadmap */}
 				<div className="lg:col-span-5">
-					<div className="bg-surface-dark border border-border rounded-xl p-6 h-full" style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)" }}>
+					<div
+						className="bg-surface-dark border border-border rounded-xl p-6 h-full"
+						style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)" }}
+					>
 						<h2 className="text-base font-bold text-white mb-6">Semester Roadmap</h2>
 						<SemesterRoadmap semesters={semesters} />
 					</div>
@@ -189,14 +232,18 @@ export default function DashboardView() {
 							className="group bg-surface-dark border border-border rounded-xl p-5 hover:border-white/15 transition-all duration-300 flex items-center gap-4"
 							style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.04)" }}
 						>
-							<div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${action.bg} ${action.color}`}>
+							<div
+								className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${action.bg} ${action.color}`}
+							>
 								{action.icon}
 							</div>
 							<div className="min-w-0">
 								<div className="text-sm font-semibold text-white truncate">{action.title}</div>
 								<div className="text-xs text-muted-foreground mt-0.5 truncate">{action.desc}</div>
 							</div>
-							<ArrowRight className={`w-4 h-4 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0 ${action.color}`} />
+							<ArrowRight
+								className={`w-4 h-4 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0 ${action.color}`}
+							/>
 						</Link>
 					))}
 				</div>

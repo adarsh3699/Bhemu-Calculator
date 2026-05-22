@@ -1,11 +1,55 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAuth } from "@/firebase/AuthContext";
 import { createGPAService, GPAProfile, GPASemester } from "@/firebase/gpaService";
 import { useMessage } from "@/components/common/MessageProvider";
 
-export const useGpaData = () => {
+// ===== Types =====
+interface GpaDataContextValue {
+	profiles: GPAProfile[];
+	activeProfile: string | number | null;
+	loading: boolean;
+	saving: boolean;
+	sharedProfiles: unknown[];
+	sharedWithMeProfiles: GPAProfile[];
+	mySharedProfiles: unknown[];
+	allProfiles: GPAProfile[];
+	currentProfile: GPAProfile | undefined;
+	semesters: GPASemester[];
+	isReadOnlyProfile: boolean;
+
+	updateActiveProfile: (profileId: string | number) => void;
+	createProfile: (name: string) => Promise<void>;
+	deleteProfile: (profileId: string | number) => Promise<void>;
+	updateSemesters: (newSemesters: GPASemester[]) => Promise<void>;
+	shareProfileWithUser: (
+		profileToShare: GPAProfile,
+		emailOrAction: string,
+		permission: "read" | "edit" | "unshare",
+		action?: string
+	) => Promise<void>;
+	unshareProfile: (shareId: string) => Promise<void>;
+	copySharedProfile: (shareId: string, profileName: string) => Promise<void>;
+	verifyUMS: (
+		profileId: string | number,
+		umsData: { semesters: GPASemester[]; studentInfo: unknown; allTermIds: unknown; fetchedAt?: string }
+	) => Promise<void>;
+}
+
+const GpaDataContext = createContext<GpaDataContextValue | undefined>(undefined);
+
+// ===== Hook for consumers =====
+export function useGpaData(): GpaDataContextValue {
+	const ctx = useContext(GpaDataContext);
+	if (!ctx) {
+		throw new Error("useGpaData must be used within a GpaDataProvider");
+	}
+	return ctx;
+}
+
+// ===== Provider =====
+export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 	const { currentUser } = useAuth();
 	const { showMessage } = useMessage();
 
@@ -21,6 +65,8 @@ export const useGpaData = () => {
 	const activeListeners = useRef<Record<string, () => void>>({}); // Track active subscriptions
 	const isInitializingRef = useRef(false);
 	const hasInitializedRef = useRef(false);
+	// Track the user ID that was initialized, so we re-init on user change
+	const initializedUserIdRef = useRef<string | null>(null);
 
 	// ===== SERVICE CREATION =====
 	const gpaService = useMemo(() => {
@@ -345,6 +391,13 @@ export const useGpaData = () => {
 
 	// ===== INITIALIZATION & LISTENERS =====
 	useEffect(() => {
+		// Re-initialize if user changed (login/logout/switch)
+		if (currentUser && initializedUserIdRef.current !== currentUser.uid) {
+			hasInitializedRef.current = false;
+			isInitializingRef.current = false;
+			initializedUserIdRef.current = currentUser.uid;
+		}
+
 		if (!gpaService || !currentUser || hasInitializedRef.current) return;
 
 		if (isInitializingRef.current) return;
@@ -502,6 +555,28 @@ export const useGpaData = () => {
 		};
 	}, [currentUser, gpaService, showMessage, generateProfileName]);
 
+	// Reset state when user logs out
+	useEffect(() => {
+		if (!currentUser) {
+			setProfiles([]);
+			setActiveProfile(null);
+			setLoading(true);
+			setSaving(false);
+			setSharedProfiles([]);
+			setSharedWithMeProfiles([]);
+			setMySharedProfiles([]);
+			hasInitializedRef.current = false;
+			isInitializingRef.current = false;
+			initializedUserIdRef.current = null;
+
+			// Clean up collaborative listeners
+			Object.values(activeListeners.current).forEach((unsub) => {
+				if (typeof unsub === "function") unsub();
+			});
+			activeListeners.current = {};
+		}
+	}, [currentUser]);
+
 	// Collaborative Listeners Effect
 	useEffect(() => {
 		if (!currentUser || !gpaService) return;
@@ -577,26 +652,52 @@ export const useGpaData = () => {
 		}
 	}, [sharedWithMeProfiles]);
 
-	return {
-		profiles,
-		activeProfile,
-		loading,
-		saving,
-		sharedProfiles,
-		sharedWithMeProfiles,
-		mySharedProfiles,
-		allProfiles,
-		currentProfile,
-		semesters,
-		isReadOnlyProfile,
+	// ===== CONTEXT VALUE =====
+	const value = useMemo<GpaDataContextValue>(
+		() => ({
+			profiles,
+			activeProfile,
+			loading,
+			saving,
+			sharedProfiles,
+			sharedWithMeProfiles,
+			mySharedProfiles,
+			allProfiles,
+			currentProfile,
+			semesters,
+			isReadOnlyProfile,
 
-		updateActiveProfile,
-		createProfile,
-		deleteProfile,
-		updateSemesters,
-		shareProfileWithUser,
-		unshareProfile,
-		copySharedProfile,
-		verifyUMS,
-	};
-};
+			updateActiveProfile,
+			createProfile,
+			deleteProfile,
+			updateSemesters,
+			shareProfileWithUser,
+			unshareProfile,
+			copySharedProfile,
+			verifyUMS,
+		}),
+		[
+			profiles,
+			activeProfile,
+			loading,
+			saving,
+			sharedProfiles,
+			sharedWithMeProfiles,
+			mySharedProfiles,
+			allProfiles,
+			currentProfile,
+			semesters,
+			isReadOnlyProfile,
+			updateActiveProfile,
+			createProfile,
+			deleteProfile,
+			updateSemesters,
+			shareProfileWithUser,
+			unshareProfile,
+			copySharedProfile,
+			verifyUMS,
+		]
+	);
+
+	return <GpaDataContext.Provider value={value}>{children}</GpaDataContext.Provider>;
+}

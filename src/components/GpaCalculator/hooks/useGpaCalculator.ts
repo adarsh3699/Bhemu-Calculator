@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useGpaData } from "@/hooks/useGpaData";
+import { useSearchParams } from "next/navigation";
+import { useGpaData } from "@/hooks/GpaDataContext";
 import { GPAProfile } from "@/firebase/gpaService";
 import { Subject } from "@/utils/gpaUtils";
 
 export function useGpaCalculator() {
 	const gpaData = useGpaData();
-	const { profiles, semesters, currentProfile, updateSemesters, shareProfileWithUser, updateActiveProfile } = gpaData;
+	const { profiles, semesters, updateSemesters, shareProfileWithUser, updateActiveProfile } = gpaData;
 
 	// ===== UI STATE =====
 	const [drawerOpen, setDrawerOpen] = useState(false);
@@ -31,22 +32,21 @@ export function useGpaCalculator() {
 	const [semesterToDelete, setSemesterToDelete] = useState<{ id: string | number; name: string } | null>(null);
 
 	// ===== ACTIVE SEMESTER SYNC =====
+	// Simple rule: if URL has ?sem= → select it, else select the latest semester.
+	const searchParams = useSearchParams();
+	const semFromUrl = searchParams.get("sem");
 
-	// Reset to last semester whenever the active profile changes
 	useEffect(() => {
 		if (semesters.length === 0) return;
-		Promise.resolve().then(() => {
-			setActiveSemester(semesters[semesters.length - 1].id);
-		});
-	}, [currentProfile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-	// Fill in an initial selection if nothing is active (e.g. on first load)
-	useEffect(() => {
-		if (activeSemester || semesters.length === 0) return;
-		Promise.resolve().then(() => {
-			setActiveSemester(semesters[semesters.length - 1].id);
-		});
-	}, [semesters, activeSemester]);
+		if (semFromUrl) {
+			const match = semesters.find((s) => String(s.id) === semFromUrl);
+			if (match) {
+				setActiveSemester(match.id);
+				return;
+			}
+		}
+		setActiveSemester(semesters[semesters.length - 1].id);
+	}, [semFromUrl, semesters]);
 
 	// ===== DRAWER / PROFILE HANDLERS =====
 

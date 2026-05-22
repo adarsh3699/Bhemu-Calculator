@@ -32,44 +32,52 @@ export default function SemesterRoadmap({ semesters }: Props) {
 	}
 
 	return (
-		<div className="relative pl-4 space-y-5 before:absolute before:inset-y-0 before:left-[21px] before:w-px before:bg-border">
+		<div className="relative space-y-5">
+			{/* Timeline vertical line */}
+			<div className="absolute left-[11px] top-0 bottom-0 w-px bg-border" />
+
 			{semesters.map((sem, i) => {
 				const isActive = i === semesters.length - 1;
 				const sgpa = parseFloat(calculateGPA(sem.subjects));
 				const credits = sem.subjects.reduce((acc, s) => acc + (s.credit || 0), 0);
 
 				return (
-					<div
+					<Link
 						key={sem.id}
-						className={`relative flex gap-4 items-start ${!isActive ? "opacity-80 hover:opacity-100 transition-opacity" : ""}`}
+						href={`/gpa-calculator?sem=${sem.id}`}
+						className={`relative flex items-start gap-3 group cursor-pointer no-underline ${
+							!isActive ? "opacity-80 hover:opacity-100 transition-opacity" : ""
+						}`}
 					>
 						{/* Timeline dot */}
-						{isActive ? (
-							<div className="absolute -left-[9px] top-1 w-5 h-5 rounded-full bg-background border-2 border-primary z-10 flex items-center justify-center shadow-[0_0_10px_rgba(117,209,255,0.4)]">
-								<div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-							</div>
-						) : (
-							<div className="absolute -left-[5px] top-1.5 w-3 h-3 rounded-full bg-surface-elevated border-2 border-border z-10" />
-						)}
+						<div className="relative shrink-0 w-[22px] flex justify-center pt-4">
+							{isActive ? (
+								<div className="w-5 h-5 rounded-full bg-background border-2 border-primary z-10 flex items-center justify-center shadow-[0_0_10px_rgba(117,209,255,0.4)]">
+									<div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+								</div>
+							) : (
+								<div className="w-3 h-3 rounded-full bg-surface-elevated border-2 border-border z-10" />
+							)}
+						</div>
 
 						{/* Card */}
 						<div
-							className={`flex-1 rounded-lg p-4 ml-6 transition-colors ${
+							className={`flex-1 min-w-0 rounded-lg p-4 transition-colors ${
 								isActive
 									? "bg-gradient-to-br from-surface-elevated to-surface-dark border border-primary/30 shadow-[0_4px_20px_-5px_rgba(117,209,255,0.12)]"
-									: "bg-surface-elevated/40 border border-border hover:bg-surface-elevated/80"
+									: "bg-surface-elevated/40 border border-border hover:bg-surface-elevated/80 group-hover:border-white/15"
 							}`}
 						>
-							<div className="flex justify-between items-center mb-1">
-								<h4 className={`font-semibold text-sm ${isActive ? "text-primary" : "text-white"}`}>
+							<div className="flex justify-between items-center mb-1 gap-2">
+								<h4 className={`font-semibold text-sm truncate ${isActive ? "text-primary" : "text-white"}`}>
 									{sem.name}
 								</h4>
 								{isActive ? (
-									<span className="bg-primary/15 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-primary/20 tracking-wide">
+									<span className="bg-primary/15 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-primary/20 tracking-wide shrink-0">
 										Active
 									</span>
 								) : (
-									<span className="text-[11px] text-muted-foreground">Completed</span>
+									<span className="text-[11px] text-muted-foreground shrink-0">Completed</span>
 								)}
 							</div>
 							<div className="flex gap-4 text-xs text-muted-foreground mt-1">
@@ -78,20 +86,22 @@ export default function SemesterRoadmap({ semesters }: Props) {
 							</div>
 							{isActive && (
 								<div className="mt-3 pt-3 border-t border-white/5">
-									<Link href="/gpa-calculator" className="text-xs text-white/70 hover:text-primary transition-colors flex items-center gap-1">
+									<span className="text-xs text-white/70 group-hover:text-primary transition-colors flex items-center gap-1">
 										Manage subjects <ArrowRight className="w-3 h-3" />
-									</Link>
+									</span>
 								</div>
 							)}
 						</div>
-					</div>
+					</Link>
 				);
 			})}
 
 			{/* Upcoming placeholder */}
-			<div className="relative flex gap-4 items-start opacity-40">
-				<div className="absolute -left-[5px] top-1.5 w-3 h-3 rounded-full bg-surface-elevated border-2 border-dashed border-border z-10" />
-				<div className="flex-1 border border-dashed border-border rounded-lg p-4 ml-6">
+			<div className="relative flex items-start gap-3 opacity-40">
+				<div className="relative shrink-0 w-[22px] flex justify-center pt-4">
+					<div className="w-3 h-3 rounded-full bg-surface-elevated border-2 border-dashed border-border z-10" />
+				</div>
+				<div className="flex-1 min-w-0 border border-dashed border-border rounded-lg p-4">
 					<h4 className="text-xs font-medium text-muted-foreground">Semester {semesters.length + 1}</h4>
 					<div className="text-[11px] text-muted-foreground/60 mt-0.5">Upcoming</div>
 				</div>

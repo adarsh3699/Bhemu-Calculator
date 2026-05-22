@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { AuthProvider } from "@/firebase/AuthContext";
 import { MessageProvider } from "@/components/common/MessageProvider";
+import { GpaDataProvider } from "@/hooks/GpaDataContext";
 import AppShell from "@/components/layout/AppShell";
 
 const inter = Inter({
@@ -36,7 +37,9 @@ export default function RootLayout({
 			<body className="min-h-screen bg-background text-foreground font-sans antialiased overflow-x-hidden">
 				<AuthProvider>
 					<MessageProvider>
-						<AppShell>{children}</AppShell>
+						<GpaDataProvider>
+							<AppShell>{children}</AppShell>
+						</GpaDataProvider>
 					</MessageProvider>
 				</AuthProvider>
 			</body>
