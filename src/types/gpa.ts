@@ -40,6 +40,7 @@ export interface GPAProfile {
 	collaborators?: string[];
 	permissions?: Record<string, "read" | "edit" | "owner">;
 	lastModified?: unknown;
+	lastOpened?: unknown;
 }
 
 export interface ShareData {

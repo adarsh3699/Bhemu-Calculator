@@ -70,6 +70,18 @@ export class GPAService {
 		}
 	}
 
+	async updateLastOpened(profileId: string | number): Promise<void> {
+		try {
+			await setDoc(
+				doc(this.userProfilesRef, profileId.toString()),
+				{ lastOpened: serverTimestamp() },
+				{ merge: true }
+			);
+		} catch (error) {
+			console.error("Error updating lastOpened:", error);
+		}
+	}
+
 	async getProfiles(): Promise<{ success: boolean; profiles: GPAProfile[]; error?: string }> {
 		try {
 			const snapshot = await getDocs(query(this.userProfilesRef, orderBy("createdAt", "desc")));

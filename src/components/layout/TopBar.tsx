@@ -51,9 +51,10 @@ export default function TopBar({ onMenuOpen, onOpenProfileDrawer }: TopBarProps)
 	const recentOwnProfiles = useMemo(() => {
 		return [...profiles]
 			.sort((a, b) => {
-				if (a.isDefault && !b.isDefault) return -1;
-				if (!a.isDefault && b.isDefault) return 1;
-				return (a.name || "").localeCompare(b.name || "");
+				// Sort by lastOpened descending (most recent first)
+				const aTime = a.lastOpened ? (typeof (a.lastOpened as { toMillis?: () => number }).toMillis === "function" ? (a.lastOpened as { toMillis: () => number }).toMillis() : Number(a.lastOpened)) : 0;
+				const bTime = b.lastOpened ? (typeof (b.lastOpened as { toMillis?: () => number }).toMillis === "function" ? (b.lastOpened as { toMillis: () => number }).toMillis() : Number(b.lastOpened)) : 0;
+				return bTime - aTime;
 			})
 			.slice(0, 3);
 	}, [profiles]);

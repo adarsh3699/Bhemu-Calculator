@@ -132,7 +132,9 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 	const updateActiveProfile = useCallback((profileId: string | number) => {
 		setActiveProfile(profileId);
 		localStorage.setItem("activeGpaProfile", profileId.toString());
-	}, []);
+		// Fire-and-forget: stamp lastOpened in Firebase
+		gpaService?.updateLastOpened(profileId);
+	}, [gpaService]);
 
 	const createProfile = useCallback(
 		async (name: string) => {
