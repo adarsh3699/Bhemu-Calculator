@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, startTransition } from "react";
 import { useAuth } from "@/firebase/AuthContext";
 import { createGPAService, GPAProfile, GPASemester } from "@/firebase/gpaService";
 import { useMessage } from "@/components/common/MessageProvider";
@@ -558,13 +558,15 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 	// Reset state when user logs out
 	useEffect(() => {
 		if (!currentUser) {
-			setProfiles([]);
-			setActiveProfile(null);
-			setLoading(true);
-			setSaving(false);
-			setSharedProfiles([]);
-			setSharedWithMeProfiles([]);
-			setMySharedProfiles([]);
+			startTransition(() => {
+				setProfiles([]);
+				setActiveProfile(null);
+				setLoading(true);
+				setSaving(false);
+				setSharedProfiles([]);
+				setSharedWithMeProfiles([]);
+				setMySharedProfiles([]);
+			});
 			hasInitializedRef.current = false;
 			isInitializingRef.current = false;
 			initializedUserIdRef.current = null;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, startTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useGpaData } from "@/hooks/GpaDataContext";
 import { GPAProfile } from "@/firebase/gpaService";
@@ -41,11 +41,11 @@ export function useGpaCalculator() {
 		if (semFromUrl) {
 			const match = semesters.find((s) => String(s.id) === semFromUrl);
 			if (match) {
-				setActiveSemester(match.id);
+				startTransition(() => setActiveSemester(match.id));
 				return;
 			}
 		}
-		setActiveSemester(semesters[semesters.length - 1].id);
+		startTransition(() => setActiveSemester(semesters[semesters.length - 1].id));
 	}, [semFromUrl, semesters]);
 
 	// ===== DRAWER / PROFILE HANDLERS =====
