@@ -24,7 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 		<>
 			<SideBar isOpen={sidebarOpen} onClose={closeSidebar} />
 			<TopBar onMenuOpen={openSidebar} />
-			<main className="md:ml-[220px] pt-16 min-h-screen">
+			<main className="md:ml-[250px] lg:ml-[280px] pt-16 min-h-screen">
 				{children}
 			</main>
 		</>

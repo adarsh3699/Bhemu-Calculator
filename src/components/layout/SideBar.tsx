@@ -6,17 +6,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/firebase/AuthContext";
 import { useMessage } from "@/components/common/MessageProvider";
-import {
-	Calculator,
-	GraduationCap,
-	TrendingUp,
-	Info,
-	Settings,
-	LogOut,
-	LogIn,
-	X,
-	LayoutDashboard,
-} from "lucide-react";
+import { Calculator, GraduationCap, TrendingUp, Info, Settings, LogOut, LogIn, X, LayoutDashboard } from "lucide-react";
 
 const MAIN_NAV = [
 	{ name: "Dashboard", path: "dashboard", icon: LayoutDashboard },
@@ -95,27 +85,32 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 		<>
 			{/* Mobile backdrop */}
 			{isOpen && (
-				<div
-					className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden"
-					aria-hidden="true"
-				/>
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden" aria-hidden="true" />
 			)}
 
 			{/* Sidebar */}
 			<aside
 				ref={sidebarRef}
-				className={`fixed left-0 top-0 h-full w-[220px] flex flex-col bg-[#0a0f10] border-r border-white/5 z-[100] transition-transform duration-300 ease-out
+				className={`fixed left-0 top-0 h-full w-[250px] lg:w-[280px] flex flex-col bg-[#0a0f10] border-r border-white/5 z-[100] transition-transform duration-300 ease-out
 					${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
 			>
 				{/* Brand */}
 				<div className="flex items-center justify-between px-5 py-6 border-b border-white/5">
 					<div className="flex items-center gap-3">
 						<div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 bg-white/5">
-							<Image src="/myLogo.webp" alt="Bhemu Calculator Logo" width={32} height={32} className="object-cover" />
+							<Image
+								src="/myLogo.webp"
+								alt="Bhemu Calculator Logo"
+								width={32}
+								height={32}
+								className="object-cover"
+							/>
 						</div>
 						<div>
 							<h1 className="text-white font-bold text-sm leading-tight">Bhemu Calculator</h1>
-							<p className="text-muted-foreground text-[10px] uppercase tracking-[0.15em] mt-0.5">Analytical Engine</p>
+							<p className="text-muted-foreground text-[10px] uppercase tracking-[0.15em] mt-0.5">
+								Analytical Engine
+							</p>
 						</div>
 					</div>
 					{/* Mobile close button */}
@@ -148,7 +143,9 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 										: "text-muted-foreground hover:text-white hover:bg-white/5 border-l-4 border-transparent rounded-l-none pl-2"
 								}`}
 							>
-								<Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-white"}`} />
+								<Icon
+									className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-white"}`}
+								/>
 								{name}
 							</Link>
 						);
@@ -172,7 +169,9 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 										: "text-muted-foreground hover:text-white hover:bg-white/5 border-l-4 border-transparent rounded-l-none pl-2"
 								}`}
 							>
-								<Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-white"}`} />
+								<Icon
+									className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-white"}`}
+								/>
 								{name}
 							</Link>
 						);
@@ -192,9 +191,7 @@ export default function SideBar({ isOpen, onClose }: SideBarProps) {
 									<p className="text-white text-xs font-semibold truncate">
 										{currentUser.displayName || "User"}
 									</p>
-									<p className="text-muted-foreground text-[11px] truncate">
-										{currentUser.email}
-									</p>
+									<p className="text-muted-foreground text-[11px] truncate">{currentUser.email}</p>
 								</div>
 							</div>
 							{/* Logout button */}

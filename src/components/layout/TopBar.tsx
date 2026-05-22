@@ -68,7 +68,7 @@ export default function TopBar({ onMenuOpen }: TopBarProps) {
 	}, [logout, showMessage, router]);
 
 	return (
-		<header className="fixed top-0 right-0 w-full md:w-[calc(100%-220px)] h-16 bg-[#0e0e0e]/95 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-6 z-[80]">
+		<header className="fixed top-0 right-0 w-full md:w-[calc(100%-250px)] lg:w-[calc(100%-280px)] h-16 bg-[#0e0e0e]/95 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-6 z-[80]">
 			{/* Left: hamburger (mobile) + breadcrumb */}
 			<div className="flex items-center gap-3">
 				<button
