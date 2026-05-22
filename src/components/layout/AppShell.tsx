@@ -39,6 +39,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
 	return (
 		<>
+			{/* Ambient gradient blobs */}
+			<div className="fixed top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+			<div className="fixed bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
+
 			<SideBar isOpen={sidebarOpen} onClose={closeSidebar} />
 			<TopBar onMenuOpen={openSidebar} onOpenProfileDrawer={openProfileDrawer} />
 			<main className="md:ml-[250px] lg:ml-[280px] pt-16 min-h-screen">

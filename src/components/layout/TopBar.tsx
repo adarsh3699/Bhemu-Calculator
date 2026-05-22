@@ -49,21 +49,23 @@ export default function TopBar({ onMenuOpen, onOpenProfileDrawer }: TopBarProps)
 
 	// Compute quick-switch lists: up to 3 own profiles, up to 3 shared
 	const recentOwnProfiles = useMemo(() => {
-		return [...profiles]
+		const defaultProfile = profiles.find((p) => p.isDefault);
+		const rest = profiles
+			.filter((p) => !p.isDefault)
 			.sort((a, b) => {
-				// Sort by lastOpened descending (most recent first)
 				const aTime = a.lastOpened ? (typeof (a.lastOpened as { toMillis?: () => number }).toMillis === "function" ? (a.lastOpened as { toMillis: () => number }).toMillis() : Number(a.lastOpened)) : 0;
 				const bTime = b.lastOpened ? (typeof (b.lastOpened as { toMillis?: () => number }).toMillis === "function" ? (b.lastOpened as { toMillis: () => number }).toMillis() : Number(b.lastOpened)) : 0;
 				return bTime - aTime;
 			})
-			.slice(0, 3);
+			.slice(0, defaultProfile ? 3 : 4);
+		return defaultProfile ? [defaultProfile, ...rest] : rest;
 	}, [profiles]);
 
 	const recentSharedProfiles = useMemo(() => {
 		return sharedWithMeProfiles.slice(0, 3);
 	}, [sharedWithMeProfiles]);
 
-	const hasMoreOwn = profiles.length > 3;
+	const hasMoreOwn = profiles.length > 4;
 	const hasMoreShared = sharedWithMeProfiles.length > 3;
 	const hasMoreProfiles = hasMoreOwn || hasMoreShared;
 
