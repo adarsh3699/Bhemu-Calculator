@@ -58,37 +58,44 @@ export default function SemesterBarChart({ semesters }: SemesterBarChartProps) {
 	}));
 
 	return (
-		<ResponsiveContainer width="100%" height={200}>
-			<BarChart data={data} margin={{ top: 12, right: 8, left: -20, bottom: 0 }} barCategoryGap="30%">
-				<CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-				<XAxis
-					dataKey="name"
-					tick={{ fill: "hsl(220 9% 55%)", fontSize: 11, fontWeight: 500 }}
-					axisLine={false}
-					tickLine={false}
-					interval={0}
-					tickFormatter={(name: string) => (name.length > 7 ? name.slice(0, 6) + "…" : name)}
-				/>
-				<YAxis
-					domain={[0, 10]}
-					ticks={[0, 2, 4, 6, 8, 10]}
-					tick={{ fill: "hsl(220 9% 45%)", fontSize: 10 }}
-					axisLine={false}
-					tickLine={false}
-				/>
-				<Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)", radius: 6 }} />
-				<Bar dataKey="sgpa" radius={[6, 6, 0, 0]} maxBarSize={56}>
-					{data.map((entry, index) => (
-						<Cell
-							key={`cell-${index}`}
-							fill={entry.isActive ? COLOR_ACTIVE : "rgba(117,209,255,0.18)"}
-							style={
-								entry.isActive ? { filter: "drop-shadow(0 0 8px rgba(117,209,255,0.35))" } : undefined
-							}
-						/>
-					))}
-				</Bar>
-			</BarChart>
-		</ResponsiveContainer>
+		<div className="w-full" style={{ outline: "none" }}>
+			<style dangerouslySetInnerHTML={{ __html: `
+				.recharts-wrapper, .recharts-surface, .recharts-wrapper * {
+					outline: none !important;
+				}
+			`}} />
+			<ResponsiveContainer width="100%" height={200}>
+				<BarChart data={data} margin={{ top: 12, right: 8, left: -20, bottom: 0 }} barCategoryGap="30%">
+					<CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+					<XAxis
+						dataKey="name"
+						tick={{ fill: "hsl(220 9% 55%)", fontSize: 11, fontWeight: 500 }}
+						axisLine={false}
+						tickLine={false}
+						interval={0}
+						tickFormatter={(name: string) => (name.length > 7 ? name.slice(0, 6) + "…" : name)}
+					/>
+					<YAxis
+						domain={[0, 10]}
+						ticks={[0, 2, 4, 6, 8, 10]}
+						tick={{ fill: "hsl(220 9% 45%)", fontSize: 10 }}
+						axisLine={false}
+						tickLine={false}
+					/>
+					<Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)", radius: 6 }} />
+					<Bar dataKey="sgpa" radius={[6, 6, 0, 0]} maxBarSize={56}>
+						{data.map((entry, index) => (
+							<Cell
+								key={`cell-${index}`}
+								fill={entry.isActive ? COLOR_ACTIVE : "rgba(117,209,255,0.18)"}
+								style={
+									entry.isActive ? { filter: "drop-shadow(0 0 8px rgba(117,209,255,0.35))" } : undefined
+								}
+							/>
+						))}
+					</Bar>
+				</BarChart>
+			</ResponsiveContainer>
+		</div>
 	);
 }
