@@ -806,48 +806,31 @@ export class GPAService {
 		return `${origin}/shared/${shareId}`;
 	}
 
-	// ===== BATCH OPERATIONS =====
+	// ===== ACTIVE PROFILE MANAGEMENT =====
 
-	async syncLocalProfiles(localProfiles: GPAProfile[]): Promise<{ success: boolean; error?: string }> {
+	async saveActiveProfile(profileId: string | number): Promise<void> {
 		try {
-			const batch = writeBatch(db);
-
-			localProfiles.forEach((profile) => {
-				const profileRef = doc(this.userProfilesRef, profile.id.toString());
-				const profileData = {
-					...profile,
-					userId: this.userId,
-					updatedAt: serverTimestamp(),
-					createdAt: profile.createdAt || serverTimestamp(),
-				};
-				batch.set(profileRef, profileData);
-			});
-
-			await batch.commit();
-			return { success: true };
+			const prefsRef = doc(db, "users", this.userId, "preferences", "gpa");
+			await setDoc(prefsRef, { activeProfileId: profileId.toString(), updatedAt: serverTimestamp() }, { merge: true });
 		} catch (error) {
-			console.error("Error syncing profiles:", error);
-			return { success: false, error: (error as Error).message };
+			console.error("Error saving active profile:", error);
 		}
 	}
 
-	async migrateFromLocalStorage(): Promise<{ success: boolean; error?: string }> {
+	async getActiveProfile(): Promise<string | null> {
 		try {
-			const localProfiles = localStorage.getItem("gpaProfiles");
-			if (localProfiles) {
-				const profiles = JSON.parse(localProfiles) as GPAProfile[];
-				const syncResult = await this.syncLocalProfiles(profiles);
-				if (syncResult.success) {
-					localStorage.setItem("gpaProfiles", localProfiles);
-				}
-				return syncResult;
+			const prefsRef = doc(db, "users", this.userId, "preferences", "gpa");
+			const prefsSnap = await getDoc(prefsRef);
+			if (prefsSnap.exists()) {
+				return prefsSnap.data().activeProfileId || null;
 			}
-			return { success: true };
+			return null;
 		} catch (error) {
-			console.error("Error migrating from localStorage:", error);
-			return { success: false, error: (error as Error).message };
+			console.error("Error getting active profile:", error);
+			return null;
 		}
 	}
+
 }
 
 export const createGPAService = (userId: string) => {

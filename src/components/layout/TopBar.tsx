@@ -42,7 +42,7 @@ export default function TopBar({ onMenuOpen, onOpenProfileDrawer }: TopBarProps)
 	const { showMessage } = useMessage();
 
 	// Profile data for quick switcher
-	const { profiles, sharedWithMeProfiles, activeProfile, updateActiveProfile, currentProfile } = useGpaData();
+	const { profiles, sharedWithMeProfiles, activeProfile, updateActiveProfile } = useGpaData();
 
 	const currentSegment = pathname.split("/")[1] || "gpa-calculator";
 	const pageLabel = PAGE_LABELS[currentSegment] ?? "Dashboard";

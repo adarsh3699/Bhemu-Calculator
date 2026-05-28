@@ -67,6 +67,8 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 	const hasInitializedRef = useRef(false);
 	// Track the user ID that was initialized, so we re-init on user change
 	const initializedUserIdRef = useRef<string | null>(null);
+	// Store the active profile ID fetched from Firebase during initialization
+	const initialActiveProfileRef = useRef<string | null>(null);
 
 	// ===== SERVICE CREATION =====
 	const gpaService = useMemo(() => {
@@ -131,8 +133,8 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 
 	const updateActiveProfile = useCallback((profileId: string | number) => {
 		setActiveProfile(profileId);
-		localStorage.setItem("activeGpaProfile", profileId.toString());
-		// Fire-and-forget: stamp lastOpened in Firebase
+		// Fire-and-forget: persist active profile selection and lastOpened to Firebase
+		gpaService?.saveActiveProfile(profileId);
 		gpaService?.updateLastOpened(profileId);
 	}, [gpaService]);
 
@@ -327,27 +329,10 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 				};
 
 				await saveProfile(updatedProfile);
-
-				if (umsData.allTermIds) {
-					const existingTermIds = JSON.parse(localStorage.getItem("umsTermIds") || "{}");
-					const updatedTermIds = {
-						...existingTermIds,
-						[currentUser.uid]: {
-							...umsData.allTermIds,
-							lastUpdated: new Date().toISOString(),
-							profileId: profileId,
-						},
-					};
-					localStorage.setItem("umsTermIds", JSON.stringify(updatedTermIds));
-				}
+				// UMS term IDs are saved as part of the profile (allTermIds field) in Firebase.
+				// The onSnapshot listener will automatically update local state.
 
 				showMessage("Profile successfully updated with UMS data!", "success");
-
-				const updatedProfiles = profiles.map((profile) =>
-					profile.id === profileId ? updatedProfile : profile
-				);
-				localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
-				setProfiles(updatedProfiles);
 			} catch (error) {
 				console.error("Error updating profile with UMS data:", error);
 				showMessage("Error updating profile with UMS data. Please try again.", "error");
@@ -366,23 +351,11 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 			if (currentProfileData) {
 				const updatedProfile: GPAProfile = { ...currentProfileData, semesters: newSemesters };
 				await saveProfile(updatedProfile);
-
-				if (profiles.some((p) => p.id === activeProfile)) {
-					const updatedProfiles = profiles.map((profile) =>
-						profile.id === activeProfile ? updatedProfile : profile
-					);
-					localStorage.setItem("gpaProfiles", JSON.stringify(updatedProfiles));
-					setProfiles(updatedProfiles);
-				} else if (sharedWithMeProfiles.some((p) => p.id === activeProfile)) {
-					setSharedWithMeProfiles((prev) =>
-						prev.map((profile) =>
-							profile.id === activeProfile ? { ...profile, semesters: newSemesters } : profile
-						)
-					);
-				}
+				// The onSnapshot listener will automatically update local state for own profiles.
+				// For shared profiles with edit access, the collaborative listener handles updates.
 			}
 		},
-		[allProfiles, profiles, sharedWithMeProfiles, activeProfile, saveProfile]
+		[allProfiles, activeProfile, saveProfile]
 	);
 
 	// ===== INITIALIZATION & LISTENERS =====
@@ -426,7 +399,11 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 
 		const initializeData = async () => {
 			try {
-				await gpaService.migrateFromLocalStorage();
+				const savedActiveId = await gpaService.getActiveProfile();
+				if (savedActiveId) {
+					initialActiveProfileRef.current = savedActiveId;
+					setActiveProfile(savedActiveId);
+				}
 
 				loadShares();
 
@@ -483,26 +460,25 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 					setProfiles(cleanProfiles);
 
 					setActiveProfile((prev) => {
-						const savedActiveProfile = localStorage.getItem("activeGpaProfile");
-
-						if (savedActiveProfile && cleanProfiles.find((p) => p.id === savedActiveProfile)) {
-							return savedActiveProfile;
-						}
-
+						// 1. If we already have an active profile and it still exists, keep it
 						if (prev && cleanProfiles.find((p) => p.id === prev)) {
 							return prev;
 						}
 
+						// 2. Otherwise, use the active profile fetched from Firebase during initialization
+						const savedActiveProfile = initialActiveProfileRef.current;
+						if (savedActiveProfile && cleanProfiles.find((p) => p.id === savedActiveProfile)) {
+							return savedActiveProfile;
+						}
+
+						// 3. Fallback to the first available profile
 						if (!prev && cleanProfiles.length > 0) {
 							const firstProfile = cleanProfiles[0];
-							localStorage.setItem("activeGpaProfile", firstProfile.id.toString());
 							return firstProfile.id;
 						}
 
 						return prev;
 					});
-
-					localStorage.setItem("gpaProfiles", JSON.stringify(cleanProfiles));
 				} else if (result.error) {
 					console.error("Error loading profiles:", result.error);
 					showMessage("Error loading profiles. Please refresh.", "error");
@@ -529,12 +505,8 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 			};
 		};
 
-		const savedActiveProfile = localStorage.getItem("activeGpaProfile");
-		if (savedActiveProfile) {
-			Promise.resolve().then(() => {
-				setActiveProfile(savedActiveProfile);
-			});
-		}
+		// Active profile is now fetched from Firebase during initializeData()
+		// No localStorage read needed here
 
 		initializeData().then((cleanup) => {
 			cleanupCollaborativeListeners = cleanup || null;
@@ -638,11 +610,10 @@ export function GpaDataProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	useEffect(() => {
-		const savedActiveProfile = localStorage.getItem("activeGpaProfile");
-		if (savedActiveProfile && sharedWithMeProfiles.find((p) => p.id === savedActiveProfile)) {
-			Promise.resolve().then(() => {
-				setActiveProfile(savedActiveProfile);
-			});
+		// If the saved active profile from Firebase points to a shared profile, apply it
+		const savedActiveId = initialActiveProfileRef.current;
+		if (savedActiveId && sharedWithMeProfiles.find((p) => p.id === savedActiveId)) {
+			setActiveProfile(savedActiveId);
 		}
 	}, [sharedWithMeProfiles]);
 

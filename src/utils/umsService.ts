@@ -145,49 +145,11 @@ export class UMSService {
 	}
 
 	/**
-	 * Get stored UMS term IDs from localStorage
-	 * @param userId - User ID to get term IDs for
+	 * UMS term IDs are now stored as part of the GPA profile (allTermIds field) in Firebase.
+	 * Read them from the profile data instead of localStorage for cross-device consistency.
 	 */
-	getStoredTermIds(userId: string) {
-		try {
-			if (typeof window === "undefined") return null;
-			const storedData = localStorage.getItem("umsTermIds");
-			if (!storedData) return null;
-
-			const allTermIds = JSON.parse(storedData);
-			return allTermIds[userId] || null;
-		} catch (error) {
-			console.error("Failed to get stored term IDs:", error);
-			return null;
-		}
-	}
-
-	/**
-	 * Store UMS term IDs in localStorage
-	 * @param userId - User ID
-	 * @param termIds - Term IDs data
-	 * @param profileId - Profile ID associated with the data
-	 */
-	storeTermIds(userId: string, termIds: unknown, profileId: string) {
-		try {
-			if (typeof window === "undefined") return false;
-			const existingData = JSON.parse(localStorage.getItem("umsTermIds") || "{}");
-			const updatedData = {
-				...existingData,
-				[userId]: {
-					...(typeof termIds === "object" && termIds ? termIds : {}),
-					lastUpdated: new Date().toISOString(),
-					profileId: profileId,
-				},
-			};
-			localStorage.setItem("umsTermIds", JSON.stringify(updatedData));
-			return true;
-		} catch (error) {
-			console.error("Failed to store term IDs:", error);
-			return false;
-		}
-	}
 }
 
 export const umsService = new UMSService();
 export default umsService;
+
