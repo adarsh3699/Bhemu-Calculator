@@ -45,7 +45,15 @@ export function useGpaCalculator() {
 				return;
 			}
 		}
-		startTransition(() => setActiveSemester(semesters[semesters.length - 1].id));
+		
+		// Preserve the currently active semester if it still exists, 
+		// otherwise default to the latest semester.
+		setActiveSemester((currentActive) => {
+			if (currentActive && semesters.some((s) => s.id === currentActive)) {
+				return currentActive;
+			}
+			return semesters[semesters.length - 1].id;
+		});
 	}, [semFromUrl, semesters]);
 
 	// ===== DRAWER / PROFILE HANDLERS =====
